@@ -1,0 +1,35 @@
+{
+  "name": "Project Atlas",
+
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+
+  "workspaceFolder": "/workspace",
+
+  "remoteUser": "root",
+
+  "features": {},
+
+  "forwardPorts": [
+    3000,
+    5173,
+    8000,
+    5432,
+    6379
+  ],
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "Shopify.ruby-lsp",
+        "Vue.volar",
+        "ms-python.python",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens"
+      ]
+    }
+  }
+}
