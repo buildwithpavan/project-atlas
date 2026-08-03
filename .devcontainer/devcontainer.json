@@ -1,29 +1,32 @@
 {
   "name": "Project Atlas",
 
-  "build": {
-    "dockerfile": "Dockerfile"
+  "dockerComposeFile": "../docker-compose.yml",
+
+  "service": "app",
+
+  "workspaceFolder": "/workspaces/project-atlas",
+
+  "remoteUser": "vscode",
+
+  "shutdownAction": "stopCompose",
+
+  "features": {
+    "ghcr.io/devcontainers/features/ruby:1": {
+      "version": "3.4"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
   },
-
-  "workspaceFolder": "/workspace",
-
-  "remoteUser": "root",
-
-  "features": {},
-
-  "forwardPorts": [
-    3000,
-    5173,
-    8000,
-    5432,
-    6379
-  ],
 
   "customizations": {
     "vscode": {
       "extensions": [
         "GitHub.copilot",
-        "GitHub.copilot-chat",
         "Shopify.ruby-lsp",
         "Vue.volar",
         "ms-python.python",

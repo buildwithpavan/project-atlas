@@ -1,10 +1,9 @@
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
-# Install packages
 RUN apt-get update && apt-get install -y \
-    curl \
-    git \
     build-essential \
+    git \
+    curl \
     libpq-dev \
     postgresql-client \
     redis-tools \
@@ -12,16 +11,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install mise
-RUN curl https://mise.run | sh
+WORKDIR /workspaces/project-atlas
 
-ENV PATH="/root/.local/bin:${PATH}"
-
-# Install runtime versions
-COPY mise.toml /tmp/mise.toml
-
-WORKDIR /tmp
-
-RUN mise install -f /tmp/mise.toml
-
-WORKDIR /workspace
+ENV BUNDLE_PATH=/usr/local/bundle
+ENV BUNDLE_JOBS=4
+ENV BUNDLE_RETRY=3
