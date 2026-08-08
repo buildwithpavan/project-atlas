@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
 class UnauthorizedError < ApplicationError
-  def initialize(message = "Unauthorized")
-    super(message, status: :unauthorized)
+  def initialize(detail = "Unauthorized")
+    super(
+      title: "Unauthorized",
+      detail: detail,
+      status: :unauthorized,
+      type: "/errors/unauthorized"
+    )
   end
 end

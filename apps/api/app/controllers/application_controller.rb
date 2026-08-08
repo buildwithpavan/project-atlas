@@ -7,10 +7,10 @@ class ApplicationController < ActionController::API
 
   def render_problem(error)
     response = {
-        type: error.type,
-        title: error.title,
-        status: Rack::Utils.status_code(error.status),
-        detail: error.detail
+      type: error.type,
+      title: error.title,
+      status: Rack::Utils.status_code(error.status),
+      detail: error.detail
     }
 
     response[:errors] = error.errors if error.respond_to?(:errors) && error.errors.present?
