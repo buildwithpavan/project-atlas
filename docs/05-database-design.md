@@ -48,17 +48,34 @@ Organization
 | Column | Type |
 |----------|------|
 | id | uuid |
-| organization_id | uuid |
 | first_name | string |
 | last_name | string |
 | email | string |
 | password_digest | string |
-| role | enum |
 | created_at | timestamp |
 
 Indexes
 
 - email (unique)
+
+---
+
+# memberships
+
+| Column | Type |
+|----------|------|
+| id | uuid |
+| user_id | uuid |
+| organization_id | uuid |
+| role | enum |
+| created_at | timestamp |
+| updated_at | timestamp |
+
+Indexes
+
+- user_id
+- organization_id
+- user_id, organization_id (unique)
 
 ---
 
@@ -151,11 +168,19 @@ Indexes
 
 Organization
 
-- has_many Users
-- has_many Uploads
-- has_many Tickets
-- has_many Reports
-- has_many KnowledgeSuggestions
+- has_many memberships
+- has_many users through memberships
+
+User
+
+- has_many memberships
+- has_many organizations through memberships
+
+Membership
+
+- belongs_to user
+- belongs_to organization
+
 
 Upload
 
