@@ -24,6 +24,22 @@ RSpec.describe Identity::Login, type: :service do
         expect(result[:access_token].split(".").length).to eq(3)
       end
 
+      it "returns a refresh token" do
+        result = described_class.call(email: "ada@example.com", password: "secure_password")
+        expect(result[:refresh_token]).to be_present
+      end
+
+      it "persists the refresh token" do
+        expect {
+          described_class.call(email: "ada@example.com", password: "secure_password")
+        }.to change(RefreshToken, :count).by(1)
+      end
+
+      it "does not persist the raw refresh token" do
+        result = described_class.call(email: "ada@example.com", password: "secure_password")
+        expect(RefreshToken.where(token_digest: result[:refresh_token]).count).to eq(0)
+      end
+
       it "returns the expected expiration" do
         result = described_class.call(email: "ada@example.com", password: "secure_password")
         expect(result[:expires_in]).to eq(3600)

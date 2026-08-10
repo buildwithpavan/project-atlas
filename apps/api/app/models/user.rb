@@ -5,6 +5,7 @@ class User < ApplicationRecord
 
   has_many :memberships, dependent: :destroy
   has_many :organizations, through: :memberships
+  has_many :refresh_tokens, dependent: :destroy
 
   validates :email, presence: true,
                     format: { with: URI::MailTo::EMAIL_REGEXP }

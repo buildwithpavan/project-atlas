@@ -11,9 +11,14 @@ module Identity
       user = find_user
       authenticate!(user)
 
-      token = Identity::AccessToken.encode(user)
+      access_token = Identity::AccessToken.encode(user)
+      refresh = Identity::IssueRefreshToken.call(user: user)
 
-      { access_token: token, expires_in: Identity::AccessToken::EXPIRATION }
+      {
+        access_token: access_token,
+        refresh_token: refresh[:raw_token],
+        expires_in: Identity::AccessToken::EXPIRATION
+      }
     end
 
     private

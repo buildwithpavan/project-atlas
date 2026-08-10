@@ -27,6 +27,12 @@ RSpec.describe "POST /api/v1/auth/login", type: :request do
       expect(data["access_token"].split(".").length).to eq(3)
     end
 
+    it "returns a refresh_token in data" do
+      request
+      data = response.parsed_body["data"]
+      expect(data["refresh_token"]).to be_present
+    end
+
     it "returns expires_in = 3600" do
       request
       data = response.parsed_body["data"]

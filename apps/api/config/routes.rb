@@ -8,6 +8,7 @@ Rails.application.routes.draw do
       namespace :auth do
         post :register, to: "registrations#create"
         post :login, to: "sessions#create"
+        post :refresh, to: "refresh#create"
       end
     end
   end
