@@ -25,13 +25,17 @@ RSpec.describe AnalyzeTicketJob, type: :job do
     allow(Ai::Providers::Openai).to receive(:analyze).and_return(mock_result)
   end
 
-  it "calls Ai::AnalyzeTicket with the analysis" do
+  it "finds the analysis by ID and calls Ai::AnalyzeTicket" do
     expect(Ai::AnalyzeTicket).to receive(:call).with(ai_analysis)
-    described_class.perform_now(ai_analysis)
+    described_class.perform_now(ai_analysis.id)
   end
 
   it "completes the analysis successfully" do
-    described_class.perform_now(ai_analysis)
+    described_class.perform_now(ai_analysis.id)
     expect(ai_analysis.reload.status).to eq("completed")
+  end
+
+  it "raises ActiveRecord::RecordNotFound for unknown ID" do
+    expect { described_class.perform_now(SecureRandom.uuid) }.to raise_error(ActiveRecord::RecordNotFound)
   end
 end

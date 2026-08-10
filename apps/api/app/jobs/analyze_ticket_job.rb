@@ -3,7 +3,8 @@
 class AnalyzeTicketJob < ApplicationJob
   queue_as :default
 
-  def perform(ai_analysis)
+  def perform(ai_analysis_id)
+    ai_analysis = AiAnalysis.find(ai_analysis_id)
     Ai::AnalyzeTicket.call(ai_analysis)
   end
 end

@@ -211,4 +211,107 @@ RSpec.describe Tickets::ProcessCsv, type: :service do
       expect(upload.reload.processed_records).to eq(50)
     end
   end
+
+  describe "AI analysis pipeline" do
+    before do
+      ActiveJob::Base.queue_adapter = :test
+    end
+
+    describe "successful row creates analysis" do
+      let(:csv_content) do
+        <<~CSV
+          subject,description
+          Login issue,Cannot login
+          Slow page,Dashboard loads slowly
+        CSV
+      end
+
+      before { attach_csv(upload, csv_content) }
+
+      it "creates one AiAnalysis per ticket" do
+        expect { described_class.call(upload) }.to change(AiAnalysis, :count).by(2)
+      end
+
+      it "creates AiAnalysis belonging to the same organization as the ticket" do
+        described_class.call(upload)
+        Ticket.where(upload: upload).each do |ticket|
+          analysis = ticket.ai_analysis
+          expect(analysis).to be_present
+          expect(analysis.organization_id).to eq(ticket.organization_id)
+        end
+      end
+
+      it "creates AiAnalysis in pending status" do
+        described_class.call(upload)
+        AiAnalysis.all.each do |analysis|
+          expect(analysis.status).to eq("pending")
+        end
+      end
+
+      it "enqueues AnalyzeTicketJob for each analysis" do
+        described_class.call(upload)
+        analyses = AiAnalysis.all
+        expect(AnalyzeTicketJob).to have_been_enqueued.exactly(2).times
+        analyses.each do |analysis|
+          expect(AnalyzeTicketJob).to have_been_enqueued.with(analysis.id)
+        end
+      end
+    end
+
+    describe "invalid rows do not create analyses" do
+      let(:csv_content) do
+        <<~CSV
+          subject,description
+          Valid ticket,Has a subject
+          ,Missing subject
+        CSV
+      end
+
+      before { attach_csv(upload, csv_content) }
+
+      it "creates analysis only for valid tickets" do
+        described_class.call(upload)
+        expect(Ticket.count).to eq(1)
+        expect(AiAnalysis.count).to eq(1)
+      end
+
+      it "does not enqueue jobs for invalid rows" do
+        described_class.call(upload)
+        expect(AnalyzeTicketJob).to have_been_enqueued.exactly(1).times
+      end
+    end
+
+    describe "duplicate/retry safety" do
+      let(:csv_content) { "subject\nTest ticket\n" }
+      before { attach_csv(upload, csv_content) }
+
+      it "does not create duplicate analyses if upload is reprocessed" do
+        described_class.call(upload)
+        expect(AiAnalysis.count).to eq(1)
+
+        # Second attempt: upload is already completed, claim fails
+        described_class.call(upload)
+        expect(AiAnalysis.count).to eq(1)
+      end
+    end
+
+    describe "transactional integrity" do
+      let(:csv_content) { "subject\nTest ticket\n" }
+      before { attach_csv(upload, csv_content) }
+
+      it "does not create tickets without analyses if analysis insert fails" do
+        allow(AiAnalysis).to receive(:insert_all).and_raise(ActiveRecord::RecordNotUnique, "duplicate")
+        described_class.call(upload)
+        expect(Ticket.count).to eq(0)
+        expect(AiAnalysis.count).to eq(0)
+        expect(upload.reload.status).to eq("failed")
+      end
+
+      it "does not enqueue jobs if the transaction rolls back" do
+        allow(AiAnalysis).to receive(:insert_all).and_raise(ActiveRecord::RecordNotUnique, "duplicate")
+        described_class.call(upload)
+        expect(AnalyzeTicketJob).not_to have_been_enqueued
+      end
+    end
+  end
 end

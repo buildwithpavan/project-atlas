@@ -74,7 +74,16 @@ module Tickets
       end
 
       if ticket_attrs.any?
-        Ticket.insert_all(ticket_attrs)
+        analysis_attrs = ticket_attrs.map { |t| build_analysis_attrs(t) }
+
+        ActiveRecord::Base.transaction do
+          Ticket.insert_all(ticket_attrs)
+          AiAnalysis.insert_all(analysis_attrs)
+        end
+
+        analysis_attrs.each do |attrs|
+          AnalyzeTicketJob.perform_later(attrs[:id])
+        end
       end
 
       upload.update!(processed_records: @processed, failed_records: @failed)
@@ -98,6 +107,17 @@ module Tickets
         category: row["category"]&.strip.presence,
         created_at: now,
         updated_at: now
+      }
+    end
+
+    def build_analysis_attrs(ticket_attrs)
+      {
+        id: SecureRandom.uuid,
+        organization_id: ticket_attrs[:organization_id],
+        ticket_id: ticket_attrs[:id],
+        status: "pending",
+        created_at: ticket_attrs[:created_at],
+        updated_at: ticket_attrs[:updated_at]
       }
     end
 
