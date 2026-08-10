@@ -15,6 +15,18 @@ RSpec.describe Organization, type: :model do
       expect(association.macro).to eq(:has_many)
       expect(association.options[:through]).to eq(:memberships)
     end
+
+    it "has many uploads" do
+      association = described_class.reflect_on_association(:uploads)
+      expect(association.macro).to eq(:has_many)
+      expect(association.options[:dependent]).to eq(:destroy)
+    end
+
+    it "has many tickets" do
+      association = described_class.reflect_on_association(:tickets)
+      expect(association.macro).to eq(:has_many)
+      expect(association.options[:dependent]).to eq(:destroy)
+    end
   end
 
   describe "user access through memberships" do
@@ -24,6 +36,25 @@ RSpec.describe Organization, type: :model do
       Membership.create!(user: user, organization: org, role: "member")
 
       expect(org.users).to include(user)
+    end
+  end
+
+  describe "upload relationship" do
+    it "returns uploads belonging to the organization" do
+      org = described_class.create!(name: "Acme", slug: "acme")
+      upload = Upload.create!(organization: org, filename: "export.csv")
+
+      expect(org.uploads).to include(upload)
+    end
+  end
+
+  describe "ticket relationship" do
+    it "returns tickets belonging to the organization" do
+      org = described_class.create!(name: "Acme", slug: "acme")
+      upload = Upload.create!(organization: org, filename: "export.csv")
+      ticket = Ticket.create!(organization: org, upload: upload, subject: "Help")
+
+      expect(org.tickets).to include(ticket)
     end
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_10_134526) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_10_164451) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,37 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_134526) do
     t.index ["user_id"], name: "index_refresh_tokens_on_user_id"
   end
 
+  create_table "tickets", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.string "customer_email"
+    t.string "customer_name"
+    t.text "description"
+    t.uuid "organization_id", null: false
+    t.string "priority"
+    t.string "status"
+    t.string "subject", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "upload_id", null: false
+    t.index ["organization_id", "created_at"], name: "index_tickets_on_organization_id_and_created_at", order: { created_at: :desc }
+    t.index ["upload_id"], name: "index_tickets_on_upload_id"
+  end
+
+  create_table "uploads", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "failed_records", default: 0
+    t.string "filename", null: false
+    t.uuid "organization_id", null: false
+    t.integer "processed_records", default: 0
+    t.string "status", default: "pending", null: false
+    t.integer "total_records"
+    t.datetime "updated_at", null: false
+    t.uuid "uploaded_by_id"
+    t.index ["organization_id", "created_at"], name: "index_uploads_on_organization_id_and_created_at", order: { created_at: :desc }
+    t.index ["organization_id", "id"], name: "index_uploads_on_organization_id_and_id", unique: true
+    t.index ["uploaded_by_id"], name: "index_uploads_on_uploaded_by_id"
+  end
+
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
@@ -62,4 +93,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_134526) do
   add_foreign_key "memberships", "users"
   add_foreign_key "refresh_tokens", "refresh_tokens", column: "replaced_by_token_id", on_delete: :nullify
   add_foreign_key "refresh_tokens", "users"
+  add_foreign_key "tickets", "organizations"
+  add_foreign_key "tickets", "uploads"
+  add_foreign_key "tickets", "uploads", column: ["organization_id", "upload_id"], primary_key: ["organization_id", "id"], name: "fk_tickets_organization_upload"
+  add_foreign_key "uploads", "organizations"
+  add_foreign_key "uploads", "users", column: "uploaded_by_id"
 end
