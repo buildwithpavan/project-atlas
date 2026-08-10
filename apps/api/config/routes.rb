@@ -13,6 +13,8 @@ Rails.application.routes.draw do
       end
 
       resources :uploads, only: [ :create ]
+      resources :tickets, only: [ :index, :show ]
+      get :dashboard, to: "dashboard#show"
     end
   end
 end
