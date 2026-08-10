@@ -9,6 +9,7 @@ Rails.application.routes.draw do
         post :register, to: "registrations#create"
         post :login, to: "sessions#create"
         post :refresh, to: "refresh#create"
+        post :logout, to: "logout#create"
       end
     end
   end
