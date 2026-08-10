@@ -13,6 +13,9 @@ gem "bcrypt", "~> 3.1.7"
 # JWT token encoding/decoding for stateless authentication
 gem "jwt", "~> 2.9"
 
+# CSV parsing (removed from Ruby 3.4 default gems)
+gem "csv"
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 

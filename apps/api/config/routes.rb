@@ -11,6 +11,8 @@ Rails.application.routes.draw do
         post :refresh, to: "refresh#create"
         post :logout, to: "logout#create"
       end
+
+      resources :uploads, only: [:create]
     end
   end
 end

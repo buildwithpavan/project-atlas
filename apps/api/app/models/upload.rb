@@ -6,6 +6,7 @@ class Upload < ApplicationRecord
   belongs_to :organization
   belongs_to :uploaded_by, class_name: "User", optional: true
   has_many :tickets, dependent: :restrict_with_error
+  has_one_attached :file
 
   validates :filename, presence: true
   validates :status, presence: true, inclusion: { in: STATUSES }
