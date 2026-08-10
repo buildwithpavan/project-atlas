@@ -15,6 +15,7 @@ Rails.application.routes.draw do
       resources :uploads, only: [ :create ]
       resources :tickets, only: [ :index, :show ]
       get :dashboard, to: "dashboard#show"
+      get :reports, to: "reports#index"
     end
   end
 end
