@@ -11,6 +11,6 @@ class CreateUploads < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :uploads, [:organization_id, :created_at], order: { created_at: :desc }
+    add_index :uploads, [ :organization_id, :created_at ], order: { created_at: :desc }
   end
 end

@@ -33,7 +33,7 @@ module Identity
 
       user
     rescue ActiveRecord::RecordNotUnique
-      raise ValidationError.new("User validation failed", errors: { email: ["has already been taken"] })
+      raise ValidationError.new("User validation failed", errors: { email: [ "has already been taken" ] })
     end
 
     def create_organization!
@@ -46,7 +46,7 @@ module Identity
 
       organization
     rescue ActiveRecord::RecordNotUnique
-      raise ValidationError.new("Organization validation failed", errors: { slug: ["has already been taken"] })
+      raise ValidationError.new("Organization validation failed", errors: { slug: [ "has already been taken" ] })
     end
 
     def create_membership!(user:, organization:)

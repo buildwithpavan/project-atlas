@@ -12,7 +12,7 @@ Rails.application.routes.draw do
         post :logout, to: "logout#create"
       end
 
-      resources :uploads, only: [:create]
+      resources :uploads, only: [ :create ]
     end
   end
 end

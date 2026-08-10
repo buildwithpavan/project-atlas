@@ -16,6 +16,9 @@ gem "jwt", "~> 2.9"
 # CSV parsing (removed from Ruby 3.4 default gems)
 gem "csv"
 
+# Official OpenAI Ruby SDK for AI-powered ticket analysis
+gem "openai", "~> 0.78"
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 

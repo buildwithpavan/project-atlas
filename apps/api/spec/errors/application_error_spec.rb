@@ -36,7 +36,7 @@ RSpec.describe ApplicationError do
     end
 
     it "exposes validation errors when provided" do
-      errors = { email: ["has already been taken"] }
+      errors = { email: [ "has already been taken" ] }
       error = described_class.new(errors: errors)
 
       expect(error.errors).to eq(errors)

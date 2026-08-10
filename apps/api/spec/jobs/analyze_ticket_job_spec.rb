@@ -5,17 +5,33 @@ require "rails_helper"
 RSpec.describe AnalyzeTicketJob, type: :job do
   let(:organization) { Organization.create!(name: "Acme", slug: "acme") }
   let(:upload) { Upload.create!(organization: organization, filename: "test.csv") }
-  let(:ticket) { Ticket.create!(organization: organization, upload: upload, subject: "Help") }
+  let(:ticket) { Ticket.create!(organization: organization, upload: upload, subject: "Help", description: "I need assistance") }
   let(:ai_analysis) { AiAnalysis.create!(organization: organization, ticket: ticket) }
+
+  let(:mock_result) do
+    instance_double(
+      Ai::Schemas::TicketAnalysis,
+      sentiment: "neutral",
+      summary: "Customer needs assistance",
+      category: "general",
+      confidence: 0.85,
+      feature_request: false,
+      bug_report: false,
+      knowledge_gap: false
+    )
+  end
+
+  before do
+    allow(Ai::Providers::Openai).to receive(:analyze).and_return(mock_result)
+  end
 
   it "calls Ai::AnalyzeTicket with the analysis" do
     expect(Ai::AnalyzeTicket).to receive(:call).with(ai_analysis)
     described_class.perform_now(ai_analysis)
   end
 
-  it "handles the analysis lifecycle" do
+  it "completes the analysis successfully" do
     described_class.perform_now(ai_analysis)
-    # Currently fails gracefully since provider isn't implemented
-    expect(ai_analysis.reload.status).to eq("failed")
+    expect(ai_analysis.reload.status).to eq("completed")
   end
 end

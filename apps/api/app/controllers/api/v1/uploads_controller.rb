@@ -38,15 +38,15 @@ module Api
 
       def validate_file!
         unless file_param.respond_to?(:original_filename)
-          raise ValidationError.new("File is required", errors: { file: ["must be a valid uploaded file"] })
+          raise ValidationError.new("File is required", errors: { file: [ "must be a valid uploaded file" ] })
         end
 
         unless file_param.original_filename&.end_with?(".csv")
-          raise ValidationError.new("Invalid file type", errors: { file: ["must be a CSV file"] })
+          raise ValidationError.new("Invalid file type", errors: { file: [ "must be a CSV file" ] })
         end
 
         if file_param.size > MAX_FILE_SIZE
-          raise ValidationError.new("File too large", errors: { file: ["must be less than 25MB"] })
+          raise ValidationError.new("File too large", errors: { file: [ "must be less than 25MB" ] })
         end
       end
 

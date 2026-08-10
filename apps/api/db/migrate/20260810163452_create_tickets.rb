@@ -13,6 +13,6 @@ class CreateTickets < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :tickets, [:organization_id, :created_at], order: { created_at: :desc }
+    add_index :tickets, [ :organization_id, :created_at ], order: { created_at: :desc }
   end
 end

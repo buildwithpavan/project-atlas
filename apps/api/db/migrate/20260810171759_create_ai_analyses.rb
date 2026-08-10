@@ -16,7 +16,7 @@ class CreateAiAnalyses < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :ai_analyses, [:organization_id, :created_at], order: { created_at: :desc }
-    add_index :ai_analyses, [:status], where: "status IN ('pending', 'processing')", name: "index_ai_analyses_on_status_partial"
+    add_index :ai_analyses, [ :organization_id, :created_at ], order: { created_at: :desc }
+    add_index :ai_analyses, [ :status ], where: "status IN ('pending', 'processing')", name: "index_ai_analyses_on_status_partial"
   end
 end
