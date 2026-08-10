@@ -31,7 +31,7 @@ RSpec.describe Membership, type: :model do
     %w[owner admin member viewer].each do |valid_role|
       it "accepts role '#{valid_role}'" do
         org = Organization.create!(name: "Org", slug: "org-#{valid_role}")
-        user = User.create!(email: "#{valid_role}@example.com", first_name: "A", last_name: "B", password_digest: "x")
+        user = User.create!(email: "#{valid_role}@example.com", first_name: "A", last_name: "B", password: "password123")
         membership = described_class.new(user: user, organization: org, role: valid_role)
         expect(membership).to be_valid
       end

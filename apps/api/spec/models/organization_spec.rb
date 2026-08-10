@@ -20,7 +20,7 @@ RSpec.describe Organization, type: :model do
   describe "user access through memberships" do
     it "returns users associated via memberships" do
       org = described_class.create!(name: "Acme", slug: "acme")
-      user = User.create!(email: "user@example.com", first_name: "A", last_name: "B", password_digest: "x")
+      user = User.create!(email: "user@example.com", first_name: "A", last_name: "B", password: "password123")
       Membership.create!(user: user, organization: org, role: "member")
 
       expect(org.users).to include(user)
