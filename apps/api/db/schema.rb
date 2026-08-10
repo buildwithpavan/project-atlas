@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_10_165519) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_10_172418) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -18,7 +18,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_165519) do
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
     t.string "name", null: false
-    t.bigint "record_id", null: false
+    t.uuid "record_id", null: false
     t.string "record_type", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
@@ -40,6 +40,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_165519) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "ai_analyses", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.boolean "bug_report"
+    t.string "category"
+    t.decimal "confidence", precision: 5, scale: 4
+    t.datetime "created_at", null: false
+    t.text "error_message"
+    t.boolean "feature_request"
+    t.boolean "knowledge_gap"
+    t.uuid "organization_id", null: false
+    t.datetime "processed_at"
+    t.string "sentiment"
+    t.string "status", default: "pending", null: false
+    t.text "summary"
+    t.uuid "ticket_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "created_at"], name: "index_ai_analyses_on_organization_id_and_created_at", order: { created_at: :desc }
+    t.index ["status"], name: "index_ai_analyses_on_status_partial", where: "((status)::text = ANY ((ARRAY['pending'::character varying, 'processing'::character varying])::text[]))"
+    t.index ["ticket_id"], name: "index_ai_analyses_on_ticket_id", unique: true
   end
 
   create_table "memberships", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -89,6 +109,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_165519) do
     t.datetime "updated_at", null: false
     t.uuid "upload_id", null: false
     t.index ["organization_id", "created_at"], name: "index_tickets_on_organization_id_and_created_at", order: { created_at: :desc }
+    t.index ["organization_id", "id"], name: "index_tickets_on_organization_id_and_id", unique: true
     t.index ["upload_id"], name: "index_tickets_on_upload_id"
   end
 
@@ -120,6 +141,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_165519) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "ai_analyses", "organizations"
+  add_foreign_key "ai_analyses", "tickets"
+  add_foreign_key "ai_analyses", "tickets", column: ["organization_id", "ticket_id"], primary_key: ["organization_id", "id"], name: "fk_ai_analyses_organization_ticket"
   add_foreign_key "memberships", "organizations"
   add_foreign_key "memberships", "users"
   add_foreign_key "refresh_tokens", "refresh_tokens", column: "replaced_by_token_id", on_delete: :nullify

@@ -89,7 +89,7 @@ RSpec.describe "POST /api/v1/uploads", type: :request do
     it "attaches the file to the upload" do
       request
       upload = Upload.last
-      expect(upload.file).to be_attached
+      expect(upload.reload.file).to be_attached
     end
 
     it "assigns the upload to the user's organization" do
