@@ -29,7 +29,7 @@ RSpec.describe ApplicationError do
     subject(:error) { described_class.new }
 
     it "exposes Problem Details attributes" do
-      expect(error.status).to eq(:unprocessable_entity)
+      expect(error.status).to eq(:unprocessable_content)
       expect(error.type).to eq("/errors/validation")
       expect(error.title).to eq("Validation Error")
       expect(error.detail).to eq("Validation failed")

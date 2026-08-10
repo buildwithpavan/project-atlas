@@ -7,7 +7,7 @@ class ValidationError < ApplicationError
     super(
       title: "Validation Error",
       detail: detail,
-      status: :unprocessable_entity,
+      status: :unprocessable_content,
       type: "/errors/validation"
     )
 
