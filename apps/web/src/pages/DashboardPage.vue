@@ -115,11 +115,16 @@ onMounted(fetchData)
 
       <!-- KPI cards -->
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          label="Total Tickets"
-          :value="dashboard.total_tickets"
-          description="Customer feedback collected"
-        />
+        <RouterLink
+          :to="{ name: 'tickets' }"
+          class="atlas-focus-ring rounded-atlas-lg hover:ring-2 hover:ring-atlas-brand/20 transition-shadow"
+        >
+          <MetricCard
+            label="Total Tickets"
+            :value="dashboard.total_tickets"
+            description="Customer feedback collected"
+          />
+        </RouterLink>
         <MetricCard
           label="Analyzed"
           :value="dashboard.analyzed_tickets"
