@@ -1,0 +1,9 @@
+export { ApiError } from './errors'
+export type { ProblemDetail } from './errors'
+export * from './types'
+
+export * as authApi from './auth'
+export * as ticketsApi from './tickets'
+export * as dashboardApi from './dashboard'
+export * as reportsApi from './reports'
+export * as uploadsApi from './uploads'
