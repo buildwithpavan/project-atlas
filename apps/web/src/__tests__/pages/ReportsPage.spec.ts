@@ -161,26 +161,26 @@ describe('ReportsPage', () => {
     expect(wrapper.text()).toContain('No category data')
   })
 
-  // -- Customer Signals -----------------------------------------------------
+  // -- Customer Signals (via AtlasIntelligence) -----------------------------
 
   it('renders feature requests', async () => {
     setupMock()
     const wrapper = await mountPage()
-    expect(wrapper.text()).toContain('Feature Requests')
+    expect(wrapper.text()).toContain('Feature requests')
     expect(wrapper.text()).toContain('18')
   })
 
   it('renders bug reports', async () => {
     setupMock()
     const wrapper = await mountPage()
-    expect(wrapper.text()).toContain('Bug Reports')
+    expect(wrapper.text()).toContain('Bug reports')
     expect(wrapper.text()).toContain('7')
   })
 
   it('renders knowledge gaps', async () => {
     setupMock()
     const wrapper = await mountPage()
-    expect(wrapper.text()).toContain('Knowledge Gaps')
+    expect(wrapper.text()).toContain('Knowledge gaps')
     expect(wrapper.text()).toContain('5')
   })
 
@@ -189,7 +189,7 @@ describe('ReportsPage', () => {
     const wrapper = await mountPage()
     const link = wrapper.find('a[href="/app/tickets"]')
     expect(link.exists()).toBe(true)
-    expect(link.text()).toContain('View all tickets')
+    expect(link.text()).toContain('View tickets')
   })
 
   // -- Status/Priority Distribution ----------------------------------------
@@ -224,14 +224,20 @@ describe('ReportsPage', () => {
   it('renders timeline', async () => {
     setupMock()
     const wrapper = await mountPage()
-    expect(wrapper.text()).toContain('Customer Activity')
+    expect(wrapper.text()).toContain('Activity')
     expect(wrapper.text()).toContain('Ticket Activity')
   })
 
   it('hides timeline when empty', async () => {
     setupMock({ data: { ...baseReport, timeline: {} } })
     const wrapper = await mountPage()
-    expect(wrapper.text()).not.toContain('Customer Activity')
+    // Activity section should not be present
+    const sections = wrapper.findAll('section')
+    const activitySection = sections.filter(s => {
+      const h2 = s.find('h2')
+      return h2.exists() && h2.text() === 'Activity'
+    })
+    expect(activitySection).toHaveLength(0)
   })
 
   // -- Empty state ----------------------------------------------------------
@@ -313,7 +319,22 @@ describe('ReportsPage', () => {
       },
     })
     const wrapper = await mountPage()
-    expect(wrapper.text()).toContain('Feature Requests')
+    expect(wrapper.text()).toContain('Feature requests')
     expect(wrapper.text()).toContain('0')
+  })
+
+  // -- Atlas Intelligence integration ---------------------------------------
+
+  it('renders Atlas Intelligence section', async () => {
+    setupMock()
+    const wrapper = await mountPage()
+    expect(wrapper.text()).toContain('Atlas Intelligence')
+    expect(wrapper.text()).toContain('Customer signals')
+  })
+
+  it('renders Operational Breakdown section', async () => {
+    setupMock()
+    const wrapper = await mountPage()
+    expect(wrapper.text()).toContain('Operational Breakdown')
   })
 })

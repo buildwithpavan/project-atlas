@@ -7,8 +7,8 @@ import { AButton } from '@/components/ui'
 import MetricCard from '@/components/dashboard/MetricCard.vue'
 import SentimentChart from '@/components/dashboard/SentimentChart.vue'
 import CategoryChart from '@/components/dashboard/CategoryChart.vue'
-import SignalCard from '@/components/dashboard/SignalCard.vue'
 import ActivityChart from '@/components/dashboard/ActivityChart.vue'
+import AtlasIntelligence from '@/components/reports/AtlasIntelligence.vue'
 import ReportDistribution from '@/components/reports/ReportDistribution.vue'
 import ReportSkeleton from '@/components/reports/ReportSkeleton.vue'
 import ReportEmptyState from '@/components/reports/ReportEmptyState.vue'
@@ -134,10 +134,13 @@ onMounted(fetchReport)
         </div>
       </section>
 
-      <!-- Sentiment + Categories -->
+      <!-- Atlas Intelligence -->
+      <AtlasIntelligence :report="report" />
+
+      <!-- Customer Sentiment & Categories -->
       <section class="mt-6">
         <h2 class="text-base font-semibold text-atlas-text-primary mb-4">
-          Customer Sentiment &amp; Topics
+          Customer Sentiment &amp; Categories
         </h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <SentimentChart :distribution="report.sentiment.distribution" />
@@ -145,70 +148,10 @@ onMounted(fetchReport)
         </div>
       </section>
 
-      <!-- Customer Signals -->
-      <section class="mt-6">
-        <div class="flex items-baseline justify-between mb-4">
-          <h2 class="text-base font-semibold text-atlas-text-primary">
-            Customer Signals
-          </h2>
-          <RouterLink
-            :to="{ name: 'tickets' }"
-            class="atlas-focus-ring rounded text-sm text-atlas-brand hover:text-atlas-brand-hover transition-colors"
-          >
-            View all tickets →
-          </RouterLink>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <SignalCard
-            label="Feature Requests"
-            :value="report.classifications.feature_requests"
-            description="Customers asking for new capabilities"
-            variant="feature"
-          />
-          <SignalCard
-            label="Bug Reports"
-            :value="report.classifications.bug_reports"
-            description="Customers reporting problems"
-            variant="bug"
-          />
-          <div class="bg-atlas-surface border border-atlas-border rounded-atlas-lg shadow-atlas-sm p-5">
-            <div class="flex items-start gap-3">
-              <span
-                class="inline-flex items-center justify-center size-9 rounded-atlas-md shrink-0 bg-atlas-warning-subtle"
-                aria-hidden="true"
-              >
-                <svg
-                  class="size-5 text-atlas-warning"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </span>
-              <div class="min-w-0 flex-1">
-                <p class="text-sm font-medium text-atlas-text-secondary">
-                  Knowledge Gaps
-                </p>
-                <p class="mt-1 text-2xl font-semibold text-atlas-text-primary tabular-nums">
-                  {{ report.classifications.knowledge_gaps }}
-                </p>
-                <p class="mt-0.5 text-sm text-atlas-text-muted">
-                  Customers needing clearer guidance
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Ticket Operations -->
+      <!-- Operational Breakdown -->
       <section class="mt-6">
         <h2 class="text-base font-semibold text-atlas-text-primary mb-4">
-          Ticket Operations
+          Operational Breakdown
         </h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <ReportDistribution
@@ -228,7 +171,7 @@ onMounted(fetchReport)
         class="mt-6"
       >
         <h2 class="text-base font-semibold text-atlas-text-primary mb-4">
-          Customer Activity
+          Activity
         </h2>
         <ActivityChart :timeline="report.timeline" />
       </section>
