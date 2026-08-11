@@ -245,6 +245,8 @@ module Ai
       end
     rescue ActiveRecord::RecordNotUnique
       # Lost the race — another process created the row; retry as update
+      @persist_retries = (@persist_retries || 0) + 1
+      raise "Failed to persist executive summary after retries" if @persist_retries > 2
       retry
     end
 

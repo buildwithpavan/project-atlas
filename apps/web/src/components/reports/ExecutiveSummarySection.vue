@@ -67,9 +67,9 @@ function formatDate(iso: string): string {
 }
 
 function priorityClass(priority: string): string {
-  if (priority === 'high') return 'text-red-700 bg-red-50 border-red-200'
-  if (priority === 'medium') return 'text-amber-700 bg-amber-50 border-amber-200'
-  return 'text-green-700 bg-green-50 border-green-200'
+  if (priority === 'high') return 'text-atlas-error bg-atlas-error-subtle border-atlas-error/20'
+  if (priority === 'medium') return 'text-atlas-warning bg-atlas-warning-subtle border-atlas-warning/20'
+  return 'text-atlas-success bg-atlas-success-subtle border-atlas-success/20'
 }
 
 onMounted(fetchSummary)
@@ -101,7 +101,7 @@ onMounted(fetchSummary)
     <!-- Loading -->
     <div
       v-if="loading"
-      class="card p-6 animate-pulse"
+      class="bg-atlas-surface border border-atlas-border rounded-atlas-lg shadow-atlas-sm p-6 animate-pulse"
       data-testid="executive-summary-loading"
     >
       <div class="h-4 bg-atlas-border rounded w-3/4 mb-3" />
@@ -111,10 +111,10 @@ onMounted(fetchSummary)
     <!-- Error -->
     <div
       v-else-if="error"
-      class="card p-6 border-red-200 bg-red-50"
+      class="bg-atlas-error-subtle border border-atlas-error/20 rounded-atlas-lg shadow-atlas-sm p-6"
       data-testid="executive-summary-error"
     >
-      <p class="text-sm text-red-700">{{ error }}</p>
+      <p class="text-sm text-atlas-error">{{ error }}</p>
       <AButton
         variant="ghost"
         size="sm"
@@ -128,7 +128,7 @@ onMounted(fetchSummary)
     <!-- No summary yet -->
     <div
       v-else-if="notFound"
-      class="card p-6 text-center"
+      class="bg-atlas-surface border border-atlas-border rounded-atlas-lg shadow-atlas-sm p-6 text-center"
       data-testid="executive-summary-empty"
     >
       <p class="text-sm text-atlas-text-muted mb-3">
@@ -147,16 +147,16 @@ onMounted(fetchSummary)
     <!-- Summary content -->
     <div
       v-else-if="summary"
-      class="card p-6"
+      class="bg-atlas-surface border border-atlas-border rounded-atlas-lg shadow-atlas-sm p-6"
       data-testid="executive-summary-content"
     >
       <!-- Stale banner -->
       <div
         v-if="stale"
-        class="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-between"
+        class="mb-4 p-3 rounded-lg bg-atlas-warning-subtle border border-atlas-warning/20 flex items-center justify-between"
         data-testid="executive-summary-stale"
       >
-        <p class="text-sm text-amber-700">
+        <p class="text-sm text-atlas-warning">
           New analyses are available since this summary was generated.
         </p>
         <AButton
