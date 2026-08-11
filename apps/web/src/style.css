@@ -1,0 +1,105 @@
+@import "tailwindcss";
+@import "./assets/tokens.css";
+
+/*
+ * Tailwind v4 theme integration.
+ *
+ * Maps Atlas design tokens to Tailwind utility classes so that
+ * components use semantic names like `bg-atlas-surface` or
+ * `text-atlas-brand` instead of arbitrary hex values.
+ */
+@theme {
+  /* Brand */
+  --color-atlas-brand: var(--atlas-brand);
+  --color-atlas-brand-hover: var(--atlas-brand-hover);
+  --color-atlas-brand-active: var(--atlas-brand-active);
+  --color-atlas-brand-subtle: var(--atlas-brand-subtle);
+
+  --color-atlas-accent: var(--atlas-accent);
+  --color-atlas-accent-hover: var(--atlas-accent-hover);
+  --color-atlas-accent-subtle: var(--atlas-accent-subtle);
+
+  /* AI */
+  --color-atlas-ai: var(--atlas-ai);
+  --color-atlas-ai-subtle: var(--atlas-ai-subtle);
+
+  /* Surfaces */
+  --color-atlas-background: var(--atlas-background);
+  --color-atlas-surface: var(--atlas-surface);
+  --color-atlas-surface-elevated: var(--atlas-surface-elevated);
+  --color-atlas-surface-muted: var(--atlas-surface-muted);
+
+  /* Typography colors */
+  --color-atlas-text-primary: var(--atlas-text-primary);
+  --color-atlas-text-secondary: var(--atlas-text-secondary);
+  --color-atlas-text-muted: var(--atlas-text-muted);
+  --color-atlas-text-disabled: var(--atlas-text-disabled);
+
+  /* Borders */
+  --color-atlas-border: var(--atlas-border);
+  --color-atlas-border-subtle: var(--atlas-border-subtle);
+  --color-atlas-border-strong: var(--atlas-border-strong);
+
+  /* Semantic */
+  --color-atlas-success: var(--atlas-success);
+  --color-atlas-success-subtle: var(--atlas-success-subtle);
+  --color-atlas-warning: var(--atlas-warning);
+  --color-atlas-warning-subtle: var(--atlas-warning-subtle);
+  --color-atlas-error: var(--atlas-error);
+  --color-atlas-error-subtle: var(--atlas-error-subtle);
+  --color-atlas-info: var(--atlas-info);
+  --color-atlas-info-subtle: var(--atlas-info-subtle);
+
+  /* Chart palette */
+  --color-atlas-chart-1: var(--atlas-chart-1);
+  --color-atlas-chart-2: var(--atlas-chart-2);
+  --color-atlas-chart-3: var(--atlas-chart-3);
+  --color-atlas-chart-4: var(--atlas-chart-4);
+  --color-atlas-chart-5: var(--atlas-chart-5);
+  --color-atlas-chart-6: var(--atlas-chart-6);
+  --color-atlas-chart-7: var(--atlas-chart-7);
+  --color-atlas-chart-8: var(--atlas-chart-8);
+
+  /* Focus ring */
+  --color-atlas-ring: var(--atlas-ring);
+
+  /* Shadows */
+  --shadow-atlas-sm: var(--atlas-shadow-sm);
+  --shadow-atlas: var(--atlas-shadow);
+  --shadow-atlas-md: var(--atlas-shadow-md);
+  --shadow-atlas-lg: var(--atlas-shadow-lg);
+
+  /* Border radius */
+  --radius-atlas-sm: var(--atlas-radius-sm);
+  --radius-atlas: var(--atlas-radius);
+  --radius-atlas-md: var(--atlas-radius-md);
+  --radius-atlas-lg: var(--atlas-radius-lg);
+  --radius-atlas-full: var(--atlas-radius-full);
+
+  /* Font families */
+  --font-sans: var(--atlas-font-sans);
+  --font-mono: var(--atlas-font-mono);
+}
+
+/*
+ * Base styles
+ */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--atlas-font-sans);
+  color: var(--atlas-text-primary);
+  background-color: var(--atlas-background);
+  line-height: var(--atlas-leading-normal);
+}
+
+/*
+ * Focus ring utility — visible, accessible focus for keyboard users.
+ */
+.atlas-focus-ring:focus-visible {
+  outline: 2px solid var(--atlas-ring);
+  outline-offset: var(--atlas-ring-offset);
+}
