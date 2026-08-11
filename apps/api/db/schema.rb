@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_10_172418) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_11_101929) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -60,6 +60,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_172418) do
     t.index ["organization_id", "created_at"], name: "index_ai_analyses_on_organization_id_and_created_at", order: { created_at: :desc }
     t.index ["status"], name: "index_ai_analyses_on_status_partial", where: "((status)::text = ANY ((ARRAY['pending'::character varying, 'processing'::character varying])::text[]))"
     t.index ["ticket_id"], name: "index_ai_analyses_on_ticket_id", unique: true
+  end
+
+  create_table "executive_summaries", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.integer "analyzed_ticket_count", null: false
+    t.jsonb "attention_items", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "generated_at", null: false
+    t.jsonb "key_findings", default: [], null: false
+    t.uuid "organization_id", null: false
+    t.jsonb "recommended_actions", default: [], null: false
+    t.text "summary", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id"], name: "index_executive_summaries_on_organization_id", unique: true
   end
 
   create_table "memberships", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -144,6 +157,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_172418) do
   add_foreign_key "ai_analyses", "organizations"
   add_foreign_key "ai_analyses", "tickets"
   add_foreign_key "ai_analyses", "tickets", column: ["organization_id", "ticket_id"], primary_key: ["organization_id", "id"], name: "fk_ai_analyses_organization_ticket"
+  add_foreign_key "executive_summaries", "organizations"
   add_foreign_key "memberships", "organizations"
   add_foreign_key "memberships", "users"
   add_foreign_key "refresh_tokens", "refresh_tokens", column: "replaced_by_token_id", on_delete: :nullify

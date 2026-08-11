@@ -126,6 +126,39 @@ export interface Report {
   timeline: Record<string, number>
 }
 
+// -- Executive Summary ------------------------------------------------------
+
+export interface KeyFinding {
+  title: string
+  description: string
+  evidence_count: number
+  category?: string | null
+}
+
+export interface AttentionItem {
+  title: string
+  description: string
+  priority: 'high' | 'medium' | 'low'
+  evidence_count: number
+}
+
+export interface RecommendedAction {
+  title: string
+  description: string
+  evidence_count: number
+}
+
+export interface ExecutiveSummary {
+  id: string
+  summary: string
+  key_findings: KeyFinding[]
+  attention_items: AttentionItem[]
+  recommended_actions: RecommendedAction[]
+  analyzed_ticket_count: number
+  generated_at: string
+  stale: boolean
+}
+
 // -- API envelope wrappers --------------------------------------------------
 
 export interface DataEnvelope<T> {

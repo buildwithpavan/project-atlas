@@ -16,6 +16,9 @@ Rails.application.routes.draw do
       resources :tickets, only: [ :index, :show ]
       get :dashboard, to: "dashboard#show"
       get :reports, to: "reports#index"
+      scope :reports do
+        resource :executive_summary, only: [ :show, :create ], path: "executive-summary", controller: "executive_summaries"
+      end
     end
   end
 end

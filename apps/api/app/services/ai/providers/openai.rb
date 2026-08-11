@@ -40,6 +40,16 @@ module Ai
           extract_result(response)
         end
 
+        def generate_executive_summary(input:)
+          response = client.responses.create(
+            model: model,
+            input: input,
+            text: Ai::Schemas::ExecutiveSummaryOutput
+          )
+
+          extract_result(response)
+        end
+
         private
 
         def client

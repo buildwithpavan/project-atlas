@@ -8,6 +8,7 @@ class Organization < ApplicationRecord
   has_many :ai_analyses, dependent: :destroy
   has_many :reports, dependent: :destroy
   has_many :knowledge_suggestions, dependent: :destroy
+  has_one :executive_summary, dependent: :destroy
 
   validates :name, presence: true
   validates :slug, presence: true

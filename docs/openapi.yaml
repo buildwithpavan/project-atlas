@@ -394,6 +394,65 @@ paths:
         "401":
           $ref: "#/components/responses/Unauthorized"
 
+  /reports/executive-summary:
+    get:
+      tags: [Reports]
+      summary: Get executive summary
+      description: |
+        Returns the most recent AI-generated executive summary for the
+        organization. Includes a staleness indicator when new analyses
+        have been completed since the summary was generated.
+      operationId: getExecutiveSummary
+      responses:
+        "200":
+          description: Executive summary
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ExecutiveSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+        - BearerAuth: []
+    post:
+      tags: [Reports]
+      summary: Generate executive summary
+      description: |
+        Generates an AI-powered executive intelligence summary by
+        synthesizing all completed ticket analyses. Requires at least
+        one completed analysis. Replaces any existing summary for the
+        organization.
+      operationId: generateExecutiveSummary
+      responses:
+        "201":
+          description: Executive summary generated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ExecutiveSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "503":
+          description: AI provider unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      security:
+        - BearerAuth: []
+
 components:
   securitySchemes:
     BearerAuth:
@@ -680,6 +739,82 @@ components:
           type: integer
         bug_reports:
           type: integer
+
+    ExecutiveSummary:
+      type: object
+      required: [id, summary, key_findings, attention_items, recommended_actions, analyzed_ticket_count, generated_at, stale]
+      properties:
+        id:
+          type: string
+          format: uuid
+        summary:
+          type: string
+          description: Executive overview text
+        key_findings:
+          type: array
+          items:
+            $ref: "#/components/schemas/KeyFinding"
+          maxItems: 5
+        attention_items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttentionItem"
+          maxItems: 5
+        recommended_actions:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecommendedAction"
+          maxItems: 5
+        analyzed_ticket_count:
+          type: integer
+        generated_at:
+          type: string
+          format: date-time
+        stale:
+          type: boolean
+          description: True when new analyses exist since this summary was generated
+
+    KeyFinding:
+      type: object
+      required: [title, description, evidence_count]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        evidence_count:
+          type: integer
+          minimum: 0
+        category:
+          type: string
+          nullable: true
+
+    AttentionItem:
+      type: object
+      required: [title, description, priority, evidence_count]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [high, medium, low]
+        evidence_count:
+          type: integer
+          minimum: 0
+
+    RecommendedAction:
+      type: object
+      required: [title, description, evidence_count]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        evidence_count:
+          type: integer
+          minimum: 0
 
     Report:
       type: object

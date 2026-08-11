@@ -9,6 +9,7 @@ import SentimentChart from '@/components/dashboard/SentimentChart.vue'
 import CategoryChart from '@/components/dashboard/CategoryChart.vue'
 import ActivityChart from '@/components/dashboard/ActivityChart.vue'
 import AtlasIntelligence from '@/components/reports/AtlasIntelligence.vue'
+import ExecutiveSummarySection from '@/components/reports/ExecutiveSummarySection.vue'
 import ReportDistribution from '@/components/reports/ReportDistribution.vue'
 import ReportSkeleton from '@/components/reports/ReportSkeleton.vue'
 import ReportEmptyState from '@/components/reports/ReportEmptyState.vue'
@@ -133,6 +134,9 @@ onMounted(fetchReport)
           />
         </div>
       </section>
+
+      <!-- Executive Intelligence (AI-generated) -->
+      <ExecutiveSummarySection />
 
       <!-- Atlas Intelligence -->
       <AtlasIntelligence :report="report" />
