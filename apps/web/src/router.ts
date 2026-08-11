@@ -51,6 +51,11 @@ const routes: RouteRecordRaw[] = [
         name: 'reports',
         component: () => import('@/pages/ReportsPage.vue'),
       },
+      {
+        path: 'import',
+        name: 'import',
+        component: () => import('@/pages/ImportPage.vue'),
+      },
     ],
   },
   // Root redirect

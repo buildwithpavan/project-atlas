@@ -22,5 +22,11 @@
     <p class="mt-2 max-w-sm text-sm text-atlas-text-muted">
       Import customer tickets to see sentiment analysis, category insights, and actionable signals on your dashboard.
     </p>
+    <RouterLink
+      to="/app/import"
+      class="atlas-focus-ring mt-5 inline-flex items-center rounded-atlas px-4 py-2 text-sm font-medium bg-atlas-brand text-white hover:bg-atlas-brand-hover transition-colors"
+    >
+      Import Data
+    </RouterLink>
   </div>
 </template>

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
+import { createRouter, createWebHistory } from 'vue-router'
 import DashboardPage from '@/pages/DashboardPage.vue'
 import * as dashboardApi from '@/api/dashboard'
 import * as reportsApi from '@/api/reports'
@@ -62,8 +63,16 @@ function setupMocks(
 function mountPage() {
   const pinia = createPinia()
   setActivePinia(pinia)
+  const router = createRouter({
+    history: createWebHistory(),
+    routes: [
+      { path: '/', component: { template: '<div />' } },
+      { path: '/app/import', name: 'import', component: { template: '<div />' } },
+      { path: '/app/tickets', name: 'tickets', component: { template: '<div />' } },
+    ],
+  })
   return mount(DashboardPage, {
-    global: { plugins: [pinia] },
+    global: { plugins: [pinia, router] },
   })
 }
 
@@ -217,6 +226,9 @@ describe('DashboardPage', () => {
 
     expect(wrapper.text()).toContain('No customer feedback yet')
     expect(wrapper.text()).toContain('Import customer tickets')
+    const importLink = wrapper.find('a[href="/app/import"]')
+    expect(importLink.exists()).toBe(true)
+    expect(importLink.text()).toContain('Import Data')
   })
 
   // -- Partial data ---------------------------------------------------------

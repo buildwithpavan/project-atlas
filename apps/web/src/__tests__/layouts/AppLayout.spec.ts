@@ -22,6 +22,7 @@ function makeRouter() {
           { path: 'dashboard', name: 'dashboard', component: { template: '<div>Dashboard</div>' } },
           { path: 'tickets', name: 'tickets', component: { template: '<div>Tickets</div>' } },
           { path: 'reports', name: 'reports', component: { template: '<div>Reports</div>' } },
+          { path: 'import', name: 'import', component: { template: '<div>Import</div>' } },
         ],
       },
       { path: '/login', name: 'login', component: { template: '<div />' } },
@@ -48,6 +49,7 @@ describe('AppLayout', () => {
     expect(wrapper.text()).toContain('Dashboard')
     expect(wrapper.text()).toContain('Tickets')
     expect(wrapper.text()).toContain('Reports')
+    expect(wrapper.text()).toContain('Import Data')
   })
 
   it('renders the Atlas brand text', async () => {
@@ -116,5 +118,21 @@ describe('AppLayout', () => {
 
     // The child route should render inside the layout
     expect(wrapper.find('main').exists()).toBe(true)
+  })
+
+  it('Import Data links to /app/import', async () => {
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    const router = makeRouter()
+    await router.push('/app/dashboard')
+    await router.isReady()
+
+    const wrapper = mount(AppLayout, {
+      global: { plugins: [pinia, router] },
+    })
+
+    const link = wrapper.findAll('a').find(a => a.text().includes('Import Data'))
+    expect(link).toBeTruthy()
+    expect(link!.attributes('href')).toBe('/app/import')
   })
 })

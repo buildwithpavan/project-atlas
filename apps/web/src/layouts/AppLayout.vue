@@ -25,6 +25,7 @@ const navItems = [
   { name: 'dashboard', label: 'Dashboard', path: '/app/dashboard' },
   { name: 'tickets', label: 'Tickets', path: '/app/tickets' },
   { name: 'reports', label: 'Reports', path: '/app/reports' },
+  { name: 'import', label: 'Import Data', path: '/app/import' },
 ]
 
 function isActive(name: string): boolean {

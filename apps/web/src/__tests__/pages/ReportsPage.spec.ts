@@ -46,6 +46,7 @@ function makeRouter() {
     routes: [
       { path: '/app/reports', name: 'reports', component: ReportsPage },
       { path: '/app/tickets', name: 'tickets', component: { template: '<div />' } },
+      { path: '/app/import', name: 'import', component: { template: '<div />' } },
     ],
   })
 }
@@ -245,6 +246,9 @@ describe('ReportsPage', () => {
     const wrapper = await mountPage()
     expect(wrapper.text()).toContain('No report data yet')
     expect(wrapper.text()).toContain('Import customer tickets')
+    const importLink = wrapper.find('a[href="/app/import"]')
+    expect(importLink.exists()).toBe(true)
+    expect(importLink.text()).toContain('Import Data')
   })
 
   // -- Error state ----------------------------------------------------------

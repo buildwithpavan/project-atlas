@@ -60,6 +60,7 @@ function makeRouter() {
     routes: [
       { path: '/app/tickets', name: 'tickets', component: TicketsPage },
       { path: '/app/tickets/:id', name: 'ticket-detail', component: { template: '<div />' } },
+      { path: '/app/import', name: 'import', component: { template: '<div />' } },
     ],
   })
 }
@@ -274,6 +275,9 @@ describe('TicketsPage', () => {
 
     expect(wrapper.text()).toContain('No tickets yet')
     expect(wrapper.text()).toContain('Import customer tickets')
+    const importLink = wrapper.find('a[href="/app/import"]')
+    expect(importLink.exists()).toBe(true)
+    expect(importLink.text()).toContain('Import Data')
   })
 
   it('shows filtered empty state when no results with active filter', async () => {
