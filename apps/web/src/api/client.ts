@@ -41,6 +41,22 @@ export function setTokenAccessor(accessor: TokenAccessor): void {
 }
 
 // ---------------------------------------------------------------------------
+// 401 refresh handler — set by the auth store
+// ---------------------------------------------------------------------------
+
+type RefreshHandler = () => Promise<boolean>
+let onUnauthorized: RefreshHandler | null = null
+
+/**
+ * Register a handler that attempts to refresh the access token.
+ * Returns true if the refresh succeeded (and new tokens are set),
+ * false otherwise.
+ */
+export function setRefreshHandler(handler: RefreshHandler): void {
+  onUnauthorized = handler
+}
+
+// ---------------------------------------------------------------------------
 // Default timeout (ms). Set to 0 to disable.
 // ---------------------------------------------------------------------------
 
@@ -57,6 +73,8 @@ export interface RequestOptions {
   signal?: AbortSignal
   /** Timeout in milliseconds. Defaults to 30 000. Set 0 to disable. */
   timeout?: number
+  /** @internal Skip 401 auto-refresh (prevents infinite retry). */
+  _skipRefresh?: boolean
 }
 
 /**
@@ -144,6 +162,19 @@ export async function request<T>(
 
   // Error responses
   if (!response.ok) {
+    // 401 auto-refresh: attempt one token refresh, then retry the original request
+    if (
+      response.status === 401
+      && !options.noAuth
+      && !options._skipRefresh
+      && onUnauthorized
+    ) {
+      const refreshed = await onUnauthorized()
+      if (refreshed) {
+        return request<T>(method, path, body, { ...options, _skipRefresh: true })
+      }
+    }
+
     const contentType = response.headers.get('content-type') ?? ''
 
     if (contentType.includes('application/json')) {

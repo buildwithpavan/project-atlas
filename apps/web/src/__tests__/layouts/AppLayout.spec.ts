@@ -1,0 +1,120 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { mount, flushPromises } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
+import { createRouter, createWebHistory } from 'vue-router'
+import AppLayout from '@/layouts/AppLayout.vue'
+
+vi.mock('@/api/auth', () => ({
+  login: vi.fn(),
+  register: vi.fn(),
+  logout: vi.fn(),
+  refresh: vi.fn(),
+}))
+
+function makeRouter() {
+  return createRouter({
+    history: createWebHistory(),
+    routes: [
+      {
+        path: '/app',
+        component: AppLayout,
+        children: [
+          { path: 'dashboard', name: 'dashboard', component: { template: '<div>Dashboard</div>' } },
+          { path: 'tickets', name: 'tickets', component: { template: '<div>Tickets</div>' } },
+          { path: 'reports', name: 'reports', component: { template: '<div>Reports</div>' } },
+        ],
+      },
+      { path: '/login', name: 'login', component: { template: '<div />' } },
+    ],
+  })
+}
+
+describe('AppLayout', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('renders sidebar with navigation links', async () => {
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    const router = makeRouter()
+    await router.push('/app/dashboard')
+    await router.isReady()
+
+    const wrapper = mount(AppLayout, {
+      global: { plugins: [pinia, router] },
+    })
+
+    expect(wrapper.text()).toContain('Dashboard')
+    expect(wrapper.text()).toContain('Tickets')
+    expect(wrapper.text()).toContain('Reports')
+  })
+
+  it('renders the Atlas brand text', async () => {
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    const router = makeRouter()
+    await router.push('/app/dashboard')
+    await router.isReady()
+
+    const wrapper = mount(AppLayout, {
+      global: { plugins: [pinia, router] },
+    })
+
+    expect(wrapper.text()).toContain('Atlas')
+  })
+
+  it('renders sign out button', async () => {
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    const router = makeRouter()
+    await router.push('/app/dashboard')
+    await router.isReady()
+
+    const wrapper = mount(AppLayout, {
+      global: { plugins: [pinia, router] },
+    })
+
+    expect(wrapper.text()).toContain('Sign out')
+  })
+
+  it('logout clears auth and navigates to login', async () => {
+    const { logout } = await import('@/api/auth')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(logout).mockResolvedValue(null as any)
+
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    const router = makeRouter()
+    await router.push('/app/dashboard')
+    await router.isReady()
+    const pushSpy = vi.spyOn(router, 'push')
+
+    const wrapper = mount(AppLayout, {
+      global: { plugins: [pinia, router] },
+    })
+
+    const buttons = wrapper.findAll('button[type="button"]')
+    const signOutBtn = buttons.find(b => b.text().includes('Sign out'))!
+    await signOutBtn.trigger('click')
+    await flushPromises()
+
+    expect(pushSpy).toHaveBeenCalledWith({ name: 'login' })
+  })
+
+  it('renders child route content', async () => {
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    const router = makeRouter()
+    await router.push('/app/dashboard')
+    await router.isReady()
+
+    const wrapper = mount(AppLayout, {
+      global: { plugins: [pinia, router] },
+    })
+    await flushPromises()
+
+    // The child route should render inside the layout
+    expect(wrapper.find('main').exists()).toBe(true)
+  })
+})
