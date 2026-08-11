@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 module Ai
+  # Executes AI analysis on a single ticket via the configured provider.
+  #
+  # Lifecycle: pending → processing → completed/failed
+  #
+  # Uses atomic claiming (UPDATE WHERE status=pending) to prevent duplicate
+  # processing if AnalyzeTicketJob is retried. The provider response is
+  # validated before persisting to ensure sentiment and confidence values
+  # are within expected bounds. Any exception during analysis transitions
+  # the record to failed with a truncated error message.
   class AnalyzeTicket < ApplicationService
     def initialize(ai_analysis)
       @ai_analysis = ai_analysis

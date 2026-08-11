@@ -2,6 +2,17 @@
 
 module Ai
   module Providers
+    # OpenAI provider using the official Ruby SDK's Responses API with
+    # structured outputs. The response is parsed into an Ai::Schemas::TicketAnalysis
+    # BaseModel instance, guaranteeing the JSON conforms to the defined schema.
+    #
+    # Configuration:
+    #   ENV["OPENAI_API_KEY"] - required, raises KeyError if missing
+    #   ENV["OPENAI_MODEL"]   - optional, defaults to "gpt-5.6-luna"
+    #
+    # A new client is instantiated per call to avoid stale connections.
+    # Refusal responses from the model are filtered out; if no valid
+    # content remains, a RuntimeError is raised.
     class Openai
       SYSTEM_PROMPT = <<~PROMPT
         You are a support ticket analyst. Analyze the given customer support ticket and extract structured insights.

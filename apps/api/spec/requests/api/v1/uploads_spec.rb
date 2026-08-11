@@ -30,9 +30,27 @@ RSpec.describe "POST /api/v1/uploads", type: :request do
   end
 
   describe "file validation" do
-    it "rejects missing file" do
+    it "rejects missing file with HTTP 400" do
       post "/api/v1/uploads", params: {}, headers: headers
       expect(response).to have_http_status(:bad_request)
+    end
+
+    it "returns RFC 9457 Problem Details for missing file" do
+      post "/api/v1/uploads", params: {}, headers: headers
+      body = response.parsed_body
+
+      expect(body["type"]).to eq("/errors/parameter-missing")
+      expect(body["title"]).to eq("Bad Request")
+      expect(body["status"]).to eq(400)
+      expect(body["detail"]).to include("file")
+    end
+
+    it "does not expose Rails internals for missing file" do
+      post "/api/v1/uploads", params: {}, headers: headers
+      body = response.body
+
+      expect(body).not_to include("ActionController")
+      expect(body).not_to include("ParameterMissing")
     end
 
     it "rejects non-CSV file" do

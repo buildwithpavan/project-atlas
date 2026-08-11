@@ -3,6 +3,20 @@
 require "csv"
 
 module Tickets
+  # Processes a CSV upload into Ticket and AiAnalysis records.
+  #
+  # Lifecycle:
+  #   1. Atomically claims the upload (pending → processing) to prevent
+  #      duplicate processing if the job is retried.
+  #   2. Parses CSV, validates headers, and processes rows in batches.
+  #   3. For each batch, inserts Tickets and AiAnalysis records in a single
+  #      transaction to guarantee no ticket exists without a corresponding
+  #      analysis. Jobs are enqueued AFTER the transaction commits to avoid
+  #      processing uncommitted records.
+  #   4. Finalizes the upload as completed or failed.
+  #
+  # Tenant isolation: all created records inherit organization_id from the upload.
+  # Duplicate safety: the unique index on ai_analyses.ticket_id prevents duplicate analyses.
   class ProcessCsv < ApplicationService
     BATCH_SIZE = 1000
     REQUIRED_HEADERS = %w[subject].freeze
@@ -28,6 +42,9 @@ module Tickets
 
     attr_reader :upload
 
+    # Atomic claim: uses UPDATE WHERE to transition pending → processing.
+    # Returns false if the upload was already claimed by another worker,
+    # preventing duplicate processing without distributed locks.
     def claim_upload!
       rows_affected = Upload.where(id: upload.id, status: "pending")
                             .update_all(status: "processing", updated_at: Time.current)
