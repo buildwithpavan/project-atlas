@@ -66,6 +66,7 @@ class TestAnalyzeTicketSuccess:
         with patch("app.providers.openai.settings") as mock_settings:
             mock_settings.openai_api_key = "sk-test-key"
             mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
             result = analyze_ticket("t-1", "Payment failed", "Declined")
 
         assert isinstance(result, TicketAnalysisResponse)
@@ -86,10 +87,27 @@ class TestAnalyzeTicketSuccess:
         with patch("app.providers.openai.settings") as mock_settings:
             mock_settings.openai_api_key = "sk-test-key"
             mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
             analyze_ticket("t-1", "Subject", "Desc")
 
         call_kwargs = mock_client.responses.parse.call_args[1]
         assert call_kwargs["model"] == "gpt-5.6-luna"
+
+    @patch("app.providers.openai.OpenAI")
+    def test_passes_explicit_timeout(self, mock_openai_cls):
+        mock_client = MagicMock()
+        mock_openai_cls.return_value = mock_client
+        mock_client.responses.parse.return_value = _make_response(
+            [_make_parsed_content(MOCK_ANALYSIS)]
+        )
+
+        with patch("app.providers.openai.settings") as mock_settings:
+            mock_settings.openai_api_key = "sk-test-key"
+            mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
+            analyze_ticket("t-1", "Subject", "Desc")
+
+        mock_openai_cls.assert_called_once_with(api_key="sk-test-key", timeout=25.0)
 
     @patch("app.providers.openai.OpenAI")
     def test_system_prompt_contains_required_instructions(self, mock_openai_cls):
@@ -102,6 +120,7 @@ class TestAnalyzeTicketSuccess:
         with patch("app.providers.openai.settings") as mock_settings:
             mock_settings.openai_api_key = "sk-test-key"
             mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
             analyze_ticket("t-1", "Subject", "Desc")
 
         call_kwargs = mock_client.responses.parse.call_args[1]
@@ -122,6 +141,7 @@ class TestAnalyzeTicketSuccess:
         with patch("app.providers.openai.settings") as mock_settings:
             mock_settings.openai_api_key = "sk-test-key"
             mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
             analyze_ticket("t-1", "Payment failed", "My card was declined")
 
         call_kwargs = mock_client.responses.parse.call_args[1]
@@ -141,6 +161,7 @@ class TestAnalyzeTicketSuccess:
         with patch("app.providers.openai.settings") as mock_settings:
             mock_settings.openai_api_key = "sk-test-key"
             mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
             analyze_ticket("t-1", "Subject", "Desc")
 
         call_kwargs = mock_client.responses.parse.call_args[1]
@@ -159,6 +180,7 @@ class TestAnalyzeTicketRefusal:
         with patch("app.providers.openai.settings") as mock_settings:
             mock_settings.openai_api_key = "sk-test-key"
             mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
             with pytest.raises(RefusalError):
                 analyze_ticket("t-1", "Subject", "Desc")
 
@@ -168,6 +190,7 @@ class TestAnalyzeTicketErrors:
         with patch("app.providers.openai.settings") as mock_settings:
             mock_settings.openai_api_key = ""
             mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
             with pytest.raises(ConfigurationError, match="OPENAI_API_KEY"):
                 analyze_ticket("t-1", "Subject", "Desc")
 
@@ -189,6 +212,7 @@ class TestAnalyzeTicketErrors:
         with patch("app.providers.openai.settings") as mock_settings:
             mock_settings.openai_api_key = "sk-invalid"
             mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
             with pytest.raises(AuthenticationError):
                 analyze_ticket("t-1", "Subject", "Desc")
 
@@ -210,6 +234,7 @@ class TestAnalyzeTicketErrors:
         with patch("app.providers.openai.settings") as mock_settings:
             mock_settings.openai_api_key = "sk-test"
             mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
             with pytest.raises(RateLimitError):
                 analyze_ticket("t-1", "Subject", "Desc")
 
@@ -225,6 +250,7 @@ class TestAnalyzeTicketErrors:
         with patch("app.providers.openai.settings") as mock_settings:
             mock_settings.openai_api_key = "sk-test"
             mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
             with pytest.raises(TimeoutError):
                 analyze_ticket("t-1", "Subject", "Desc")
 
@@ -240,6 +266,7 @@ class TestAnalyzeTicketErrors:
         with patch("app.providers.openai.settings") as mock_settings:
             mock_settings.openai_api_key = "sk-test"
             mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
             with pytest.raises(APIError):
                 analyze_ticket("t-1", "Subject", "Desc")
 
@@ -257,6 +284,7 @@ class TestAnalyzeTicketErrors:
         with patch("app.providers.openai.settings") as mock_settings:
             mock_settings.openai_api_key = "sk-test"
             mock_settings.openai_model = "gpt-5.6-luna"
+            mock_settings.openai_timeout = 25.0
             with pytest.raises(InvalidResponseError):
                 analyze_ticket("t-1", "Subject", "Desc")
 

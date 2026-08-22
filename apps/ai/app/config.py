@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     openai_api_key: str = ""
     openai_model: str = "gpt-5.6-luna"
+    openai_timeout: float = 25.0
 
     model_config = {"env_prefix": ""}
 

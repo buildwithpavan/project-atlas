@@ -69,7 +69,7 @@ def analyze_ticket(ticket_id: str, subject: str, description: str) -> TicketAnal
     if not settings.openai_api_key:
         raise ConfigurationError("OPENAI_API_KEY is not configured")
 
-    client = OpenAI(api_key=settings.openai_api_key)
+    client = OpenAI(api_key=settings.openai_api_key, timeout=settings.openai_timeout)
 
     user_content = f"Subject: {subject}\nDescription: {description}"
 
