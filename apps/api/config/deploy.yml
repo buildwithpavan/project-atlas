@@ -45,6 +45,11 @@ env:
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
     SOLID_QUEUE_IN_PUMA: true
 
+    # AI service configuration (connects to the "ai" accessory on the kamal network)
+    AI_PROVIDER: atlas
+    AI_SERVICE_URL: http://api-ai:8000
+    AI_SERVICE_TIMEOUT: "30"
+
     # Set number of processes dedicated to Solid Queue (default: 1)
     # JOB_CONCURRENCY: 3
 
@@ -108,3 +113,26 @@ builder:
 #     port: 6379
 #     directories:
 #       - data:/data
+
+# AI service accessory — runs the FastAPI inference service on the same host.
+# The container joins the "kamal" network as "api-ai", reachable from the app
+# at http://api-ai:8000 without publishing the port to the host.
+#
+# NOTE: Replace the image below with your registry-qualified image once CI pushes it
+# (e.g., ghcr.io/your-org/api-ai:latest). The AI Dockerfile lives at apps/ai/Dockerfile
+# and must be built/pushed separately from the main Rails app image.
+accessories:
+  ai:
+    image: api-ai:latest
+    host: 192.168.0.1
+    env:
+      clear:
+        ENVIRONMENT: production
+        OPENAI_MODEL: gpt-5.6-luna
+      secret:
+        - OPENAI_API_KEY
+    options:
+      health-cmd: "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" || exit 1"
+      health-interval: 30s
+      health-retries: 3
+      health-start-period: 10s
