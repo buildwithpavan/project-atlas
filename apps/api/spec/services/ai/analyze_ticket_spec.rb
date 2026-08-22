@@ -108,6 +108,15 @@ RSpec.describe Ai::AnalyzeTicket, type: :service do
       expect(ai_analysis.error_message).to include("Invalid sentiment")
     end
 
+    it "marks analysis as failed when provider returns invalid category" do
+      allow(mock_result).to receive(:category).and_return("invented_category")
+      described_class.call(ai_analysis)
+      ai_analysis.reload
+
+      expect(ai_analysis.status).to eq("failed")
+      expect(ai_analysis.error_message).to include("Invalid category")
+    end
+
     it "marks analysis as failed when confidence is out of range" do
       allow(mock_result).to receive(:confidence).and_return(1.5)
       described_class.call(ai_analysis)
@@ -137,6 +146,40 @@ RSpec.describe Ai::AnalyzeTicket, type: :service do
     it "analysis remains associated with the correct ticket organization" do
       described_class.call(ai_analysis)
       expect(ai_analysis.reload.organization_id).to eq(ticket.organization_id)
+    end
+  end
+
+  describe "provider selection" do
+    before do
+      allow(Ai::Providers::Atlas).to receive(:analyze).and_return(mock_result)
+    end
+
+    it "uses OpenAI provider by default" do
+      allow(ENV).to receive(:fetch).and_call_original
+      allow(ENV).to receive(:fetch).with("AI_PROVIDER", "openai").and_return("openai")
+
+      described_class.call(ai_analysis)
+      expect(Ai::Providers::Openai).to have_received(:analyze)
+    end
+
+    it "uses Atlas provider when AI_PROVIDER=atlas" do
+      allow(ENV).to receive(:fetch).and_call_original
+      allow(ENV).to receive(:fetch).with("AI_PROVIDER", "openai").and_return("atlas")
+
+      described_class.call(ai_analysis)
+      expect(Ai::Providers::Atlas).to have_received(:analyze).with(ticket: ticket)
+    end
+
+    it "fails with clear error for unsupported provider" do
+      allow(ENV).to receive(:fetch).and_call_original
+      allow(ENV).to receive(:fetch).with("AI_PROVIDER", "openai").and_return("invalid_provider")
+
+      described_class.call(ai_analysis)
+      ai_analysis.reload
+
+      expect(ai_analysis.status).to eq("failed")
+      expect(ai_analysis.error_message).to include("Unknown AI provider")
+      expect(ai_analysis.error_message).to include("invalid_provider")
     end
   end
 end

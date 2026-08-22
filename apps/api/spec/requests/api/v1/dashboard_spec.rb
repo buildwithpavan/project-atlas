@@ -64,7 +64,7 @@ RSpec.describe "Dashboard API", type: :request do
         )
         AiAnalysis.create!(
           organization: organization, ticket: t3, status: "completed",
-          sentiment: "positive", category: "praise", confidence: 0.95,
+          sentiment: "positive", category: "general", confidence: 0.95,
           feature_request: false, bug_report: false, knowledge_gap: false,
           processed_at: Time.current
         )
@@ -91,7 +91,7 @@ RSpec.describe "Dashboard API", type: :request do
         get "/api/v1/dashboard", headers: headers
         cats = response.parsed_body["data"]["top_categories"]
         expect(cats["billing"]).to eq(2)
-        expect(cats["praise"]).to eq(1)
+        expect(cats["general"]).to eq(1)
       end
 
       it "returns feature_requests count" do
@@ -115,7 +115,7 @@ RSpec.describe "Dashboard API", type: :request do
         other_ticket = Ticket.create!(organization: other_org, upload: other_upload, subject: "Theirs")
         AiAnalysis.create!(
           organization: other_org, ticket: other_ticket, status: "completed",
-          sentiment: "positive", category: "support", confidence: 0.8,
+          sentiment: "positive", category: "general", confidence: 0.8,
           feature_request: true, bug_report: true, knowledge_gap: true,
           processed_at: Time.current
         )

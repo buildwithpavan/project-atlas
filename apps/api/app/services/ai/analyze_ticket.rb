@@ -41,12 +41,24 @@ module Ai
     end
 
     def provider
-      Ai::Providers::Openai
+      name = ENV.fetch("AI_PROVIDER", "openai")
+      case name
+      when "openai"
+        Ai::Providers::Openai
+      when "atlas"
+        Ai::Providers::Atlas
+      else
+        raise "Unknown AI provider: #{name.inspect}. Supported: openai, atlas"
+      end
     end
 
     def validate_result!(result)
       unless AiAnalysis::SENTIMENTS.include?(result.sentiment.to_s)
         raise "Invalid sentiment returned: #{result.sentiment}"
+      end
+
+      unless AiAnalysis::CATEGORIES.include?(result.category.to_s)
+        raise "Invalid category returned: #{result.category}"
       end
 
       unless result.confidence.between?(0.0, 1.0)

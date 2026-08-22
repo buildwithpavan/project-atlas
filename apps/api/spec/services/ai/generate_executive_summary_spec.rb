@@ -132,7 +132,7 @@ RSpec.describe Ai::GenerateExecutiveSummary, type: :service do
       create_analysis(organization, t1, category: "billing")
 
       other_t = create_ticket(other_org, other_upload, subject: "Other org ticket")
-      create_analysis(other_org, other_t, category: "shipping")
+      create_analysis(other_org, other_t, category: "general")
 
       described_class.call(organization)
 

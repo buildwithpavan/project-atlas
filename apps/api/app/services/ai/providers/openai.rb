@@ -20,7 +20,7 @@ module Ai
         For each ticket, determine:
         - sentiment: The overall customer sentiment (positive, negative, neutral, or mixed)
         - summary: A concise 1-2 sentence summary of the ticket's core issue or request
-        - category: A short category label (e.g., "billing", "technical_issue", "feature_request", "account", "onboarding")
+        - category: Exactly one of: billing, technical_issue, feature_request, account, onboarding, integrations, performance, general
         - confidence: Your confidence in this analysis from 0.0 to 1.0
         - feature_request: Whether this ticket contains or implies a feature request
         - bug_report: Whether this ticket reports a bug or defect

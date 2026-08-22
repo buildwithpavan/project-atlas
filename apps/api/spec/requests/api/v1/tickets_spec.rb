@@ -238,7 +238,7 @@ RSpec.describe "Tickets API", type: :request do
         AiAnalysis.create!(
           organization: organization, ticket: ticket,
           status: "completed", sentiment: "negative",
-          summary: "User cannot login", category: "auth",
+          summary: "User cannot login", category: "account",
           confidence: 0.92, feature_request: false,
           bug_report: true, knowledge_gap: false,
           processed_at: Time.current
@@ -249,7 +249,7 @@ RSpec.describe "Tickets API", type: :request do
         expect(ai["status"]).to eq("completed")
         expect(ai["sentiment"]).to eq("negative")
         expect(ai["summary"]).to eq("User cannot login")
-        expect(ai["category"]).to eq("auth")
+        expect(ai["category"]).to eq("account")
         expect(ai["confidence"]).to eq(0.92)
         expect(ai["feature_request"]).to be(false)
         expect(ai["bug_report"]).to be(true)

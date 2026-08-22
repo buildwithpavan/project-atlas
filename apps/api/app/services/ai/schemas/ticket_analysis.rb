@@ -5,7 +5,7 @@ module Ai
     class TicketAnalysis < OpenAI::BaseModel
       required :sentiment, OpenAI::EnumOf[:positive, :negative, :neutral, :mixed]
       required :summary, String
-      required :category, String
+      required :category, OpenAI::EnumOf[:billing, :technical_issue, :feature_request, :account, :onboarding, :integrations, :performance, :general]
       required :confidence, Float
       required :feature_request, OpenAI::Boolean
       required :bug_report, OpenAI::Boolean

@@ -59,6 +59,26 @@ RSpec.describe AiAnalysis, type: :model do
       expect(analysis.errors[:sentiment]).to be_empty
     end
 
+    it "rejects invalid category" do
+      analysis = described_class.new(organization: organization, ticket: ticket, category: "invented_category")
+      analysis.valid?
+      expect(analysis.errors[:category]).to include("is not included in the list")
+    end
+
+    %w[billing technical_issue feature_request account onboarding integrations performance general].each do |valid_category|
+      it "accepts category '#{valid_category}'" do
+        analysis = described_class.new(organization: organization, ticket: ticket, category: valid_category)
+        analysis.valid?
+        expect(analysis.errors[:category]).to be_empty
+      end
+    end
+
+    it "allows nil category" do
+      analysis = described_class.new(organization: organization, ticket: ticket)
+      analysis.valid?
+      expect(analysis.errors[:category]).to be_empty
+    end
+
     it "rejects confidence > 1" do
       analysis = described_class.new(organization: organization, ticket: ticket, confidence: 1.5)
       analysis.valid?

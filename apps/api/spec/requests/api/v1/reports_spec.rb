@@ -85,7 +85,7 @@ RSpec.describe "Reports API", type: :request do
       let!(:a1) do
         AiAnalysis.create!(
           organization: organization, ticket: t1, status: "completed",
-          sentiment: "negative", category: "authentication", confidence: 0.92,
+          sentiment: "negative", category: "account", confidence: 0.92,
           feature_request: false, bug_report: true, knowledge_gap: true,
           processed_at: Time.current
         )
@@ -147,7 +147,7 @@ RSpec.describe "Reports API", type: :request do
           get "/api/v1/reports", headers: headers
           dist = response.parsed_body["data"]["categories"]["distribution"]
           expect(dist["billing"]).to eq(2)
-          expect(dist["authentication"]).to eq(1)
+          expect(dist["account"]).to eq(1)
         end
 
         it "returns top categories" do
@@ -225,7 +225,7 @@ RSpec.describe "Reports API", type: :request do
       before do
         AiAnalysis.create!(
           organization: organization, ticket: ticket1, status: "completed",
-          sentiment: "positive", category: "support", confidence: 0.9,
+          sentiment: "positive", category: "general", confidence: 0.9,
           feature_request: true, bug_report: false, knowledge_gap: false,
           processed_at: Time.current
         )
@@ -257,7 +257,7 @@ RSpec.describe "Reports API", type: :request do
 
       it "excludes non-completed analyses from category distribution" do
         get "/api/v1/reports", headers: headers
-        expect(response.parsed_body["data"]["categories"]["distribution"]).to eq({ "support" => 1 })
+        expect(response.parsed_body["data"]["categories"]["distribution"]).to eq({ "general" => 1 })
       end
     end
 
@@ -285,7 +285,7 @@ RSpec.describe "Reports API", type: :request do
         )
         AiAnalysis.create!(
           organization: other_org, ticket: other_ticket, status: "completed",
-          sentiment: "positive", category: "praise", confidence: 0.8,
+          sentiment: "positive", category: "general", confidence: 0.8,
           feature_request: false, bug_report: false, knowledge_gap: false,
           processed_at: Time.current
         )
@@ -307,7 +307,7 @@ RSpec.describe "Reports API", type: :request do
         get "/api/v1/reports", headers: headers
         cats = response.parsed_body["data"]["categories"]["distribution"]
         expect(cats).to eq({ "billing" => 1 })
-        expect(cats).not_to have_key("praise")
+        expect(cats).not_to have_key("general")
       end
 
       it "excludes other organization's ticket statuses" do
