@@ -288,7 +288,7 @@ describe('ImportPage', () => {
     await btn.trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain("Atlas couldn't process this file")
+    expect(wrapper.text()).toContain("Voceive couldn't process this file")
   })
 
   it('error has retry button that resets state', async () => {

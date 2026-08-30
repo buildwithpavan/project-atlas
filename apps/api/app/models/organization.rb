@@ -6,6 +6,13 @@ class Organization < ApplicationRecord
   has_many :uploads, dependent: :destroy
   has_many :tickets, dependent: :destroy
   has_many :ai_analyses, dependent: :destroy
+  has_many :documents, dependent: :destroy
+  has_many :document_chunks, dependent: :destroy
+  has_many :conversations, dependent: :destroy
+  has_many :messages, dependent: :destroy
+  has_many :ai_usage_records, dependent: :destroy
+  has_many :themes, dependent: :destroy
+  has_many :theme_memberships, dependent: :destroy
   has_one :executive_summary, dependent: :destroy
 
   validates :name, presence: true

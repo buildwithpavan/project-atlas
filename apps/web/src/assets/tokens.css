@@ -1,12 +1,12 @@
 /*
- * Atlas Design Tokens
+ * Voceive Design Tokens
  *
- * Centralized visual identity for the Atlas platform.
+ * Centralized visual identity for the Voceive platform.
  * All components consume these CSS custom properties rather than
  * hardcoded color values. Changing the brand requires editing
  * only this file.
  *
- * Dark-mode ready: override --atlas-* variables inside a
+ * Dark-mode ready: override --voceive-* variables inside a
  * `@media (prefers-color-scheme: dark)` or `.dark` block
  * when dark mode is implemented.
  */
@@ -15,55 +15,55 @@
   /* =============================================
    * BRAND
    * ============================================= */
-  --atlas-brand: #4F46E5;
-  --atlas-brand-hover: #4338CA;
-  --atlas-brand-active: #3730A3;
-  --atlas-brand-subtle: #EEF2FF;
+  --voceive-brand: #4F46E5;
+  --voceive-brand-hover: #4338CA;
+  --voceive-brand-active: #3730A3;
+  --voceive-brand-subtle: #EEF2FF;
 
-  --atlas-accent: #14B8A6;
-  --atlas-accent-hover: #0D9488;
-  --atlas-accent-subtle: #CCFBF1;
+  --voceive-accent: #14B8A6;
+  --voceive-accent-hover: #0D9488;
+  --voceive-accent-subtle: #CCFBF1;
 
   /* =============================================
    * AI
    * ============================================= */
-  --atlas-ai: #7C3AED;
-  --atlas-ai-subtle: #F5F3FF;
+  --voceive-ai: #7C3AED;
+  --voceive-ai-subtle: #F5F3FF;
 
   /* =============================================
    * SURFACES
    * ============================================= */
-  --atlas-background: #F8FAFC;
-  --atlas-surface: #FFFFFF;
-  --atlas-surface-elevated: #FFFFFF;
-  --atlas-surface-muted: #F1F5F9;
+  --voceive-background: #F8FAFC;
+  --voceive-surface: #FFFFFF;
+  --voceive-surface-elevated: #FFFFFF;
+  --voceive-surface-muted: #F1F5F9;
 
   /* =============================================
    * TYPOGRAPHY
    * ============================================= */
-  --atlas-text-primary: #111827;
-  --atlas-text-secondary: #475569;
-  --atlas-text-muted: #64748B;
-  --atlas-text-disabled: #94A3B8;
+  --voceive-text-primary: #111827;
+  --voceive-text-secondary: #475569;
+  --voceive-text-muted: #64748B;
+  --voceive-text-disabled: #94A3B8;
 
   /* =============================================
    * BORDERS
    * ============================================= */
-  --atlas-border: #E2E8F0;
-  --atlas-border-subtle: #F1F5F9;
-  --atlas-border-strong: #CBD5E1;
+  --voceive-border: #E2E8F0;
+  --voceive-border-subtle: #F1F5F9;
+  --voceive-border-strong: #CBD5E1;
 
   /* =============================================
    * SEMANTIC
    * ============================================= */
-  --atlas-success: #16A34A;
-  --atlas-success-subtle: #F0FDF4;
-  --atlas-warning: #D97706;
-  --atlas-warning-subtle: #FFFBEB;
-  --atlas-error: #DC2626;
-  --atlas-error-subtle: #FEF2F2;
-  --atlas-info: #2563EB;
-  --atlas-info-subtle: #EFF6FF;
+  --voceive-success: #16A34A;
+  --voceive-success-subtle: #F0FDF4;
+  --voceive-warning: #D97706;
+  --voceive-warning-subtle: #FFFBEB;
+  --voceive-error: #DC2626;
+  --voceive-error-subtle: #FEF2F2;
+  --voceive-info: #2563EB;
+  --voceive-info-subtle: #EFF6FF;
 
   /* =============================================
    * DATA VISUALIZATION
@@ -72,79 +72,79 @@
    * for chart series. Avoids reusing brand colors
    * to prevent confusion between UI and data.
    * ============================================= */
-  --atlas-chart-1: #6366F1;  /* indigo – primary series   */
-  --atlas-chart-2: #14B8A6;  /* teal                      */
-  --atlas-chart-3: #F59E0B;  /* amber                     */
-  --atlas-chart-4: #EF4444;  /* red                       */
-  --atlas-chart-5: #8B5CF6;  /* violet                    */
-  --atlas-chart-6: #06B6D4;  /* cyan                      */
-  --atlas-chart-7: #EC4899;  /* pink                      */
-  --atlas-chart-8: #84CC16;  /* lime                      */
+  --voceive-chart-1: #6366F1;  /* indigo – primary series   */
+  --voceive-chart-2: #14B8A6;  /* teal                      */
+  --voceive-chart-3: #F59E0B;  /* amber                     */
+  --voceive-chart-4: #EF4444;  /* red                       */
+  --voceive-chart-5: #8B5CF6;  /* violet                    */
+  --voceive-chart-6: #06B6D4;  /* cyan                      */
+  --voceive-chart-7: #EC4899;  /* pink                      */
+  --voceive-chart-8: #84CC16;  /* lime                      */
 
   /* =============================================
    * SHADOWS
    * ============================================= */
-  --atlas-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --atlas-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --atlas-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --atlas-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --voceive-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --voceive-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --voceive-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --voceive-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
   /* =============================================
    * BORDER RADIUS
    * ============================================= */
-  --atlas-radius-sm: 0.25rem;   /* 4px  */
-  --atlas-radius: 0.375rem;     /* 6px  */
-  --atlas-radius-md: 0.5rem;    /* 8px  */
-  --atlas-radius-lg: 0.75rem;   /* 12px */
-  --atlas-radius-full: 9999px;
+  --voceive-radius-sm: 0.25rem;   /* 4px  */
+  --voceive-radius: 0.375rem;     /* 6px  */
+  --voceive-radius-md: 0.5rem;    /* 8px  */
+  --voceive-radius-lg: 0.75rem;   /* 12px */
+  --voceive-radius-full: 9999px;
 
   /* =============================================
    * SPACING SCALE
    * ============================================= */
-  --atlas-space-0: 0;
-  --atlas-space-1: 0.25rem;   /* 4px  */
-  --atlas-space-2: 0.5rem;    /* 8px  */
-  --atlas-space-3: 0.75rem;   /* 12px */
-  --atlas-space-4: 1rem;      /* 16px */
-  --atlas-space-5: 1.25rem;   /* 20px */
-  --atlas-space-6: 1.5rem;    /* 24px */
-  --atlas-space-8: 2rem;      /* 32px */
-  --atlas-space-10: 2.5rem;   /* 40px */
-  --atlas-space-12: 3rem;     /* 48px */
-  --atlas-space-16: 4rem;     /* 64px */
+  --voceive-space-0: 0;
+  --voceive-space-1: 0.25rem;   /* 4px  */
+  --voceive-space-2: 0.5rem;    /* 8px  */
+  --voceive-space-3: 0.75rem;   /* 12px */
+  --voceive-space-4: 1rem;      /* 16px */
+  --voceive-space-5: 1.25rem;   /* 20px */
+  --voceive-space-6: 1.5rem;    /* 24px */
+  --voceive-space-8: 2rem;      /* 32px */
+  --voceive-space-10: 2.5rem;   /* 40px */
+  --voceive-space-12: 3rem;     /* 48px */
+  --voceive-space-16: 4rem;     /* 64px */
 
   /* =============================================
    * TYPOGRAPHY
    * ============================================= */
-  --atlas-font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --atlas-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  --voceive-font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --voceive-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
-  --atlas-text-xs: 0.75rem;     /* 12px */
-  --atlas-text-sm: 0.875rem;    /* 14px */
-  --atlas-text-base: 1rem;      /* 16px */
-  --atlas-text-lg: 1.125rem;    /* 18px */
-  --atlas-text-xl: 1.25rem;     /* 20px */
-  --atlas-text-2xl: 1.5rem;     /* 24px */
-  --atlas-text-3xl: 1.875rem;   /* 30px */
+  --voceive-text-xs: 0.75rem;     /* 12px */
+  --voceive-text-sm: 0.875rem;    /* 14px */
+  --voceive-text-base: 1rem;      /* 16px */
+  --voceive-text-lg: 1.125rem;    /* 18px */
+  --voceive-text-xl: 1.25rem;     /* 20px */
+  --voceive-text-2xl: 1.5rem;     /* 24px */
+  --voceive-text-3xl: 1.875rem;   /* 30px */
 
-  --atlas-leading-tight: 1.25;
-  --atlas-leading-normal: 1.5;
-  --atlas-leading-relaxed: 1.625;
+  --voceive-leading-tight: 1.25;
+  --voceive-leading-normal: 1.5;
+  --voceive-leading-relaxed: 1.625;
 
-  --atlas-font-normal: 400;
-  --atlas-font-medium: 500;
-  --atlas-font-semibold: 600;
-  --atlas-font-bold: 700;
+  --voceive-font-normal: 400;
+  --voceive-font-medium: 500;
+  --voceive-font-semibold: 600;
+  --voceive-font-bold: 700;
 
   /* =============================================
    * FOCUS RING  (accessibility)
    * ============================================= */
-  --atlas-ring: #4F46E5;
-  --atlas-ring-offset: 2px;
+  --voceive-ring: #4F46E5;
+  --voceive-ring-offset: 2px;
 
   /* =============================================
    * TRANSITIONS
    * ============================================= */
-  --atlas-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --atlas-transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --voceive-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --voceive-transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }

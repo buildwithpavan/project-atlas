@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createRouter, createWebHistory } from 'vue-router'
-import AtlasIntelligence from '@/components/reports/AtlasIntelligence.vue'
+import VoceiveIntelligence from '@/components/reports/VoceiveIntelligence.vue'
 import type { Report } from '@/api/types'
 
 function makeReport(overrides: Partial<Report> = {}): Report {
@@ -36,16 +36,16 @@ function makeRouter() {
 
 function mountComponent(report: Report) {
   const router = makeRouter()
-  return mount(AtlasIntelligence, {
+  return mount(VoceiveIntelligence, {
     props: { report },
     global: { plugins: [router] },
   })
 }
 
-describe('AtlasIntelligence', () => {
-  it('renders the Atlas Intelligence heading', () => {
+describe('VoceiveIntelligence', () => {
+  it('renders the Voceive Intelligence heading', () => {
     const wrapper = mountComponent(makeReport())
-    expect(wrapper.text()).toContain('Atlas Intelligence')
+    expect(wrapper.text()).toContain('Voceive Intelligence')
   })
 
   // -- Attention area -------------------------------------------------------
@@ -178,7 +178,7 @@ describe('AtlasIntelligence', () => {
       categories: { distribution: {}, top: {} },
       classifications: { feature_requests: 0, bug_reports: 0, knowledge_gaps: 0 },
     }))
-    expect(wrapper.text()).toContain('Atlas Intelligence')
+    expect(wrapper.text()).toContain('Voceive Intelligence')
     expect(wrapper.text()).toContain('0 / 10')
   })
 
@@ -189,7 +189,7 @@ describe('AtlasIntelligence', () => {
       categories: { distribution: {}, top: {} },
       classifications: { feature_requests: 0, bug_reports: 0, knowledge_gaps: 0 },
     }))
-    expect(wrapper.text()).toContain('Atlas Intelligence')
+    expect(wrapper.text()).toContain('Voceive Intelligence')
     expect(wrapper.text()).toContain('0 / 0')
   })
 

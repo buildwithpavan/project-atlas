@@ -2,7 +2,7 @@
 
 ## Overview
 
-Project Atlas uses PostgreSQL with row-level multi-tenancy.
+Voceive uses PostgreSQL with row-level multi-tenancy.
 
 Every business table contains an organization_id column to ensure tenant isolation.
 

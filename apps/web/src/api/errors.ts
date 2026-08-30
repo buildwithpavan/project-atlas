@@ -4,7 +4,7 @@
 
 /**
  * Typed representation of an RFC 9457 Problem Details response
- * returned by the Atlas Rails API.
+ * returned by the Voceive Rails API.
  */
 export class ApiError extends Error {
   /** Problem type URI, e.g. "/errors/unauthorized" */

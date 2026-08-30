@@ -42,9 +42,23 @@ RSpec.describe "Executive Summaries API", type: :request do
         post "/api/v1/reports/executive-summary", headers: { "Authorization" => "Bearer #{token}" }
         expect(response).to have_http_status(:unauthorized)
       end
+
+      it "rejects members from generating executive summaries" do
+        membership.update!(role: "member")
+        post "/api/v1/reports/executive-summary", headers: headers
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it "rejects viewers from generating executive summaries" do
+        membership.update!(role: "viewer")
+        post "/api/v1/reports/executive-summary", headers: headers
+        expect(response).to have_http_status(:forbidden)
+      end
     end
 
     describe "validation errors" do
+      before { membership.update!(role: "admin") }
+
       it "returns RFC 9457 error when no analyses exist" do
         post "/api/v1/reports/executive-summary", headers: headers
         expect(response).to have_http_status(:unprocessable_content)
@@ -77,6 +91,7 @@ RSpec.describe "Executive Summaries API", type: :request do
       end
 
       before do
+        membership.update!(role: "admin")
         allow(Ai::Providers::Openai).to receive(:generate_executive_summary).and_return(mock_parsed)
         create_completed_analysis(organization, upload)
       end
@@ -104,6 +119,7 @@ RSpec.describe "Executive Summaries API", type: :request do
 
     describe "AI provider errors" do
       before do
+        membership.update!(role: "admin")
         create_completed_analysis(organization, upload)
         allow(Ai::Providers::Openai).to receive(:generate_executive_summary)
           .and_raise(KeyError, "OPENAI_API_KEY environment variable is not set")
@@ -124,6 +140,15 @@ RSpec.describe "Executive Summaries API", type: :request do
       it "rejects unauthenticated requests" do
         get "/api/v1/reports/executive-summary"
         expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    describe "authorization" do
+      it "allows viewers to read executive summary" do
+        membership.update!(role: "viewer")
+        get "/api/v1/reports/executive-summary", headers: headers
+        # 404 is fine here - it means auth passed, no summary exists yet
+        expect(response).to have_http_status(:not_found)
       end
     end
 

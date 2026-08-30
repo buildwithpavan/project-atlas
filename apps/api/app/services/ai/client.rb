@@ -5,13 +5,13 @@ require "json"
 require "uri"
 
 module Ai
-  # HTTP client for communicating with the Atlas FastAPI AI service.
+  # HTTP client for communicating with the Voceive FastAPI AI service.
   #
   # Configuration:
   #   ENV["AI_SERVICE_URL"]     - base URL (default: http://ai:8000)
-  #   ENV["AI_SERVICE_TIMEOUT"] - request timeout in seconds (default: 10)
+  #   ENV["AI_SERVICE_TIMEOUT"] - request timeout in seconds (default: 30)
   #
-  # Does not implement retries. Sidekiq handles retry logic at the job level.
+  # Does not implement retries. Active Job handles retry logic at the job level.
   # Does not log request/response bodies to protect sensitive ticket content.
   class Client
     class Error < StandardError; end
@@ -31,13 +31,15 @@ module Ai
 
     def initialize(base_url: nil, timeout: nil)
       @base_url = base_url || ENV.fetch("AI_SERVICE_URL", "http://ai:8000")
-      @timeout = timeout || ENV.fetch("AI_SERVICE_TIMEOUT", "10").to_i
+      @timeout = timeout || ENV.fetch("AI_SERVICE_TIMEOUT", "30").to_i
+      @internal_token = ENV["AI_INTERNAL_TOKEN"]
     end
 
     def post(path, body)
       uri = URI.join(@base_url, path)
       request = Net::HTTP::Post.new(uri)
       request["Content-Type"] = "application/json"
+      request["X-Internal-Token"] = @internal_token if @internal_token
       request.body = JSON.generate(body)
 
       start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)

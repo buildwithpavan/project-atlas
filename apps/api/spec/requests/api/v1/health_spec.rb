@@ -18,8 +18,10 @@ RSpec.describe "GET /api/v1/health", type: :request do
       body = response.parsed_body
 
       expect(body).to include(
-        "service" => "atlas-api",
-        "version" => "v1"
+        "service" => "voceive-api",
+        "version" => "v1",
+        "status" => "healthy",
+        "checks" => { "database" => true }
       )
     end
 

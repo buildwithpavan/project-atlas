@@ -161,7 +161,7 @@ describe('ReportsPage', () => {
     expect(wrapper.text()).toContain('No category data')
   })
 
-  // -- Customer Signals (via AtlasIntelligence) -----------------------------
+  // -- Customer Signals (via VoceiveIntelligence) -----------------------------
 
   it('renders feature requests', async () => {
     setupMock()
@@ -215,7 +215,7 @@ describe('ReportsPage', () => {
     setupMock({ data: { ...baseReport, status_distribution: {} } })
     const wrapper = await mountPage()
     // The ReportDistribution component handles empty state
-    const distCards = wrapper.findAll('.bg-atlas-surface')
+    const distCards = wrapper.findAll('.bg-voceive-surface')
     expect(distCards.length).toBeGreaterThan(0)
   })
 
@@ -323,12 +323,12 @@ describe('ReportsPage', () => {
     expect(wrapper.text()).toContain('0')
   })
 
-  // -- Atlas Intelligence integration ---------------------------------------
+  // -- Voceive Intelligence integration ---------------------------------------
 
-  it('renders Atlas Intelligence section', async () => {
+  it('renders Voceive Intelligence section', async () => {
     setupMock()
     const wrapper = await mountPage()
-    expect(wrapper.text()).toContain('Atlas Intelligence')
+    expect(wrapper.text()).toContain('Voceive Intelligence')
     expect(wrapper.text()).toContain('Customer signals')
   })
 

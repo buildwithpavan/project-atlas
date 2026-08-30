@@ -86,7 +86,7 @@ async function handleUpload() {
         uploadError.value = err.detail
       }
     } else {
-      uploadError.value = "Atlas couldn't process this file. Please check the CSV format and try again."
+      uploadError.value = "Voceive couldn't process this file. Please check the CSV format and try again."
     }
   }
 }
@@ -103,18 +103,18 @@ function handleRetry() {
   <div class="mx-auto max-w-2xl">
     <!-- Header -->
     <div class="mb-8">
-      <h1 class="text-2xl font-bold text-atlas-text-primary">
+      <h1 class="text-2xl font-bold text-voceive-text-primary">
         Import customer data
       </h1>
-      <p class="mt-2 text-sm text-atlas-text-muted">
-        Upload a CSV file with customer conversations. Atlas will analyze the data for sentiment, categories, and actionable insights across your dashboard, tickets, and reports.
+      <p class="mt-2 text-sm text-voceive-text-muted">
+        Upload a CSV file with customer conversations. Voceive will analyze the data for sentiment, categories, and actionable insights across your dashboard, tickets, and reports.
       </p>
     </div>
 
     <!-- Processing state -->
     <div
       v-if="state === 'processing' && uploadResult"
-      class="rounded-atlas-md border border-atlas-border bg-atlas-surface p-6"
+      class="rounded-voceive-md border border-voceive-border bg-voceive-surface p-6"
     >
       <ImportProcessing :upload="uploadResult" />
     </div>
@@ -122,7 +122,7 @@ function handleRetry() {
     <!-- Success state -->
     <div
       v-else-if="state === 'success' && uploadResult"
-      class="rounded-atlas-md border border-atlas-border bg-atlas-surface p-6"
+      class="rounded-voceive-md border border-voceive-border bg-voceive-surface p-6"
     >
       <ImportSuccess :upload="uploadResult" />
     </div>
@@ -130,7 +130,7 @@ function handleRetry() {
     <!-- Error state -->
     <div
       v-else-if="state === 'error'"
-      class="rounded-atlas-md border border-atlas-border bg-atlas-surface p-6"
+      class="rounded-voceive-md border border-voceive-border bg-voceive-surface p-6"
     >
       <ImportError
         :message="uploadError ?? undefined"
@@ -142,7 +142,7 @@ function handleRetry() {
     <template v-else>
       <div class="space-y-5">
         <!-- Main upload card -->
-        <div class="rounded-atlas-md border border-atlas-border bg-atlas-surface p-6">
+        <div class="rounded-voceive-md border border-voceive-border bg-voceive-surface p-6">
           <!-- Dropzone / file info -->
           <ImportDropzone
             v-if="!selectedFile"
@@ -161,7 +161,7 @@ function handleRetry() {
           <p
             v-if="validationError"
             role="alert"
-            class="mt-3 text-sm text-atlas-error"
+            class="mt-3 text-sm text-voceive-error"
           >
             {{ validationError }}
           </p>
@@ -170,11 +170,11 @@ function handleRetry() {
           <div class="mt-5">
             <button
               type="button"
-              class="atlas-focus-ring w-full inline-flex items-center justify-center rounded-atlas px-4 py-2.5 text-sm font-medium transition-colors"
+              class="voceive-focus-ring w-full inline-flex items-center justify-center rounded-voceive px-4 py-2.5 text-sm font-medium transition-colors"
               :class="
                 canUpload
-                  ? 'bg-atlas-brand text-white hover:bg-atlas-brand-hover'
-                  : 'bg-atlas-text-disabled text-white cursor-not-allowed opacity-60'
+                  ? 'bg-voceive-brand text-white hover:bg-voceive-brand-hover'
+                  : 'bg-voceive-text-disabled text-white cursor-not-allowed opacity-60'
               "
               :disabled="!canUpload || state === 'uploading'"
               @click="handleUpload"

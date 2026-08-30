@@ -16,11 +16,11 @@ function formatSize(bytes: number): string {
 </script>
 
 <template>
-  <div class="flex items-center gap-3 rounded-atlas border border-atlas-border bg-atlas-surface px-4 py-3">
+  <div class="flex items-center gap-3 rounded-voceive border border-voceive-border bg-voceive-surface px-4 py-3">
     <!-- CSV icon -->
-    <div class="flex-shrink-0 size-10 rounded-atlas bg-atlas-brand-subtle flex items-center justify-center">
+    <div class="flex-shrink-0 size-10 rounded-voceive bg-voceive-brand-subtle flex items-center justify-center">
       <svg
-        class="size-5 text-atlas-brand"
+        class="size-5 text-voceive-brand"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -37,10 +37,10 @@ function formatSize(bytes: number): string {
 
     <!-- File details -->
     <div class="min-w-0 flex-1">
-      <p class="truncate text-sm font-medium text-atlas-text-primary">
+      <p class="truncate text-sm font-medium text-voceive-text-primary">
         {{ filename }}
       </p>
-      <p class="text-xs text-atlas-text-muted">
+      <p class="text-xs text-voceive-text-muted">
         {{ formatSize(size) }}
       </p>
     </div>
@@ -48,7 +48,7 @@ function formatSize(bytes: number): string {
     <!-- Remove button -->
     <button
       type="button"
-      class="atlas-focus-ring flex-shrink-0 rounded-atlas p-1.5 text-atlas-text-muted hover:bg-atlas-surface-muted hover:text-atlas-text-primary transition-colors"
+      class="voceive-focus-ring flex-shrink-0 rounded-voceive p-1.5 text-voceive-text-muted hover:bg-voceive-surface-muted hover:text-voceive-text-primary transition-colors"
       aria-label="Remove selected file"
       @click="$emit('remove')"
     >

@@ -15,9 +15,9 @@ defineEmits<{
     role="alert"
     class="flex flex-col items-center justify-center py-16 text-center"
   >
-    <div class="size-16 rounded-full bg-atlas-error-subtle flex items-center justify-center mb-4">
+    <div class="size-16 rounded-full bg-voceive-error-subtle flex items-center justify-center mb-4">
       <svg
-        class="size-8 text-atlas-error"
+        class="size-8 text-voceive-error"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -31,10 +31,10 @@ defineEmits<{
         />
       </svg>
     </div>
-    <h2 class="text-lg font-semibold text-atlas-text-primary">
+    <h2 class="text-lg font-semibold text-voceive-text-primary">
       Unable to load dashboard
     </h2>
-    <p class="mt-2 max-w-sm text-sm text-atlas-text-muted">
+    <p class="mt-2 max-w-sm text-sm text-voceive-text-muted">
       {{ message || 'Something went wrong while loading your dashboard data. Please try again.' }}
     </p>
     <AButton

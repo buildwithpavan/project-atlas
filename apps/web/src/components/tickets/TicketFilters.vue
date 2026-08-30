@@ -43,7 +43,7 @@ const priorityOptions = [
     <div class="flex gap-3">
       <select
         :value="status"
-        class="atlas-focus-ring rounded-atlas border border-atlas-border bg-atlas-surface px-3 py-2 text-sm text-atlas-text-primary hover:border-atlas-border-strong transition-colors appearance-none"
+        class="voceive-focus-ring rounded-voceive border border-voceive-border bg-voceive-surface px-3 py-2 text-sm text-voceive-text-primary hover:border-voceive-border-strong transition-colors appearance-none"
         aria-label="Filter by status"
         @change="status = ($event.target as HTMLSelectElement).value"
       >
@@ -58,7 +58,7 @@ const priorityOptions = [
 
       <select
         :value="priority"
-        class="atlas-focus-ring rounded-atlas border border-atlas-border bg-atlas-surface px-3 py-2 text-sm text-atlas-text-primary hover:border-atlas-border-strong transition-colors appearance-none"
+        class="voceive-focus-ring rounded-voceive border border-voceive-border bg-voceive-surface px-3 py-2 text-sm text-voceive-text-primary hover:border-voceive-border-strong transition-colors appearance-none"
         aria-label="Filter by priority"
         @change="priority = ($event.target as HTMLSelectElement).value"
       >

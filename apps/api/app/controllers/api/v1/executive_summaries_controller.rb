@@ -4,20 +4,23 @@ module Api
   module V1
     class ExecutiveSummariesController < BaseController
       include Authenticatable
+      include Authorizable
       before_action :authenticate_user!
 
       def show
-        summary = organization.executive_summary
+        authorize! :read
+        summary = current_organization.executive_summary
         raise NotFoundError, "No executive summary has been generated yet" unless summary
 
         render json: { data: serialize(summary) }
       end
 
       def create
-        summary = Ai::GenerateExecutiveSummary.call(organization)
+        authorize! :manage
+        summary = ::Ai::GenerateExecutiveSummary.call(current_organization)
 
         render json: { data: serialize(summary) }, status: :created
-      rescue ValidationError, UnauthorizedError, NotFoundError => e
+      rescue ValidationError, UnauthorizedError, ForbiddenError, NotFoundError => e
         raise e
       rescue KeyError => e
         raise ApplicationError.new(
@@ -37,14 +40,6 @@ module Api
 
       private
 
-      def organization
-        @organization ||= begin
-          org = current_user.organizations.first
-          raise UnauthorizedError, "No organization access" unless org
-          org
-        end
-      end
-
       def serialize(summary)
         {
           id: summary.id,
@@ -59,7 +54,7 @@ module Api
       end
 
       def stale?(summary)
-        current_count = organization.ai_analyses.where(status: "completed").count
+        current_count = current_organization.ai_analyses.where(status: "completed").count
         current_count > summary.analyzed_ticket_count
       end
     end

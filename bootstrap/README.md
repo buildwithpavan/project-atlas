@@ -1,6 +1,6 @@
 # Bootstrap
 
-This directory contains reusable scripts and templates used to bootstrap Project Atlas.
+This directory contains reusable scripts and templates used to bootstrap Voceive.
 
 ## Goals
 

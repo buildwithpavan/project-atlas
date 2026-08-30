@@ -1,4 +1,4 @@
-# Project Atlas Rails Template
+# Voceive Rails Template
 #
 # This template will evolve as the project grows.
 #

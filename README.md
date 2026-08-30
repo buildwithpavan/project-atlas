@@ -1,14 +1,14 @@
-# Project Atlas
+# Voceive
 
-> AI-native Customer Support Intelligence Platform built as a production-grade reference implementation using Ruby on Rails, FastAPI, Vue.js, Docker, Kubernetes, Terraform, and modern AI engineering practices.
+> AI-powered Customer Support Intelligence Platform — transforms customer conversations into actionable intelligence using Ruby on Rails, Vue.js, OpenAI, and modern engineering practices.
 
 ---
 
 ## Vision
 
-Project Atlas transforms customer support data into actionable business intelligence.
+Voceive transforms customer support data into actionable business intelligence.
 
-Rather than acting as a ticketing system, Atlas analyzes customer support interactions to help organizations understand:
+Rather than acting as a ticketing system, Voceive analyzes customer support interactions to help organizations understand:
 
 - Customer pain points
 - Recurring issues
@@ -87,7 +87,7 @@ The goal is to demonstrate how to build a modern AI-native SaaS platform using p
 
 # Engineering Principles
 
-Project Atlas follows:
+Voceive follows:
 
 - Domain-Driven Design (DDD)
 - SOLID Principles
@@ -184,7 +184,7 @@ The repository includes:
 
 # AI-First Development
 
-Project Atlas is designed to work effectively with AI coding agents.
+Voceive is designed to work effectively with AI coding agents.
 
 The repository includes dedicated AI documentation covering:
 

@@ -26,15 +26,15 @@ const tableRows = [
 </script>
 
 <template>
-  <div class="min-h-screen bg-atlas-background">
-    <header class="bg-atlas-surface border-b border-atlas-border px-6 py-4">
+  <div class="min-h-screen bg-voceive-background">
+    <header class="bg-voceive-surface border-b border-voceive-border px-6 py-4">
       <div class="mx-auto max-w-5xl flex items-center justify-between">
-        <h1 class="text-xl font-bold text-atlas-brand">
-          Atlas Design System
+        <h1 class="text-xl font-bold text-voceive-brand">
+          Voceive Design System
         </h1>
         <RouterLink
           to="/"
-          class="text-sm text-atlas-text-secondary hover:text-atlas-text-primary transition-colors"
+          class="text-sm text-voceive-text-secondary hover:text-voceive-text-primary transition-colors"
         >
           ← Home
         </RouterLink>
@@ -44,103 +44,103 @@ const tableRows = [
     <main class="mx-auto max-w-5xl px-6 py-8 space-y-12">
       <!-- COLORS -->
       <section>
-        <h2 class="text-2xl font-semibold text-atlas-text-primary mb-6">
+        <h2 class="text-2xl font-semibold text-voceive-text-primary mb-6">
           Colors
         </h2>
 
-        <h3 class="text-lg font-medium text-atlas-text-primary mb-3">
+        <h3 class="text-lg font-medium text-voceive-text-primary mb-3">
           Brand
         </h3>
         <div class="flex flex-wrap gap-3 mb-6">
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-brand" />
-            <span class="text-xs text-atlas-text-muted">brand</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-brand" />
+            <span class="text-xs text-voceive-text-muted">brand</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-brand-hover" />
-            <span class="text-xs text-atlas-text-muted">hover</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-brand-hover" />
+            <span class="text-xs text-voceive-text-muted">hover</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-brand-active" />
-            <span class="text-xs text-atlas-text-muted">active</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-brand-active" />
+            <span class="text-xs text-voceive-text-muted">active</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-brand-subtle border border-atlas-border-subtle" />
-            <span class="text-xs text-atlas-text-muted">subtle</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-brand-subtle border border-voceive-border-subtle" />
+            <span class="text-xs text-voceive-text-muted">subtle</span>
           </div>
         </div>
 
-        <h3 class="text-lg font-medium text-atlas-text-primary mb-3">
+        <h3 class="text-lg font-medium text-voceive-text-primary mb-3">
           Accent
         </h3>
         <div class="flex flex-wrap gap-3 mb-6">
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-accent" />
-            <span class="text-xs text-atlas-text-muted">accent</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-accent" />
+            <span class="text-xs text-voceive-text-muted">accent</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-accent-hover" />
-            <span class="text-xs text-atlas-text-muted">hover</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-accent-hover" />
+            <span class="text-xs text-voceive-text-muted">hover</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-accent-subtle border border-atlas-border-subtle" />
-            <span class="text-xs text-atlas-text-muted">subtle</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-accent-subtle border border-voceive-border-subtle" />
+            <span class="text-xs text-voceive-text-muted">subtle</span>
           </div>
         </div>
 
-        <h3 class="text-lg font-medium text-atlas-text-primary mb-3">
+        <h3 class="text-lg font-medium text-voceive-text-primary mb-3">
           AI
         </h3>
         <div class="flex flex-wrap gap-3 mb-6">
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-ai" />
-            <span class="text-xs text-atlas-text-muted">ai</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-ai" />
+            <span class="text-xs text-voceive-text-muted">ai</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-ai-subtle border border-atlas-border-subtle" />
-            <span class="text-xs text-atlas-text-muted">subtle</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-ai-subtle border border-voceive-border-subtle" />
+            <span class="text-xs text-voceive-text-muted">subtle</span>
           </div>
         </div>
 
-        <h3 class="text-lg font-medium text-atlas-text-primary mb-3">
+        <h3 class="text-lg font-medium text-voceive-text-primary mb-3">
           Semantic
         </h3>
         <div class="flex flex-wrap gap-3 mb-6">
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-success" />
-            <span class="text-xs text-atlas-text-muted">success</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-success" />
+            <span class="text-xs text-voceive-text-muted">success</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-success-subtle border border-atlas-border-subtle" />
-            <span class="text-xs text-atlas-text-muted">subtle</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-success-subtle border border-voceive-border-subtle" />
+            <span class="text-xs text-voceive-text-muted">subtle</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-warning" />
-            <span class="text-xs text-atlas-text-muted">warning</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-warning" />
+            <span class="text-xs text-voceive-text-muted">warning</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-warning-subtle border border-atlas-border-subtle" />
-            <span class="text-xs text-atlas-text-muted">subtle</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-warning-subtle border border-voceive-border-subtle" />
+            <span class="text-xs text-voceive-text-muted">subtle</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-error" />
-            <span class="text-xs text-atlas-text-muted">error</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-error" />
+            <span class="text-xs text-voceive-text-muted">error</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-error-subtle border border-atlas-border-subtle" />
-            <span class="text-xs text-atlas-text-muted">subtle</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-error-subtle border border-voceive-border-subtle" />
+            <span class="text-xs text-voceive-text-muted">subtle</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-info" />
-            <span class="text-xs text-atlas-text-muted">info</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-info" />
+            <span class="text-xs text-voceive-text-muted">info</span>
           </div>
           <div class="flex flex-col items-center gap-1.5">
-            <div class="size-14 rounded-atlas-md bg-atlas-info-subtle border border-atlas-border-subtle" />
-            <span class="text-xs text-atlas-text-muted">subtle</span>
+            <div class="size-14 rounded-voceive-md bg-voceive-info-subtle border border-voceive-border-subtle" />
+            <span class="text-xs text-voceive-text-muted">subtle</span>
           </div>
         </div>
 
-        <h3 class="text-lg font-medium text-atlas-text-primary mb-3">
+        <h3 class="text-lg font-medium text-voceive-text-primary mb-3">
           Chart Palette
         </h3>
         <div class="flex flex-wrap gap-3">
@@ -150,66 +150,66 @@ const tableRows = [
             class="flex flex-col items-center gap-1.5"
           >
             <div
-              class="size-14 rounded-atlas-md"
-              :class="`bg-atlas-chart-${n}`"
+              class="size-14 rounded-voceive-md"
+              :class="`bg-voceive-chart-${n}`"
             />
-            <span class="text-xs text-atlas-text-muted">chart-{{ n }}</span>
+            <span class="text-xs text-voceive-text-muted">chart-{{ n }}</span>
           </div>
         </div>
       </section>
 
       <!-- TYPOGRAPHY -->
       <section>
-        <h2 class="text-2xl font-semibold text-atlas-text-primary mb-6">
+        <h2 class="text-2xl font-semibold text-voceive-text-primary mb-6">
           Typography
         </h2>
         <ACard>
           <div class="space-y-4">
             <div>
-              <span class="text-xs font-medium text-atlas-text-muted uppercase tracking-wider">Page title</span>
-              <p class="text-3xl font-bold text-atlas-text-primary leading-tight">
+              <span class="text-xs font-medium text-voceive-text-muted uppercase tracking-wider">Page title</span>
+              <p class="text-3xl font-bold text-voceive-text-primary leading-tight">
                 Dashboard Overview
               </p>
             </div>
             <div>
-              <span class="text-xs font-medium text-atlas-text-muted uppercase tracking-wider">Section title</span>
-              <p class="text-2xl font-semibold text-atlas-text-primary leading-tight">
+              <span class="text-xs font-medium text-voceive-text-muted uppercase tracking-wider">Section title</span>
+              <p class="text-2xl font-semibold text-voceive-text-primary leading-tight">
                 Ticket Analysis
               </p>
             </div>
             <div>
-              <span class="text-xs font-medium text-atlas-text-muted uppercase tracking-wider">Card title</span>
-              <p class="text-lg font-semibold text-atlas-text-primary">
+              <span class="text-xs font-medium text-voceive-text-muted uppercase tracking-wider">Card title</span>
+              <p class="text-lg font-semibold text-voceive-text-primary">
                 Sentiment Distribution
               </p>
             </div>
             <div>
-              <span class="text-xs font-medium text-atlas-text-muted uppercase tracking-wider">Body</span>
-              <p class="text-base text-atlas-text-primary">
+              <span class="text-xs font-medium text-voceive-text-muted uppercase tracking-wider">Body</span>
+              <p class="text-base text-voceive-text-primary">
                 This is body text used for primary content throughout the application.
               </p>
             </div>
             <div>
-              <span class="text-xs font-medium text-atlas-text-muted uppercase tracking-wider">Secondary / muted</span>
-              <p class="text-sm text-atlas-text-secondary">
+              <span class="text-xs font-medium text-voceive-text-muted uppercase tracking-wider">Secondary / muted</span>
+              <p class="text-sm text-voceive-text-secondary">
                 Secondary text provides supplementary information.
               </p>
             </div>
             <div>
-              <span class="text-xs font-medium text-atlas-text-muted uppercase tracking-wider">Label</span>
-              <p class="text-sm font-medium text-atlas-text-primary">
+              <span class="text-xs font-medium text-voceive-text-muted uppercase tracking-wider">Label</span>
+              <p class="text-sm font-medium text-voceive-text-primary">
                 Form label
               </p>
             </div>
             <div>
-              <span class="text-xs font-medium text-atlas-text-muted uppercase tracking-wider">Caption</span>
-              <p class="text-xs text-atlas-text-muted">
+              <span class="text-xs font-medium text-voceive-text-muted uppercase tracking-wider">Caption</span>
+              <p class="text-xs text-voceive-text-muted">
                 Last updated 5 minutes ago
               </p>
             </div>
             <div>
-              <span class="text-xs font-medium text-atlas-text-muted uppercase tracking-wider">Dashboard metric</span>
-              <p class="text-3xl font-bold tabular-nums text-atlas-text-primary">
+              <span class="text-xs font-medium text-voceive-text-muted uppercase tracking-wider">Dashboard metric</span>
+              <p class="text-3xl font-bold tabular-nums text-voceive-text-primary">
                 2,847
               </p>
             </div>
@@ -219,7 +219,7 @@ const tableRows = [
 
       <!-- BUTTONS -->
       <section>
-        <h2 class="text-2xl font-semibold text-atlas-text-primary mb-6">
+        <h2 class="text-2xl font-semibold text-voceive-text-primary mb-6">
           Buttons
         </h2>
         <ACard>
@@ -263,7 +263,7 @@ const tableRows = [
 
       <!-- BADGES -->
       <section>
-        <h2 class="text-2xl font-semibold text-atlas-text-primary mb-6">
+        <h2 class="text-2xl font-semibold text-voceive-text-primary mb-6">
           Badges
         </h2>
         <ACard>
@@ -290,7 +290,7 @@ const tableRows = [
 
       <!-- INPUTS -->
       <section>
-        <h2 class="text-2xl font-semibold text-atlas-text-primary mb-6">
+        <h2 class="text-2xl font-semibold text-voceive-text-primary mb-6">
           Inputs
         </h2>
         <ACard>
@@ -325,7 +325,7 @@ const tableRows = [
 
       <!-- TABLE -->
       <section>
-        <h2 class="text-2xl font-semibold text-atlas-text-primary mb-6">
+        <h2 class="text-2xl font-semibold text-voceive-text-primary mb-6">
           Table
         </h2>
         <ATable
@@ -359,25 +359,25 @@ const tableRows = [
 
       <!-- SHADOWS & RADIUS -->
       <section>
-        <h2 class="text-2xl font-semibold text-atlas-text-primary mb-6">
+        <h2 class="text-2xl font-semibold text-voceive-text-primary mb-6">
           Shadows & Radius
         </h2>
         <div class="grid gap-6 sm:grid-cols-4">
           <div class="flex flex-col items-center gap-2">
-            <div class="size-20 rounded-atlas-sm bg-atlas-surface shadow-atlas-sm" />
-            <span class="text-xs text-atlas-text-muted">shadow-sm</span>
+            <div class="size-20 rounded-voceive-sm bg-voceive-surface shadow-voceive-sm" />
+            <span class="text-xs text-voceive-text-muted">shadow-sm</span>
           </div>
           <div class="flex flex-col items-center gap-2">
-            <div class="size-20 rounded-atlas bg-atlas-surface shadow-atlas" />
-            <span class="text-xs text-atlas-text-muted">shadow</span>
+            <div class="size-20 rounded-voceive bg-voceive-surface shadow-voceive" />
+            <span class="text-xs text-voceive-text-muted">shadow</span>
           </div>
           <div class="flex flex-col items-center gap-2">
-            <div class="size-20 rounded-atlas-md bg-atlas-surface shadow-atlas-md" />
-            <span class="text-xs text-atlas-text-muted">shadow-md</span>
+            <div class="size-20 rounded-voceive-md bg-voceive-surface shadow-voceive-md" />
+            <span class="text-xs text-voceive-text-muted">shadow-md</span>
           </div>
           <div class="flex flex-col items-center gap-2">
-            <div class="size-20 rounded-atlas-lg bg-atlas-surface shadow-atlas-lg" />
-            <span class="text-xs text-atlas-text-muted">shadow-lg</span>
+            <div class="size-20 rounded-voceive-lg bg-voceive-surface shadow-voceive-lg" />
+            <span class="text-xs text-voceive-text-muted">shadow-lg</span>
           </div>
         </div>
       </section>

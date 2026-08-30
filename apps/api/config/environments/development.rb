@@ -70,4 +70,8 @@ Rails.application.configure do
 
   # Store files locally.
   config.active_storage.service = :local
+  config.hosts << "app"
+  config.hosts << "project-atlas-app-1"
+  config.active_job.queue_adapter = :solid_queue
+  config.solid_queue.connects_to = { database: { writing: :queue } }
 end

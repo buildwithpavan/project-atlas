@@ -27,6 +27,18 @@ RSpec.describe "POST /api/v1/uploads", type: :request do
       post "/api/v1/uploads", params: { file: csv_file }, headers: { "Authorization" => "Bearer #{token}" }
       expect(response).to have_http_status(:unauthorized)
     end
+
+    it "rejects viewers from uploading" do
+      membership.update!(role: "viewer")
+      post "/api/v1/uploads", params: { file: csv_file }, headers: headers
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "allows members to upload" do
+      ActiveJob::Base.queue_adapter = :test
+      post "/api/v1/uploads", params: { file: csv_file }, headers: headers
+      expect(response).to have_http_status(:created)
+    end
   end
 
   describe "file validation" do

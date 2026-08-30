@@ -26,47 +26,47 @@ function formatDate(iso: string): string {
 
 <template>
   <!-- Desktop table -->
-  <div class="hidden md:block overflow-x-auto border border-atlas-border rounded-atlas-lg">
-    <table class="min-w-full divide-y divide-atlas-border">
-      <thead class="bg-atlas-surface-muted">
+  <div class="hidden md:block overflow-x-auto border border-voceive-border rounded-voceive-lg">
+    <table class="min-w-full divide-y divide-voceive-border">
+      <thead class="bg-voceive-surface-muted">
         <tr>
           <th
-            class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-atlas-text-muted"
+            class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-voceive-text-muted"
           >
             Subject
           </th>
           <th
-            class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-atlas-text-muted"
+            class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-voceive-text-muted"
           >
             Customer
           </th>
           <th
-            class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-atlas-text-muted"
+            class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-voceive-text-muted"
           >
             Status
           </th>
           <th
-            class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-atlas-text-muted"
+            class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-voceive-text-muted"
           >
             Priority
           </th>
           <th
-            class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-atlas-text-muted"
+            class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-voceive-text-muted"
           >
             Category
           </th>
           <th
-            class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-atlas-text-muted"
+            class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-voceive-text-muted"
           >
             Created
           </th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-atlas-border bg-atlas-surface">
+      <tbody class="divide-y divide-voceive-border bg-voceive-surface">
         <tr
           v-for="ticket in tickets"
           :key="ticket.id"
-          class="atlas-focus-ring cursor-pointer hover:bg-atlas-surface-muted transition-colors"
+          class="voceive-focus-ring cursor-pointer hover:bg-voceive-surface-muted transition-colors"
           tabindex="0"
           role="link"
           :aria-label="`View ticket: ${ticket.subject}`"
@@ -74,10 +74,10 @@ function formatDate(iso: string): string {
           @keydown.enter="$emit('select', ticket)"
           @keydown.space.prevent="$emit('select', ticket)"
         >
-          <td class="px-4 py-3 text-sm font-medium text-atlas-text-primary max-w-xs truncate">
+          <td class="px-4 py-3 text-sm font-medium text-voceive-text-primary max-w-xs truncate">
             {{ ticket.subject }}
           </td>
-          <td class="px-4 py-3 text-sm text-atlas-text-secondary">
+          <td class="px-4 py-3 text-sm text-voceive-text-secondary">
             {{ ticket.customer_name || '—' }}
           </td>
           <td class="px-4 py-3">
@@ -86,10 +86,10 @@ function formatDate(iso: string): string {
           <td class="px-4 py-3">
             <TicketPriorityBadge :priority="ticket.priority" />
           </td>
-          <td class="px-4 py-3 text-sm text-atlas-text-secondary capitalize">
+          <td class="px-4 py-3 text-sm text-voceive-text-secondary capitalize">
             {{ ticket.category || '—' }}
           </td>
-          <td class="px-4 py-3 text-sm text-atlas-text-muted whitespace-nowrap">
+          <td class="px-4 py-3 text-sm text-voceive-text-muted whitespace-nowrap">
             {{ formatDate(ticket.created_at) }}
           </td>
         </tr>
@@ -103,13 +103,13 @@ function formatDate(iso: string): string {
       v-for="ticket in tickets"
       :key="ticket.id"
       type="button"
-      class="atlas-focus-ring w-full text-left bg-atlas-surface border border-atlas-border rounded-atlas-lg p-4 hover:bg-atlas-surface-muted transition-colors"
+      class="voceive-focus-ring w-full text-left bg-voceive-surface border border-voceive-border rounded-voceive-lg p-4 hover:bg-voceive-surface-muted transition-colors"
       @click="$emit('select', ticket)"
     >
-      <p class="text-sm font-medium text-atlas-text-primary truncate">
+      <p class="text-sm font-medium text-voceive-text-primary truncate">
         {{ ticket.subject }}
       </p>
-      <p class="mt-1 text-xs text-atlas-text-secondary">
+      <p class="mt-1 text-xs text-voceive-text-secondary">
         {{ ticket.customer_name || 'Unknown customer' }}
       </p>
       <div class="mt-2 flex flex-wrap items-center gap-2">
@@ -117,12 +117,12 @@ function formatDate(iso: string): string {
         <TicketPriorityBadge :priority="ticket.priority" />
         <span
           v-if="ticket.category"
-          class="text-xs text-atlas-text-muted capitalize"
+          class="text-xs text-voceive-text-muted capitalize"
         >
           {{ ticket.category }}
         </span>
       </div>
-      <p class="mt-2 text-xs text-atlas-text-muted">
+      <p class="mt-2 text-xs text-voceive-text-muted">
         {{ formatDate(ticket.created_at) }}
       </p>
     </button>

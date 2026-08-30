@@ -4,21 +4,15 @@ module Api
   module V1
     class DashboardController < BaseController
       include Authenticatable
+      include Authorizable
       before_action :authenticate_user!
 
       def show
+        authorize! :read
         render json: { data: dashboard_data }
       end
 
       private
-
-      def organization
-        @organization ||= begin
-          org = current_user.organizations.first
-          raise UnauthorizedError, "No organization access" unless org
-          org
-        end
-      end
 
       def dashboard_data
         {
@@ -32,11 +26,11 @@ module Api
       end
 
       def analyses
-        @analyses ||= organization.ai_analyses.where(status: "completed")
+        @analyses ||= current_organization.ai_analyses.where(status: "completed")
       end
 
       def total_tickets
-        organization.tickets.count
+        current_organization.tickets.count
       end
 
       def analyzed_tickets_count

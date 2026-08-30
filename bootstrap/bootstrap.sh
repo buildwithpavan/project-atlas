@@ -2,7 +2,7 @@
 
 set -e
 
-echo "Bootstrapping Project Atlas..."
+echo "Bootstrapping Voceive..."
 
 echo "TODO"
 

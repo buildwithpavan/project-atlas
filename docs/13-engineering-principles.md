@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the engineering principles for Project Atlas.
+This document defines the engineering principles for Voceive.
 
 Every implementation, design decision, and architectural change must align with these principles.
 
@@ -12,7 +12,7 @@ These principles apply equally to human developers and AI coding agents.
 
 # 1. Domain-Driven Design (DDD)
 
-Project Atlas is organized around business domains rather than technical layers.
+Voceive is organized around business domains rather than technical layers.
 
 Business domains include:
 
@@ -108,7 +108,7 @@ The order is:
 
 # 8. REST Standards
 
-Project Atlas follows REST principles.
+Voceive follows REST principles.
 
 - Resource-oriented URLs
 - Standard HTTP methods
@@ -230,7 +230,7 @@ Production issues should be diagnosable.
 
 # 17. AI-First Engineering
 
-Project Atlas is designed to work effectively with AI coding agents.
+Voceive is designed to work effectively with AI coding agents.
 
 Engineering decisions should:
 
@@ -260,7 +260,7 @@ Documentation should evolve with the code.
 
 Infrastructure is treated as code.
 
-Project Atlas will use:
+Voceive will use:
 
 - Docker
 - Kubernetes
@@ -283,7 +283,7 @@ Refactoring is encouraged when it improves maintainability without introducing u
 
 # Engineering Philosophy
 
-Project Atlas prioritizes:
+Voceive prioritizes:
 
 - Simplicity over cleverness
 - Readability over brevity

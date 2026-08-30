@@ -2,7 +2,7 @@ System Architecture
 
 Overview
 
-Project Atlas is built as a modular, AI-native SaaS platform following a monorepo architecture. The system consists of independent applications that can be developed, deployed, and scaled independently while sharing a common codebase and development workflow.
+Voceive is built as a modular, AI-native SaaS platform following a monorepo architecture. The system consists of independent applications that can be developed, deployed, and scaled independently while sharing a common codebase and development workflow.
 
                    User
                      │
@@ -178,7 +178,7 @@ Development Environment Architecture
 
 Overview
 
-Project Atlas uses a containerized development environment powered by VS Code Dev Containers and Docker Compose. This provides a reproducible development setup while keeping the host machine free from project-specific runtime dependencies.
+Voceive uses a containerized development environment powered by VS Code Dev Containers and Docker Compose. This provides a reproducible development setup while keeping the host machine free from project-specific runtime dependencies.
 
 Development Architecture
 

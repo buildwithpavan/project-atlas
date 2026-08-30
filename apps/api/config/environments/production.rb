@@ -31,6 +31,11 @@ Rails.application.configure do
   config.log_tags = [ :request_id ]
   config.logger   = ActiveSupport::TaggedLogging.logger(STDOUT)
 
+  # Use JSON formatter for structured logging in production.
+  # Compatible with CloudWatch, Datadog, ELK, and other log aggregation systems.
+  require_relative "../../lib/json_log_formatter"
+  config.logger.formatter = JsonLogFormatter.new
+
   # Change to "debug" to log everything (including potentially personally-identifiable information!).
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
 

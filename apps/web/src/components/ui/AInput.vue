@@ -30,7 +30,7 @@ const inputId = computed(() => props.id ?? `a-input-${++counter}`)
     <label
       v-if="label"
       :for="inputId"
-      class="text-sm font-medium text-atlas-text-primary"
+      class="text-sm font-medium text-voceive-text-primary"
     >
       {{ label }}
     </label>
@@ -43,19 +43,19 @@ const inputId = computed(() => props.id ?? `a-input-${++counter}`)
       :autocomplete="autocomplete"
       :aria-invalid="!!error"
       :aria-describedby="error ? `${inputId}-error` : undefined"
-      class="atlas-focus-ring block w-full rounded-atlas border bg-atlas-surface px-3 py-2 text-sm text-atlas-text-primary placeholder:text-atlas-text-muted transition-colors"
+      class="voceive-focus-ring block w-full rounded-voceive border bg-voceive-surface px-3 py-2 text-sm text-voceive-text-primary placeholder:text-voceive-text-muted transition-colors"
       :class="[
         error
-          ? 'border-atlas-error'
-          : 'border-atlas-border hover:border-atlas-border-strong',
-        { 'cursor-not-allowed bg-atlas-surface-muted text-atlas-text-disabled': disabled },
+          ? 'border-voceive-error'
+          : 'border-voceive-border hover:border-voceive-border-strong',
+        { 'cursor-not-allowed bg-voceive-surface-muted text-voceive-text-disabled': disabled },
       ]"
     >
     <p
       v-if="error"
       :id="`${inputId}-error`"
       role="alert"
-      class="text-xs text-atlas-error"
+      class="text-xs text-voceive-error"
     >
       {{ error }}
     </p>

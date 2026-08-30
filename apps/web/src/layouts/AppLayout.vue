@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { ALogo } from '@/components/ui'
 
 const router = useRouter()
 const route = useRoute()
@@ -24,6 +25,7 @@ async function handleLogout() {
 const navItems = [
   { name: 'dashboard', label: 'Dashboard', path: '/app/dashboard' },
   { name: 'tickets', label: 'Tickets', path: '/app/tickets' },
+  { name: 'themes', label: 'Themes', path: '/app/themes' },
   { name: 'reports', label: 'Reports', path: '/app/reports' },
   { name: 'import', label: 'Import Data', path: '/app/import' },
 ]
@@ -34,7 +36,7 @@ function isActive(name: string): boolean {
 </script>
 
 <template>
-  <div class="min-h-screen bg-atlas-background">
+  <div class="min-h-screen bg-voceive-background">
     <!-- Mobile backdrop -->
     <div
       v-if="sidebarOpen"
@@ -44,13 +46,13 @@ function isActive(name: string): boolean {
 
     <!-- Sidebar -->
     <aside
-      class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-atlas-border bg-atlas-surface transition-transform lg:translate-x-0"
+      class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-voceive-border bg-voceive-surface transition-transform lg:translate-x-0"
       :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
       aria-label="Main navigation"
     >
       <!-- Logo -->
-      <div class="flex h-14 items-center border-b border-atlas-border px-5">
-        <span class="text-lg font-bold text-atlas-brand">Atlas</span>
+      <div class="flex h-14 items-center border-b border-voceive-border px-5">
+        <ALogo variant="full" height="28px" />
       </div>
 
       <!-- Nav links -->
@@ -59,11 +61,11 @@ function isActive(name: string): boolean {
           v-for="item in navItems"
           :key="item.name"
           :to="item.path"
-          class="atlas-focus-ring flex items-center gap-3 rounded-atlas px-3 py-2 text-sm font-medium transition-colors"
+          class="voceive-focus-ring flex items-center gap-3 rounded-voceive px-3 py-2 text-sm font-medium transition-colors"
           :class="
             isActive(item.name)
-              ? 'bg-atlas-brand-subtle text-atlas-brand'
-              : 'text-atlas-text-secondary hover:bg-atlas-surface-muted hover:text-atlas-text-primary'
+              ? 'bg-voceive-brand-subtle text-voceive-brand'
+              : 'text-voceive-text-secondary hover:bg-voceive-surface-muted hover:text-voceive-text-primary'
           "
           @click="closeSidebar"
         >
@@ -75,11 +77,11 @@ function isActive(name: string): boolean {
     <!-- Main area -->
     <div class="lg:pl-60">
       <!-- Header -->
-      <header class="sticky top-0 z-20 flex h-14 items-center border-b border-atlas-border bg-atlas-surface px-4 lg:px-6">
+      <header class="sticky top-0 z-20 flex h-14 items-center border-b border-voceive-border bg-voceive-surface px-4 lg:px-6">
         <!-- Mobile menu button -->
         <button
           type="button"
-          class="atlas-focus-ring -ml-1 mr-3 rounded-atlas p-1.5 text-atlas-text-secondary hover:bg-atlas-surface-muted lg:hidden"
+          class="voceive-focus-ring -ml-1 mr-3 rounded-voceive p-1.5 text-voceive-text-secondary hover:bg-voceive-surface-muted lg:hidden"
           aria-label="Open navigation menu"
           @click="toggleSidebar"
         >
@@ -104,7 +106,7 @@ function isActive(name: string): boolean {
         <!-- User area -->
         <button
           type="button"
-          class="atlas-focus-ring rounded-atlas px-3 py-1.5 text-sm text-atlas-text-secondary hover:bg-atlas-surface-muted hover:text-atlas-text-primary transition-colors"
+          class="voceive-focus-ring rounded-voceive px-3 py-1.5 text-sm text-voceive-text-secondary hover:bg-voceive-surface-muted hover:text-voceive-text-primary transition-colors"
           @click="handleLogout"
         >
           Sign out

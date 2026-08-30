@@ -4,6 +4,7 @@ export * from './types'
 
 export * as authApi from './auth'
 export * as ticketsApi from './tickets'
+export * as themesApi from './themes'
 export * as dashboardApi from './dashboard'
 export * as reportsApi from './reports'
 export * as uploadsApi from './uploads'

@@ -4,9 +4,11 @@ module Api
   module V1
     class TicketsController < BaseController
       include Authenticatable
+      include Authorizable
       before_action :authenticate_user!
 
       def index
+        authorize! :read
         tickets = scoped_tickets
         tickets = apply_search(tickets)
         tickets = apply_filters(tickets)
@@ -20,6 +22,7 @@ module Api
       end
 
       def show
+        authorize! :read
         ticket = scoped_tickets.includes(:ai_analysis).find_by(id: params[:id])
         raise NotFoundError, "Ticket not found" unless ticket
 
@@ -28,16 +31,8 @@ module Api
 
       private
 
-      def organization
-        @organization ||= begin
-          org = current_user.organizations.first
-          raise UnauthorizedError, "No organization access" unless org
-          org
-        end
-      end
-
       def scoped_tickets
-        organization.tickets
+        current_organization.tickets
       end
 
       def apply_search(tickets)

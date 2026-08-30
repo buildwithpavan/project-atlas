@@ -1,4 +1,5 @@
 import logging
+import hmac
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -24,6 +25,19 @@ from app.schemas import (
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title=settings.app_name, version="0.2.0")
+
+
+@app.middleware("http")
+async def verify_internal_token(request: Request, call_next):
+    """Verify X-Internal-Token header on non-health endpoints when configured."""
+    if settings.ai_internal_token and request.url.path != "/health":
+        token = request.headers.get("X-Internal-Token", "")
+        if not hmac.compare_digest(token, settings.ai_internal_token):
+            return JSONResponse(
+                status_code=403,
+                content={"error": "forbidden", "detail": "Invalid internal token"},
+            )
+    return await call_next(request)
 
 
 @app.exception_handler(ConfigurationError)
@@ -68,7 +82,7 @@ async def ai_service_error_handler(request: Request, exc: AIServiceError) -> JSO
 
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    return HealthResponse(status="ok", service="atlas-ai")
+    return HealthResponse(status="ok", service="voceive-ai")
 
 
 @app.post("/v1/analyze/ticket", response_model=TicketAnalysisResponse)

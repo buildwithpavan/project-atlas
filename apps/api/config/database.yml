@@ -7,8 +7,13 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
-  <<: *default
-  database: api_development
+  primary:
+    <<: *default
+    database: api_development
+  queue:
+    <<: *default
+    database: api_development_queue
+    migrations_paths: db/queue_migrate
 
 test:
   <<: *default

@@ -27,6 +27,12 @@ RSpec.describe "Dashboard API", type: :request do
         get "/api/v1/dashboard", headers: { "Authorization" => "Bearer #{token}" }
         expect(response).to have_http_status(:unauthorized)
       end
+
+      it "allows viewers to read dashboard" do
+        membership.update!(role: "viewer")
+        get "/api/v1/dashboard", headers: headers
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     describe "empty state" do

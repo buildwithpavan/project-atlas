@@ -25,7 +25,7 @@ function nextPage() {
     class="flex items-center justify-between"
     aria-label="Pagination"
   >
-    <p class="text-sm text-atlas-text-muted">
+    <p class="text-sm text-voceive-text-muted">
       Page {{ meta.page }} of {{ meta.total_pages }}
       <span class="hidden sm:inline">
         &middot; {{ meta.total }} {{ meta.total === 1 ? 'ticket' : 'tickets' }}

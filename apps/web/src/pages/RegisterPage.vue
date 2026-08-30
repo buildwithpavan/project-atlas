@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ApiError } from '@/api/errors'
-import { AButton, AInput, ACard } from '@/components/ui'
+import { AButton, AInput, ACard, ALogo } from '@/components/ui'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -70,13 +70,11 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-atlas-background px-4 py-8">
+  <div class="min-h-screen flex items-center justify-center bg-voceive-background px-4 py-8">
     <div class="w-full max-w-sm">
-      <div class="mb-8 text-center">
-        <h1 class="text-2xl font-bold text-atlas-brand">
-          Atlas
-        </h1>
-        <p class="mt-1 text-sm text-atlas-text-secondary">
+      <div class="mb-8 flex flex-col items-center">
+        <ALogo variant="full" height="36px" class="mb-2" />
+        <p class="mt-1 text-sm text-voceive-text-secondary">
           Create your account
         </p>
       </div>
@@ -90,7 +88,7 @@ async function handleSubmit() {
             <div
               v-if="error"
               role="alert"
-              class="rounded-atlas bg-atlas-error-subtle border border-atlas-error/20 px-4 py-3 text-sm text-atlas-error"
+              class="rounded-voceive bg-voceive-error-subtle border border-voceive-error/20 px-4 py-3 text-sm text-voceive-error"
             >
               {{ error }}
             </div>
@@ -167,11 +165,11 @@ async function handleSubmit() {
         </form>
       </ACard>
 
-      <p class="mt-6 text-center text-sm text-atlas-text-muted">
+      <p class="mt-6 text-center text-sm text-voceive-text-muted">
         Already have an account?
         <RouterLink
           to="/login"
-          class="atlas-focus-ring rounded font-medium text-atlas-brand hover:text-atlas-brand-hover transition-colors"
+          class="voceive-focus-ring rounded font-medium text-voceive-brand hover:text-voceive-brand-hover transition-colors"
         >
           Sign in
         </RouterLink>

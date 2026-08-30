@@ -1,8 +1,8 @@
-# Contributing to Project Atlas
+# Contributing to Voceive
 
-Thank you for contributing to Project Atlas.
+Thank you for contributing to Voceive.
 
-Project Atlas is a production-grade reference implementation of an AI-native SaaS platform.
+Voceive is a production-grade reference implementation of an AI-native SaaS platform.
 
 This document explains the development workflow.
 

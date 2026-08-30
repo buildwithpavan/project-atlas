@@ -8,7 +8,7 @@ import MetricCard from '@/components/dashboard/MetricCard.vue'
 import SentimentChart from '@/components/dashboard/SentimentChart.vue'
 import CategoryChart from '@/components/dashboard/CategoryChart.vue'
 import ActivityChart from '@/components/dashboard/ActivityChart.vue'
-import AtlasIntelligence from '@/components/reports/AtlasIntelligence.vue'
+import VoceiveIntelligence from '@/components/reports/VoceiveIntelligence.vue'
 import ExecutiveSummarySection from '@/components/reports/ExecutiveSummarySection.vue'
 import ReportDistribution from '@/components/reports/ReportDistribution.vue'
 import ReportSkeleton from '@/components/reports/ReportSkeleton.vue'
@@ -77,10 +77,10 @@ onMounted(fetchReport)
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
         <div>
-          <h1 class="text-2xl font-semibold text-atlas-text-primary">
+          <h1 class="text-2xl font-semibold text-voceive-text-primary">
             Customer Intelligence Report
           </h1>
-          <p class="mt-1 text-sm text-atlas-text-muted">
+          <p class="mt-1 text-sm text-voceive-text-muted">
             Patterns and insights from your customer feedback.
             <span v-if="report.metadata.generated_at">
               Generated {{ formatGeneratedAt(report.metadata.generated_at) }}.
@@ -111,7 +111,7 @@ onMounted(fetchReport)
 
       <!-- Executive Overview -->
       <section class="mt-6">
-        <h2 class="text-base font-semibold text-atlas-text-primary mb-4">
+        <h2 class="text-base font-semibold text-voceive-text-primary mb-4">
           Executive Overview
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -138,12 +138,12 @@ onMounted(fetchReport)
       <!-- Executive Intelligence (AI-generated) -->
       <ExecutiveSummarySection />
 
-      <!-- Atlas Intelligence -->
-      <AtlasIntelligence :report="report" />
+      <!-- Voceive Intelligence -->
+      <VoceiveIntelligence :report="report" />
 
       <!-- Customer Sentiment & Categories -->
       <section class="mt-6">
-        <h2 class="text-base font-semibold text-atlas-text-primary mb-4">
+        <h2 class="text-base font-semibold text-voceive-text-primary mb-4">
           Customer Sentiment &amp; Categories
         </h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -154,7 +154,7 @@ onMounted(fetchReport)
 
       <!-- Operational Breakdown -->
       <section class="mt-6">
-        <h2 class="text-base font-semibold text-atlas-text-primary mb-4">
+        <h2 class="text-base font-semibold text-voceive-text-primary mb-4">
           Operational Breakdown
         </h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -174,7 +174,7 @@ onMounted(fetchReport)
         v-if="Object.keys(report.timeline).length > 0"
         class="mt-6"
       >
-        <h2 class="text-base font-semibold text-atlas-text-primary mb-4">
+        <h2 class="text-base font-semibold text-voceive-text-primary mb-4">
           Activity
         </h2>
         <ActivityChart :timeline="report.timeline" />

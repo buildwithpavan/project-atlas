@@ -151,10 +151,10 @@ watch(
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-atlas-text-primary">
+        <h1 class="text-2xl font-semibold text-voceive-text-primary">
           Tickets
         </h1>
-        <p class="mt-1 text-sm text-atlas-text-muted">
+        <p class="mt-1 text-sm text-voceive-text-muted">
           Explore the customer conversations behind your insights.
         </p>
       </div>
@@ -177,22 +177,22 @@ watch(
       v-if="loading"
       class="mt-4"
     >
-      <div class="hidden md:block border border-atlas-border rounded-atlas-lg overflow-hidden">
-        <div class="bg-atlas-surface-muted px-4 py-3">
-          <div class="h-3 w-full animate-pulse rounded bg-atlas-surface-muted" />
+      <div class="hidden md:block border border-voceive-border rounded-voceive-lg overflow-hidden">
+        <div class="bg-voceive-surface-muted px-4 py-3">
+          <div class="h-3 w-full animate-pulse rounded bg-voceive-surface-muted" />
         </div>
-        <div class="divide-y divide-atlas-border">
+        <div class="divide-y divide-voceive-border">
           <div
             v-for="i in 8"
             :key="i"
             class="flex gap-4 px-4 py-3"
           >
-            <div class="h-4 flex-[3] animate-pulse rounded bg-atlas-surface-muted" />
-            <div class="h-4 flex-[2] animate-pulse rounded bg-atlas-surface-muted" />
-            <div class="h-4 flex-1 animate-pulse rounded bg-atlas-surface-muted" />
-            <div class="h-4 flex-1 animate-pulse rounded bg-atlas-surface-muted" />
-            <div class="h-4 flex-1 animate-pulse rounded bg-atlas-surface-muted" />
-            <div class="h-4 flex-1 animate-pulse rounded bg-atlas-surface-muted" />
+            <div class="h-4 flex-[3] animate-pulse rounded bg-voceive-surface-muted" />
+            <div class="h-4 flex-[2] animate-pulse rounded bg-voceive-surface-muted" />
+            <div class="h-4 flex-1 animate-pulse rounded bg-voceive-surface-muted" />
+            <div class="h-4 flex-1 animate-pulse rounded bg-voceive-surface-muted" />
+            <div class="h-4 flex-1 animate-pulse rounded bg-voceive-surface-muted" />
+            <div class="h-4 flex-1 animate-pulse rounded bg-voceive-surface-muted" />
           </div>
         </div>
       </div>
@@ -200,13 +200,13 @@ watch(
         <div
           v-for="i in 5"
           :key="i"
-          class="bg-atlas-surface border border-atlas-border rounded-atlas-lg p-4"
+          class="bg-voceive-surface border border-voceive-border rounded-voceive-lg p-4"
         >
-          <div class="h-4 w-3/4 animate-pulse rounded bg-atlas-surface-muted" />
-          <div class="mt-2 h-3 w-1/3 animate-pulse rounded bg-atlas-surface-muted" />
+          <div class="h-4 w-3/4 animate-pulse rounded bg-voceive-surface-muted" />
+          <div class="mt-2 h-3 w-1/3 animate-pulse rounded bg-voceive-surface-muted" />
           <div class="mt-2 flex gap-2">
-            <div class="h-5 w-12 animate-pulse rounded-atlas-full bg-atlas-surface-muted" />
-            <div class="h-5 w-14 animate-pulse rounded-atlas-full bg-atlas-surface-muted" />
+            <div class="h-5 w-12 animate-pulse rounded-voceive-full bg-voceive-surface-muted" />
+            <div class="h-5 w-14 animate-pulse rounded-voceive-full bg-voceive-surface-muted" />
           </div>
         </div>
       </div>
@@ -218,9 +218,9 @@ watch(
       role="alert"
       class="mt-4 flex flex-col items-center justify-center py-16 text-center"
     >
-      <div class="size-16 rounded-full bg-atlas-error-subtle flex items-center justify-center mb-4">
+      <div class="size-16 rounded-full bg-voceive-error-subtle flex items-center justify-center mb-4">
         <svg
-          class="size-8 text-atlas-error"
+          class="size-8 text-voceive-error"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -234,10 +234,10 @@ watch(
           />
         </svg>
       </div>
-      <h2 class="text-lg font-semibold text-atlas-text-primary">
+      <h2 class="text-lg font-semibold text-voceive-text-primary">
         Unable to load tickets
       </h2>
-      <p class="mt-2 max-w-sm text-sm text-atlas-text-muted">
+      <p class="mt-2 max-w-sm text-sm text-voceive-text-muted">
         {{ error }}
       </p>
       <AButton
@@ -255,9 +255,9 @@ watch(
       v-else-if="isOrgEmpty"
       class="mt-4 flex flex-col items-center justify-center py-16 text-center"
     >
-      <div class="size-16 rounded-full bg-atlas-brand-subtle flex items-center justify-center mb-4">
+      <div class="size-16 rounded-full bg-voceive-brand-subtle flex items-center justify-center mb-4">
         <svg
-          class="size-8 text-atlas-brand"
+          class="size-8 text-voceive-brand"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -271,15 +271,15 @@ watch(
           />
         </svg>
       </div>
-      <h2 class="text-lg font-semibold text-atlas-text-primary">
+      <h2 class="text-lg font-semibold text-voceive-text-primary">
         No tickets yet
       </h2>
-      <p class="mt-2 max-w-sm text-sm text-atlas-text-muted">
+      <p class="mt-2 max-w-sm text-sm text-voceive-text-muted">
         Import customer tickets to start exploring customer conversations and AI insights.
       </p>
       <RouterLink
         to="/app/import"
-        class="atlas-focus-ring mt-5 inline-flex items-center rounded-atlas px-4 py-2 text-sm font-medium bg-atlas-brand text-white hover:bg-atlas-brand-hover transition-colors"
+        class="voceive-focus-ring mt-5 inline-flex items-center rounded-voceive px-4 py-2 text-sm font-medium bg-voceive-brand text-white hover:bg-voceive-brand-hover transition-colors"
       >
         Import Data
       </RouterLink>
@@ -290,10 +290,10 @@ watch(
       v-else-if="isFilteredEmpty"
       class="mt-4 flex flex-col items-center justify-center py-16 text-center"
     >
-      <h2 class="text-lg font-semibold text-atlas-text-primary">
+      <h2 class="text-lg font-semibold text-voceive-text-primary">
         No tickets match your filters
       </h2>
-      <p class="mt-2 text-sm text-atlas-text-muted">
+      <p class="mt-2 text-sm text-voceive-text-muted">
         Try adjusting your search or filters.
       </p>
       <AButton

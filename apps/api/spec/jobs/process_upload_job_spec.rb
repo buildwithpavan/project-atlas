@@ -29,4 +29,10 @@ RSpec.describe ProcessUploadJob, type: :job do
     expect(upload.reload.status).to eq("completed")
     expect(Ticket.count).to eq(1)
   end
+
+  describe "queue configuration" do
+    it "uses the import queue" do
+      expect(described_class.new.queue_name).to eq("import")
+    end
+  end
 end

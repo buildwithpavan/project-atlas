@@ -4,28 +4,22 @@ module Api
   module V1
     class ReportsController < BaseController
       include Authenticatable
+      include Authorizable
       before_action :authenticate_user!
 
       def index
+        authorize! :read
         render json: { data: report_data }
       end
 
       private
 
-      def organization
-        @organization ||= begin
-          org = current_user.organizations.first
-          raise UnauthorizedError, "No organization access" unless org
-          org
-        end
-      end
-
       def tickets
-        @tickets ||= organization.tickets
+        @tickets ||= current_organization.tickets
       end
 
       def analyses
-        @analyses ||= organization.ai_analyses.where(status: "completed")
+        @analyses ||= current_organization.ai_analyses.where(status: "completed")
       end
 
       def report_data
@@ -44,7 +38,7 @@ module Api
       def metadata
         {
           generated_at: Time.current.iso8601,
-          organization_name: organization.name
+          organization_name: current_organization.name
         }
       end
 

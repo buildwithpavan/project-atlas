@@ -9,9 +9,9 @@ defineProps<{
 <template>
   <div class="flex flex-col items-center justify-center py-8 text-center">
     <!-- Spinner icon -->
-    <div class="size-14 rounded-full bg-atlas-brand-subtle flex items-center justify-center mb-4">
+    <div class="size-14 rounded-full bg-voceive-brand-subtle flex items-center justify-center mb-4">
       <svg
-        class="size-7 text-atlas-brand animate-spin"
+        class="size-7 text-voceive-brand animate-spin"
         viewBox="0 0 24 24"
         fill="none"
         aria-hidden="true"
@@ -32,27 +32,27 @@ defineProps<{
       </svg>
     </div>
 
-    <h2 class="text-lg font-semibold text-atlas-text-primary">
+    <h2 class="text-lg font-semibold text-voceive-text-primary">
       Processing your data
     </h2>
-    <p class="mt-2 max-w-md text-sm text-atlas-text-muted">
-      Atlas is processing <strong class="text-atlas-text-primary">{{ upload.filename }}</strong>.
+    <p class="mt-2 max-w-md text-sm text-voceive-text-muted">
+      Voceive is processing <strong class="text-voceive-text-primary">{{ upload.filename }}</strong>.
       Customer conversations will be analyzed for sentiment, categories, and actionable insights.
     </p>
-    <p class="mt-1 text-xs text-atlas-text-muted">
+    <p class="mt-1 text-xs text-voceive-text-muted">
       This may take a few moments.
     </p>
 
     <div class="mt-6 flex flex-col sm:flex-row gap-3">
       <RouterLink
         to="/app/dashboard"
-        class="atlas-focus-ring inline-flex items-center justify-center rounded-atlas px-4 py-2 text-sm font-medium bg-atlas-brand text-white hover:bg-atlas-brand-hover transition-colors"
+        class="voceive-focus-ring inline-flex items-center justify-center rounded-voceive px-4 py-2 text-sm font-medium bg-voceive-brand text-white hover:bg-voceive-brand-hover transition-colors"
       >
         View Dashboard
       </RouterLink>
       <RouterLink
         to="/app/tickets"
-        class="atlas-focus-ring inline-flex items-center justify-center rounded-atlas px-4 py-2 text-sm font-medium border border-atlas-border bg-atlas-surface text-atlas-text-primary hover:bg-atlas-surface-muted transition-colors"
+        class="voceive-focus-ring inline-flex items-center justify-center rounded-voceive px-4 py-2 text-sm font-medium border border-voceive-border bg-voceive-surface text-voceive-text-primary hover:bg-voceive-surface-muted transition-colors"
       >
         View Tickets
       </RouterLink>

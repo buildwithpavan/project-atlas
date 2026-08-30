@@ -314,4 +314,80 @@ RSpec.describe Tickets::ProcessCsv, type: :service do
       end
     end
   end
+
+  describe "row count limit" do
+    before do
+      ActiveJob::Base.queue_adapter = :test
+      stub_const("Tickets::ProcessCsv::MAX_ROW_COUNT", 5)
+    end
+
+    context "under limit" do
+      let(:csv_content) do
+        header = "subject\n"
+        rows = 3.times.map { |i| "Ticket #{i}\n" }.join
+        header + rows
+      end
+
+      before { attach_csv(upload, csv_content) }
+
+      it "processes successfully" do
+        described_class.call(upload)
+        expect(upload.reload.status).to eq("completed")
+        expect(Ticket.count).to eq(3)
+      end
+    end
+
+    context "at limit" do
+      let(:csv_content) do
+        header = "subject\n"
+        rows = 5.times.map { |i| "Ticket #{i}\n" }.join
+        header + rows
+      end
+
+      before { attach_csv(upload, csv_content) }
+
+      it "processes successfully" do
+        described_class.call(upload)
+        expect(upload.reload.status).to eq("completed")
+        expect(Ticket.count).to eq(5)
+      end
+    end
+
+    context "over limit" do
+      let(:csv_content) do
+        header = "subject\n"
+        rows = 6.times.map { |i| "Ticket #{i}\n" }.join
+        header + rows
+      end
+
+      before { attach_csv(upload, csv_content) }
+
+      it "fails the upload" do
+        described_class.call(upload)
+        expect(upload.reload.status).to eq("failed")
+      end
+
+      it "stores a descriptive error message" do
+        described_class.call(upload)
+        expect(upload.reload.error_message).to include("exceeds the maximum")
+        expect(upload.reload.error_message).to include("6")
+        expect(upload.reload.error_message).to include("5")
+      end
+
+      it "does not create any tickets" do
+        described_class.call(upload)
+        expect(Ticket.count).to eq(0)
+      end
+
+      it "does not create any AI analyses" do
+        described_class.call(upload)
+        expect(AiAnalysis.count).to eq(0)
+      end
+
+      it "does not enqueue any jobs" do
+        described_class.call(upload)
+        expect(AnalyzeTicketJob).not_to have_been_enqueued
+      end
+    end
+  end
 end

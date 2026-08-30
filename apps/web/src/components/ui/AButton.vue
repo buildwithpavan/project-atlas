@@ -18,24 +18,24 @@ withDefaults(defineProps<{
 <template>
   <button
     :disabled="disabled || loading"
-    class="atlas-btn atlas-focus-ring inline-flex items-center justify-center font-medium transition-colors"
+    class="atlas-btn voceive-focus-ring inline-flex items-center justify-center font-medium transition-colors"
     :class="[
       // Variant
       {
-        'bg-atlas-brand text-white hover:bg-atlas-brand-hover active:bg-atlas-brand-active disabled:bg-atlas-text-disabled':
+        'bg-voceive-brand text-white hover:bg-voceive-brand-hover active:bg-voceive-brand-active disabled:bg-voceive-text-disabled':
           variant === 'primary',
-        'bg-atlas-surface text-atlas-text-primary border border-atlas-border hover:bg-atlas-surface-muted active:bg-atlas-surface-muted disabled:text-atlas-text-disabled disabled:bg-atlas-surface-muted':
+        'bg-voceive-surface text-voceive-text-primary border border-voceive-border hover:bg-voceive-surface-muted active:bg-voceive-surface-muted disabled:text-voceive-text-disabled disabled:bg-voceive-surface-muted':
           variant === 'secondary',
-        'bg-transparent text-atlas-text-secondary hover:bg-atlas-surface-muted active:bg-atlas-surface-muted disabled:text-atlas-text-disabled':
+        'bg-transparent text-voceive-text-secondary hover:bg-voceive-surface-muted active:bg-voceive-surface-muted disabled:text-voceive-text-disabled':
           variant === 'ghost',
-        'bg-atlas-error text-white hover:bg-red-700 active:bg-red-800 disabled:bg-atlas-text-disabled':
+        'bg-voceive-error text-white hover:bg-red-700 active:bg-red-800 disabled:bg-voceive-text-disabled':
           variant === 'danger',
       },
       // Size
       {
-        'text-sm px-3 py-1.5 rounded-atlas-sm gap-1.5': size === 'sm',
-        'text-sm px-4 py-2 rounded-atlas gap-2': size === 'md',
-        'text-base px-5 py-2.5 rounded-atlas-md gap-2': size === 'lg',
+        'text-sm px-3 py-1.5 rounded-voceive-sm gap-1.5': size === 'sm',
+        'text-sm px-4 py-2 rounded-voceive gap-2': size === 'md',
+        'text-base px-5 py-2.5 rounded-voceive-md gap-2': size === 'lg',
       },
       // State
       {

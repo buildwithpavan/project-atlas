@@ -8,6 +8,14 @@ RSpec.describe Ai::AnalyzeTicket, type: :service do
   let(:ticket) { Ticket.create!(organization: organization, upload: upload, subject: "Help", description: "I need help with billing") }
   let(:ai_analysis) { AiAnalysis.create!(organization: organization, ticket: ticket) }
 
+  # Resolve the active provider based on the AI_PROVIDER env var (matches service logic)
+  let(:active_provider) do
+    case ENV.fetch("AI_PROVIDER", "openai")
+    when "atlas" then Ai::Providers::Atlas
+    else Ai::Providers::Openai
+    end
+  end
+
   let(:mock_result) do
     instance_double(
       Ai::Schemas::TicketAnalysis,
@@ -23,6 +31,7 @@ RSpec.describe Ai::AnalyzeTicket, type: :service do
 
   before do
     allow(Ai::Providers::Openai).to receive(:analyze).and_return(mock_result)
+    allow(Ai::Providers::Atlas).to receive(:analyze).and_return(mock_result)
   end
 
   describe "successful analysis" do
@@ -43,7 +52,7 @@ RSpec.describe Ai::AnalyzeTicket, type: :service do
 
     it "calls the provider with the correct ticket" do
       described_class.call(ai_analysis)
-      expect(Ai::Providers::Openai).to have_received(:analyze).with(ticket: ticket)
+      expect(active_provider).to have_received(:analyze).with(ticket: ticket)
     end
 
     it "transitions status from pending through processing to completed" do
@@ -91,7 +100,7 @@ RSpec.describe Ai::AnalyzeTicket, type: :service do
 
   describe "failure handling" do
     it "marks analysis as failed when provider raises" do
-      allow(Ai::Providers::Openai).to receive(:analyze).and_raise(StandardError, "API timeout")
+      allow(active_provider).to receive(:analyze).and_raise(StandardError, "API timeout")
       described_class.call(ai_analysis)
       ai_analysis.reload
 
@@ -127,7 +136,7 @@ RSpec.describe Ai::AnalyzeTicket, type: :service do
     end
 
     it "truncates long error messages" do
-      allow(Ai::Providers::Openai).to receive(:analyze).and_raise(StandardError, "x" * 500)
+      allow(active_provider).to receive(:analyze).and_raise(StandardError, "x" * 500)
       described_class.call(ai_analysis)
       ai_analysis.reload
 
@@ -146,6 +155,61 @@ RSpec.describe Ai::AnalyzeTicket, type: :service do
     it "analysis remains associated with the correct ticket organization" do
       described_class.call(ai_analysis)
       expect(ai_analysis.reload.organization_id).to eq(ticket.organization_id)
+    end
+  end
+
+  describe "transient error handling" do
+    it "resets to pending on Ai::Client::ConnectionError" do
+      allow(active_provider).to receive(:analyze)
+        .and_raise(Ai::Client::ConnectionError, "connection refused")
+
+      expect { described_class.call(ai_analysis) }.to raise_error(Ai::Client::ConnectionError)
+      expect(ai_analysis.reload.status).to eq("pending")
+    end
+
+    it "resets to pending on Ai::Client::TimeoutError" do
+      allow(active_provider).to receive(:analyze)
+        .and_raise(Ai::Client::TimeoutError, "read timeout")
+
+      expect { described_class.call(ai_analysis) }.to raise_error(Ai::Client::TimeoutError)
+      expect(ai_analysis.reload.status).to eq("pending")
+    end
+
+    it "resets to pending on Ai::Client::HttpError" do
+      allow(active_provider).to receive(:analyze)
+        .and_raise(Ai::Client::HttpError.new("HTTP 503", status: 503))
+
+      expect { described_class.call(ai_analysis) }.to raise_error(Ai::Client::HttpError)
+      expect(ai_analysis.reload.status).to eq("pending")
+    end
+
+    it "re-raises transient errors for job retry" do
+      allow(active_provider).to receive(:analyze)
+        .and_raise(Ai::Client::TimeoutError, "read timeout")
+
+      expect { described_class.call(ai_analysis) }.to raise_error(Ai::Client::TimeoutError)
+    end
+
+    it "does not reset to pending on permanent validation errors" do
+      allow(mock_result).to receive(:sentiment).and_return("invalid_value")
+
+      described_class.call(ai_analysis)
+      expect(ai_analysis.reload.status).to eq("failed")
+    end
+
+    it "allows reprocessing after transient error reset" do
+      # First call: transient error → resets to pending
+      allow(active_provider).to receive(:analyze)
+        .and_raise(Ai::Client::TimeoutError, "timeout")
+
+      expect { described_class.call(ai_analysis) }.to raise_error(Ai::Client::TimeoutError)
+      expect(ai_analysis.reload.status).to eq("pending")
+
+      # Second call: succeeds
+      allow(active_provider).to receive(:analyze).and_return(mock_result)
+
+      described_class.call(ai_analysis)
+      expect(ai_analysis.reload.status).to eq("completed")
     end
   end
 

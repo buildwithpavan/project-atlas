@@ -19,19 +19,19 @@ withDefaults(defineProps<{
   <div class="flex flex-col gap-1.5">
     <label
       v-if="label"
-      class="text-sm font-medium text-atlas-text-primary"
+      class="text-sm font-medium text-voceive-text-primary"
     >
       {{ label }}
     </label>
     <select
       v-model="model"
       :disabled="disabled"
-      class="atlas-focus-ring block w-full rounded-atlas border bg-atlas-surface px-3 py-2 text-sm text-atlas-text-primary transition-colors appearance-none"
+      class="voceive-focus-ring block w-full rounded-voceive border bg-voceive-surface px-3 py-2 text-sm text-voceive-text-primary transition-colors appearance-none"
       :class="[
         error
-          ? 'border-atlas-error'
-          : 'border-atlas-border hover:border-atlas-border-strong',
-        { 'cursor-not-allowed bg-atlas-surface-muted text-atlas-text-disabled': disabled },
+          ? 'border-voceive-error'
+          : 'border-voceive-border hover:border-voceive-border-strong',
+        { 'cursor-not-allowed bg-voceive-surface-muted text-voceive-text-disabled': disabled },
       ]"
     >
       <option
@@ -51,7 +51,7 @@ withDefaults(defineProps<{
     </select>
     <p
       v-if="error"
-      class="text-xs text-atlas-error"
+      class="text-xs text-voceive-error"
     >
       {{ error }}
     </p>

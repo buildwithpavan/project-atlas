@@ -165,9 +165,53 @@ export interface DataEnvelope<T> {
   data: T
 }
 
+export interface ListEnvelope<T> {
+  data: T[]
+  meta: { total: number }
+}
+
 export interface PaginatedEnvelope<T> {
   data: T[]
   meta: PaginationMeta
+}
+
+// -- Themes -----------------------------------------------------------------
+
+export type ThemeSeverity = 'low' | 'medium' | 'high' | 'critical'
+export type ThemeStatus = 'active' | 'resolved' | 'archived'
+
+export interface Theme {
+  id: string
+  title: string
+  description: string
+  status: ThemeStatus
+  severity: ThemeSeverity
+  ticket_count: number
+  evidence_summary: string | null
+  recommended_action: string | null
+  first_seen_at: string | null
+  last_seen_at: string | null
+  created_at: string
+}
+
+export interface ThemeTicket {
+  id: string
+  subject: string
+  customer_name: string | null
+  priority: string | null
+  status: string | null
+  relevance_score: number | null
+  evidence_text: string | null
+  created_at: string
+}
+
+export interface ThemeDetail extends Theme {
+  tickets: ThemeTicket[]
+}
+
+export interface ThemeListParams {
+  status?: string
+  severity?: string
 }
 
 // -- Request parameter types ------------------------------------------------

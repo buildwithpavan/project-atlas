@@ -40,8 +40,8 @@ function formatDate(dateStr: string): string {
 </script>
 
 <template>
-  <div class="bg-atlas-surface border border-atlas-border rounded-atlas-lg shadow-atlas-sm p-5">
-    <h3 class="text-sm font-medium text-atlas-text-secondary">
+  <div class="bg-voceive-surface border border-voceive-border rounded-voceive-lg shadow-voceive-sm p-5">
+    <h3 class="text-sm font-medium text-voceive-text-secondary">
       Ticket Activity
     </h3>
 
@@ -51,7 +51,7 @@ function formatDate(dateStr: string): string {
         <div
           v-for="i in 12"
           :key="i"
-          class="flex-1 animate-pulse rounded-t bg-atlas-surface-muted"
+          class="flex-1 animate-pulse rounded-t bg-voceive-surface-muted"
           :style="{ height: `${30 + Math.random() * 60}%` }"
         />
       </div>
@@ -59,7 +59,7 @@ function formatDate(dateStr: string): string {
 
     <!-- Empty -->
     <template v-else-if="isEmpty">
-      <p class="mt-4 text-sm text-atlas-text-muted">
+      <p class="mt-4 text-sm text-voceive-text-muted">
         No timeline data available yet. Activity data will appear as tickets are processed.
       </p>
     </template>
@@ -75,12 +75,12 @@ function formatDate(dateStr: string): string {
           <div
             v-for="point in points"
             :key="point.label"
-            class="flex-1 min-w-1 rounded-t bg-atlas-brand/80 hover:bg-atlas-brand transition-colors group relative"
+            class="flex-1 min-w-1 rounded-t bg-voceive-brand/80 hover:bg-voceive-brand transition-colors group relative"
             :style="{ height: `${Math.max(point.height, 2)}%` }"
           >
             <!-- Tooltip -->
             <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
-              <div class="bg-atlas-text-primary text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-atlas-md">
+              <div class="bg-voceive-text-primary text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-voceive-md">
                 {{ point.value }} tickets
               </div>
             </div>
@@ -89,7 +89,7 @@ function formatDate(dateStr: string): string {
         <!-- X-axis labels — show first, middle, last to avoid clutter -->
         <div
           v-if="points.length > 0"
-          class="flex justify-between mt-2 text-xs text-atlas-text-muted"
+          class="flex justify-between mt-2 text-xs text-voceive-text-muted"
         >
           <span>{{ formatDate(points[0].label) }}</span>
           <span v-if="points.length > 2">{{ formatDate(points[Math.floor(points.length / 2)].label) }}</span>

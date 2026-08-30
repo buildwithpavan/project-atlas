@@ -1,4 +1,4 @@
-# Atlas AI Service
+# Voceive AI Service
 
 FastAPI service that provides AI-powered ticket analysis using OpenAI's Responses API with structured outputs.
 
@@ -17,7 +17,7 @@ Rails (app container)
   → AiAnalysis record persisted
 ```
 
-In Atlas mode, Rails delegates AI calls to this service over HTTP. The FastAPI service owns the OpenAI integration and returns structured, validated responses.
+In Voceive mode, Rails delegates AI calls to this service over HTTP. The FastAPI service owns the OpenAI integration and returns structured, validated responses.
 
 ## Environment Variables
 
@@ -65,7 +65,7 @@ curl http://localhost:8000/health
 curl http://ai:8000/health
 ```
 
-Expected: `{"status":"ok","service":"atlas-ai"}`
+Expected: `{"status":"ok","service":"voceive-ai"}`
 
 ### Inject the API key
 

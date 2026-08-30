@@ -2,7 +2,7 @@
 
 ## Overview
 
-Project Atlas revolves around organizations analyzing customer support conversations to generate AI-powered business insights.
+Voceive revolves around organizations analyzing customer support conversations to generate AI-powered business insights.
 
 ---
 

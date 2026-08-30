@@ -31,8 +31,8 @@ const isEmpty = computed(() => entries.value.length === 0)
 </script>
 
 <template>
-  <div class="bg-atlas-surface border border-atlas-border rounded-atlas-lg shadow-atlas-sm p-5">
-    <h3 class="text-sm font-medium text-atlas-text-secondary">
+  <div class="bg-voceive-surface border border-voceive-border rounded-voceive-lg shadow-voceive-sm p-5">
+    <h3 class="text-sm font-medium text-voceive-text-secondary">
       What Customers Are Talking About
     </h3>
 
@@ -44,15 +44,15 @@ const isEmpty = computed(() => entries.value.length === 0)
           :key="i"
           class="flex items-center gap-3"
         >
-          <div class="h-4 w-24 animate-pulse rounded bg-atlas-surface-muted" />
-          <div class="h-3 flex-1 animate-pulse rounded bg-atlas-surface-muted" />
+          <div class="h-4 w-24 animate-pulse rounded bg-voceive-surface-muted" />
+          <div class="h-3 flex-1 animate-pulse rounded bg-voceive-surface-muted" />
         </div>
       </div>
     </template>
 
     <!-- Empty -->
     <template v-else-if="isEmpty">
-      <p class="mt-4 text-sm text-atlas-text-muted">
+      <p class="mt-4 text-sm text-voceive-text-muted">
         No category data yet. Categories are extracted during ticket analysis.
       </p>
     </template>
@@ -71,21 +71,21 @@ const isEmpty = computed(() => entries.value.length === 0)
           role="listitem"
         >
           <div class="flex items-baseline justify-between gap-2 mb-1">
-            <span class="text-sm text-atlas-text-primary capitalize truncate">
+            <span class="text-sm text-voceive-text-primary capitalize truncate">
               {{ entry.name }}
             </span>
-            <span class="text-sm tabular-nums text-atlas-text-muted shrink-0">
+            <span class="text-sm tabular-nums text-voceive-text-muted shrink-0">
               {{ entry.count }}
             </span>
           </div>
           <div
-            class="h-2 w-full rounded-atlas-full bg-atlas-surface-muted overflow-hidden"
+            class="h-2 w-full rounded-voceive-full bg-voceive-surface-muted overflow-hidden"
             role="progressbar"
             :aria-valuenow="entry.count"
             :aria-label="`${entry.name}: ${entry.count} tickets`"
           >
             <div
-              class="h-full rounded-atlas-full bg-atlas-brand transition-all"
+              class="h-full rounded-voceive-full bg-voceive-brand transition-all"
               :style="{ width: `${entry.percentage}%` }"
             />
           </div>

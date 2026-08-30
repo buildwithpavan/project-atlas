@@ -12,7 +12,7 @@ Accepted
 
 ## Context
 
-Project Atlas is a modern AI-native multi-tenant SaaS platform.
+Voceive is a modern AI-native multi-tenant SaaS platform.
 
 The API must be:
 
@@ -26,7 +26,7 @@ The API must be:
 
 ## Decision
 
-Project Atlas adopts the following API standards:
+Voceive adopts the following API standards:
 
 - RESTful API design
 - OpenAPI 3.1 specification
@@ -63,7 +63,7 @@ Project Atlas adopts the following API standards:
 - GraphQL
 - Custom API conventions
 
-These were not selected because the chosen approach provides the best balance of simplicity, flexibility, and industry adoption for Project Atlas.
+These were not selected because the chosen approach provides the best balance of simplicity, flexibility, and industry adoption for Voceive.
 
 ---
 

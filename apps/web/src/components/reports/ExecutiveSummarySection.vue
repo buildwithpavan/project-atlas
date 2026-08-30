@@ -67,9 +67,9 @@ function formatDate(iso: string): string {
 }
 
 function priorityClass(priority: string): string {
-  if (priority === 'high') return 'text-atlas-error bg-atlas-error-subtle border-atlas-error/20'
-  if (priority === 'medium') return 'text-atlas-warning bg-atlas-warning-subtle border-atlas-warning/20'
-  return 'text-atlas-success bg-atlas-success-subtle border-atlas-success/20'
+  if (priority === 'high') return 'text-voceive-error bg-voceive-error-subtle border-voceive-error/20'
+  if (priority === 'medium') return 'text-voceive-warning bg-voceive-warning-subtle border-voceive-warning/20'
+  return 'text-voceive-success bg-voceive-success-subtle border-voceive-success/20'
 }
 
 onMounted(fetchSummary)
@@ -79,21 +79,21 @@ onMounted(fetchSummary)
   <section class="mt-6">
     <div class="flex items-center gap-2 mb-4">
       <div
-        class="size-5 rounded bg-atlas-ai-subtle flex items-center justify-center"
+        class="size-5 rounded bg-voceive-ai-subtle flex items-center justify-center"
         aria-hidden="true"
       >
         <svg
-          class="size-3.5 text-atlas-ai"
+          class="size-3.5 text-voceive-ai"
           viewBox="0 0 20 20"
           fill="currentColor"
         >
           <path d="M10 1a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 1zM5.05 3.05a.75.75 0 011.06 0l1.062 1.06A.75.75 0 116.11 5.173L5.05 4.11a.75.75 0 010-1.06zm9.9 0a.75.75 0 010 1.06l-1.06 1.062a.75.75 0 01-1.062-1.061l1.061-1.06a.75.75 0 011.06 0zM10 7a3 3 0 100 6 3 3 0 000-6zm-6.25 3a.75.75 0 01-.75-.75h-1.5a.75.75 0 010 1.5h1.5A.75.75 0 013.75 10zm14.5 0a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75zM5.05 16.95a.75.75 0 011.06 0l1.06-1.06a.75.75 0 10-1.06-1.062l-1.06 1.061a.75.75 0 010 1.06zm9.9 0a.75.75 0 010-1.06l-1.06-1.06a.75.75 0 10-1.062 1.06l1.061 1.06a.75.75 0 001.06 0zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15z" />
         </svg>
       </div>
-      <h2 class="text-base font-semibold text-atlas-text-primary">
+      <h2 class="text-base font-semibold text-voceive-text-primary">
         Executive Intelligence
       </h2>
-      <span class="text-xs text-atlas-ai font-medium px-1.5 py-0.5 rounded bg-atlas-ai-subtle">
+      <span class="text-xs text-voceive-ai font-medium px-1.5 py-0.5 rounded bg-voceive-ai-subtle">
         AI
       </span>
     </div>
@@ -101,20 +101,20 @@ onMounted(fetchSummary)
     <!-- Loading -->
     <div
       v-if="loading"
-      class="bg-atlas-surface border border-atlas-border rounded-atlas-lg shadow-atlas-sm p-6 animate-pulse"
+      class="bg-voceive-surface border border-voceive-border rounded-voceive-lg shadow-voceive-sm p-6 animate-pulse"
       data-testid="executive-summary-loading"
     >
-      <div class="h-4 bg-atlas-border rounded w-3/4 mb-3" />
-      <div class="h-4 bg-atlas-border rounded w-1/2" />
+      <div class="h-4 bg-voceive-border rounded w-3/4 mb-3" />
+      <div class="h-4 bg-voceive-border rounded w-1/2" />
     </div>
 
     <!-- Error -->
     <div
       v-else-if="error"
-      class="bg-atlas-error-subtle border border-atlas-error/20 rounded-atlas-lg shadow-atlas-sm p-6"
+      class="bg-voceive-error-subtle border border-voceive-error/20 rounded-voceive-lg shadow-voceive-sm p-6"
       data-testid="executive-summary-error"
     >
-      <p class="text-sm text-atlas-error">{{ error }}</p>
+      <p class="text-sm text-voceive-error">{{ error }}</p>
       <AButton
         variant="ghost"
         size="sm"
@@ -128,10 +128,10 @@ onMounted(fetchSummary)
     <!-- No summary yet -->
     <div
       v-else-if="notFound"
-      class="bg-atlas-surface border border-atlas-border rounded-atlas-lg shadow-atlas-sm p-6 text-center"
+      class="bg-voceive-surface border border-voceive-border rounded-voceive-lg shadow-voceive-sm p-6 text-center"
       data-testid="executive-summary-empty"
     >
-      <p class="text-sm text-atlas-text-muted mb-3">
+      <p class="text-sm text-voceive-text-muted mb-3">
         No executive summary has been generated yet.
       </p>
       <AButton
@@ -147,16 +147,16 @@ onMounted(fetchSummary)
     <!-- Summary content -->
     <div
       v-else-if="summary"
-      class="bg-atlas-surface border border-atlas-border rounded-atlas-lg shadow-atlas-sm p-6"
+      class="bg-voceive-surface border border-voceive-border rounded-voceive-lg shadow-voceive-sm p-6"
       data-testid="executive-summary-content"
     >
       <!-- Stale banner -->
       <div
         v-if="stale"
-        class="mb-4 p-3 rounded-lg bg-atlas-warning-subtle border border-atlas-warning/20 flex items-center justify-between"
+        class="mb-4 p-3 rounded-lg bg-voceive-warning-subtle border border-voceive-warning/20 flex items-center justify-between"
         data-testid="executive-summary-stale"
       >
-        <p class="text-sm text-atlas-warning">
+        <p class="text-sm text-voceive-warning">
           New analyses are available since this summary was generated.
         </p>
         <AButton
@@ -170,10 +170,10 @@ onMounted(fetchSummary)
       </div>
 
       <!-- Summary text -->
-      <p class="text-sm text-atlas-text-secondary leading-relaxed">
+      <p class="text-sm text-voceive-text-secondary leading-relaxed">
         {{ summary.summary }}
       </p>
-      <p class="text-xs text-atlas-text-muted mt-2">
+      <p class="text-xs text-voceive-text-muted mt-2">
         Based on {{ summary.analyzed_ticket_count }} analyzed conversations
         · Generated {{ formatDate(summary.generated_at) }}
       </p>
@@ -183,24 +183,24 @@ onMounted(fetchSummary)
         v-if="summary.key_findings.length > 0"
         class="mt-5"
       >
-        <h3 class="text-sm font-medium text-atlas-text-primary mb-2">Key Findings</h3>
+        <h3 class="text-sm font-medium text-voceive-text-primary mb-2">Key Findings</h3>
         <ul class="space-y-2">
           <li
             v-for="(finding, i) in summary.key_findings"
             :key="i"
-            class="text-sm border border-atlas-border rounded-lg p-3"
+            class="text-sm border border-voceive-border rounded-lg p-3"
           >
             <div class="flex items-center gap-2">
-              <span class="font-medium text-atlas-text-primary">{{ finding.title }}</span>
+              <span class="font-medium text-voceive-text-primary">{{ finding.title }}</span>
               <span
                 v-if="finding.category"
-                class="text-xs text-atlas-text-muted px-1.5 py-0.5 rounded bg-atlas-bg-secondary"
+                class="text-xs text-voceive-text-muted px-1.5 py-0.5 rounded bg-atlas-bg-secondary"
               >
                 {{ finding.category }}
               </span>
             </div>
-            <p class="text-atlas-text-secondary mt-1">{{ finding.description }}</p>
-            <p class="text-xs text-atlas-text-muted mt-1">
+            <p class="text-voceive-text-secondary mt-1">{{ finding.description }}</p>
+            <p class="text-xs text-voceive-text-muted mt-1">
               {{ finding.evidence_count }} supporting conversation{{ finding.evidence_count === 1 ? '' : 's' }}
             </p>
           </li>
@@ -212,7 +212,7 @@ onMounted(fetchSummary)
         v-if="summary.attention_items.length > 0"
         class="mt-5"
       >
-        <h3 class="text-sm font-medium text-atlas-text-primary mb-2">Needs Attention</h3>
+        <h3 class="text-sm font-medium text-voceive-text-primary mb-2">Needs Attention</h3>
         <ul class="space-y-2">
           <li
             v-for="(item, i) in summary.attention_items"
@@ -237,16 +237,16 @@ onMounted(fetchSummary)
         v-if="summary.recommended_actions.length > 0"
         class="mt-5"
       >
-        <h3 class="text-sm font-medium text-atlas-text-primary mb-2">Recommended Actions</h3>
+        <h3 class="text-sm font-medium text-voceive-text-primary mb-2">Recommended Actions</h3>
         <ul class="space-y-2">
           <li
             v-for="(action, i) in summary.recommended_actions"
             :key="i"
-            class="text-sm border border-atlas-border rounded-lg p-3"
+            class="text-sm border border-voceive-border rounded-lg p-3"
           >
-            <span class="font-medium text-atlas-text-primary">{{ action.title }}</span>
-            <p class="text-atlas-text-secondary mt-1">{{ action.description }}</p>
-            <p class="text-xs text-atlas-text-muted mt-1">
+            <span class="font-medium text-voceive-text-primary">{{ action.title }}</span>
+            <p class="text-voceive-text-secondary mt-1">{{ action.description }}</p>
+            <p class="text-xs text-voceive-text-muted mt-1">
               {{ action.evidence_count }} supporting conversation{{ action.evidence_count === 1 ? '' : 's' }}
             </p>
           </li>

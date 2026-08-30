@@ -168,7 +168,7 @@ describe('TicketDetailPage', () => {
       },
     }
     const { wrapper } = await mountDetail('1', { data: ticket })
-    expect(wrapper.text()).toContain('waiting to analyze')
+    expect(wrapper.text()).toContain('Waiting to analyze')
   })
 
   // -- AI Analysis (processing) --------------------------------------------
@@ -185,7 +185,7 @@ describe('TicketDetailPage', () => {
       },
     }
     const { wrapper } = await mountDetail('1', { data: ticket })
-    expect(wrapper.text()).toContain('analyzing this ticket')
+    expect(wrapper.text()).toContain('Analyzing this ticket')
   })
 
   // -- AI Analysis (failed) ------------------------------------------------

@@ -52,6 +52,16 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/ReportsPage.vue'),
       },
       {
+        path: 'themes',
+        name: 'themes',
+        component: () => import('@/pages/ThemesPage.vue'),
+      },
+      {
+        path: 'themes/:id',
+        name: 'theme-detail',
+        component: () => import('@/pages/ThemeDetailPage.vue'),
+      },
+      {
         path: 'import',
         name: 'import',
         component: () => import('@/pages/ImportPage.vue'),

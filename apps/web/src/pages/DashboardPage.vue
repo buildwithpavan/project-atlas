@@ -84,10 +84,10 @@ onMounted(fetchData)
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
         <div>
-          <h1 class="text-2xl font-semibold text-atlas-text-primary">
+          <h1 class="text-2xl font-semibold text-voceive-text-primary">
             Customer Intelligence
           </h1>
-          <p class="mt-1 text-sm text-atlas-text-muted">
+          <p class="mt-1 text-sm text-voceive-text-muted">
             Understand what your customers are telling you.
           </p>
         </div>
@@ -117,7 +117,7 @@ onMounted(fetchData)
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <RouterLink
           :to="{ name: 'tickets' }"
-          class="atlas-focus-ring rounded-atlas-lg hover:ring-2 hover:ring-atlas-brand/20 transition-shadow"
+          class="voceive-focus-ring rounded-voceive-lg hover:ring-2 hover:ring-voceive-brand/20 transition-shadow"
         >
           <MetricCard
             label="Total Tickets"

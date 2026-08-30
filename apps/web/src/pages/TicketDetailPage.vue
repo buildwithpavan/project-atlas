@@ -70,7 +70,7 @@ onMounted(fetchTicket)
     <!-- Back link -->
     <button
       type="button"
-      class="atlas-focus-ring inline-flex items-center gap-1 text-sm text-atlas-text-secondary hover:text-atlas-text-primary transition-colors rounded"
+      class="voceive-focus-ring inline-flex items-center gap-1 text-sm text-voceive-text-secondary hover:text-voceive-text-primary transition-colors rounded"
       @click="goBack"
     >
       <svg
@@ -94,27 +94,27 @@ onMounted(fetchTicket)
       class="mt-6 space-y-6"
     >
       <div>
-        <div class="h-7 w-2/3 animate-pulse rounded bg-atlas-surface-muted" />
-        <div class="mt-2 h-4 w-1/3 animate-pulse rounded bg-atlas-surface-muted" />
+        <div class="h-7 w-2/3 animate-pulse rounded bg-voceive-surface-muted" />
+        <div class="mt-2 h-4 w-1/3 animate-pulse rounded bg-voceive-surface-muted" />
         <div class="mt-3 flex gap-2">
-          <div class="h-5 w-14 animate-pulse rounded-atlas-full bg-atlas-surface-muted" />
-          <div class="h-5 w-16 animate-pulse rounded-atlas-full bg-atlas-surface-muted" />
-          <div class="h-5 w-20 animate-pulse rounded-atlas-full bg-atlas-surface-muted" />
+          <div class="h-5 w-14 animate-pulse rounded-voceive-full bg-voceive-surface-muted" />
+          <div class="h-5 w-16 animate-pulse rounded-voceive-full bg-voceive-surface-muted" />
+          <div class="h-5 w-20 animate-pulse rounded-voceive-full bg-voceive-surface-muted" />
         </div>
       </div>
-      <div class="bg-atlas-surface border border-atlas-border rounded-atlas-lg p-5">
-        <div class="h-4 w-24 animate-pulse rounded bg-atlas-surface-muted" />
+      <div class="bg-voceive-surface border border-voceive-border rounded-voceive-lg p-5">
+        <div class="h-4 w-24 animate-pulse rounded bg-voceive-surface-muted" />
         <div class="mt-3 space-y-2">
-          <div class="h-3 w-full animate-pulse rounded bg-atlas-surface-muted" />
-          <div class="h-3 w-5/6 animate-pulse rounded bg-atlas-surface-muted" />
-          <div class="h-3 w-3/4 animate-pulse rounded bg-atlas-surface-muted" />
+          <div class="h-3 w-full animate-pulse rounded bg-voceive-surface-muted" />
+          <div class="h-3 w-5/6 animate-pulse rounded bg-voceive-surface-muted" />
+          <div class="h-3 w-3/4 animate-pulse rounded bg-voceive-surface-muted" />
         </div>
       </div>
-      <div class="bg-atlas-surface border border-atlas-border rounded-atlas-lg p-5">
-        <div class="h-4 w-32 animate-pulse rounded bg-atlas-surface-muted" />
+      <div class="bg-voceive-surface border border-voceive-border rounded-voceive-lg p-5">
+        <div class="h-4 w-32 animate-pulse rounded bg-voceive-surface-muted" />
         <div class="mt-4 space-y-3">
-          <div class="h-3 w-full animate-pulse rounded bg-atlas-surface-muted" />
-          <div class="h-3 w-2/3 animate-pulse rounded bg-atlas-surface-muted" />
+          <div class="h-3 w-full animate-pulse rounded bg-voceive-surface-muted" />
+          <div class="h-3 w-2/3 animate-pulse rounded bg-voceive-surface-muted" />
         </div>
       </div>
     </div>
@@ -124,10 +124,10 @@ onMounted(fetchTicket)
       v-else-if="notFound"
       class="mt-6 flex flex-col items-center justify-center py-16 text-center"
     >
-      <h2 class="text-lg font-semibold text-atlas-text-primary">
+      <h2 class="text-lg font-semibold text-voceive-text-primary">
         Ticket not found
       </h2>
-      <p class="mt-2 text-sm text-atlas-text-muted">
+      <p class="mt-2 text-sm text-voceive-text-muted">
         This ticket may have been removed or doesn't exist.
       </p>
       <AButton
@@ -146,10 +146,10 @@ onMounted(fetchTicket)
       role="alert"
       class="mt-6 flex flex-col items-center justify-center py-16 text-center"
     >
-      <h2 class="text-lg font-semibold text-atlas-text-primary">
+      <h2 class="text-lg font-semibold text-voceive-text-primary">
         Unable to load ticket
       </h2>
-      <p class="mt-2 max-w-sm text-sm text-atlas-text-muted">
+      <p class="mt-2 max-w-sm text-sm text-voceive-text-muted">
         {{ error }}
       </p>
       <div class="mt-4 flex gap-3">
@@ -174,24 +174,24 @@ onMounted(fetchTicket)
     <template v-else-if="ticket">
       <!-- Header -->
       <div class="mt-6">
-        <h1 class="text-xl font-semibold text-atlas-text-primary">
+        <h1 class="text-xl font-semibold text-voceive-text-primary">
           {{ ticket.subject }}
         </h1>
-        <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-atlas-text-secondary">
+        <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-voceive-text-secondary">
           <span v-if="ticket.customer_name || ticket.customer_email">
             {{ ticket.customer_name || ticket.customer_email }}
             <span
               v-if="ticket.customer_name && ticket.customer_email"
-              class="text-atlas-text-muted"
+              class="text-voceive-text-muted"
             >
               ({{ ticket.customer_email }})
             </span>
           </span>
           <span
             v-else
-            class="text-atlas-text-muted"
+            class="text-voceive-text-muted"
           >Unknown customer</span>
-          <span class="text-atlas-text-muted">
+          <span class="text-voceive-text-muted">
             {{ formatDate(ticket.created_at) }}
           </span>
         </div>
@@ -208,50 +208,50 @@ onMounted(fetchTicket)
       </div>
 
       <!-- Customer message -->
-      <div class="mt-6 bg-atlas-surface border border-atlas-border rounded-atlas-lg p-5">
-        <h2 class="text-sm font-medium text-atlas-text-secondary">
+      <div class="mt-6 bg-voceive-surface border border-voceive-border rounded-voceive-lg p-5">
+        <h2 class="text-sm font-medium text-voceive-text-secondary">
           Customer Message
         </h2>
         <p
           v-if="ticket.description"
-          class="mt-3 text-sm text-atlas-text-primary whitespace-pre-wrap leading-relaxed"
+          class="mt-3 text-sm text-voceive-text-primary whitespace-pre-wrap leading-relaxed"
         >
           {{ ticket.description }}
         </p>
         <p
           v-else
-          class="mt-3 text-sm text-atlas-text-muted italic"
+          class="mt-3 text-sm text-voceive-text-muted italic"
         >
           No message content available.
         </p>
       </div>
 
       <!-- AI Analysis -->
-      <div class="mt-6 bg-atlas-surface border border-atlas-border rounded-atlas-lg p-5">
-        <h2 class="text-sm font-medium text-atlas-text-secondary">
-          Atlas Analysis
+      <div class="mt-6 bg-voceive-surface border border-voceive-border rounded-voceive-lg p-5">
+        <h2 class="text-sm font-medium text-voceive-text-secondary">
+          AI Analysis
         </h2>
 
         <!-- No analysis at all -->
         <template v-if="!ticket.ai_analysis">
-          <p class="mt-3 text-sm text-atlas-text-muted">
+          <p class="mt-3 text-sm text-voceive-text-muted">
             This ticket has not been analyzed yet.
           </p>
         </template>
 
         <!-- Pending -->
         <template v-else-if="ticket.ai_analysis.status === 'pending'">
-          <div class="mt-3 flex items-center gap-2 text-sm text-atlas-text-muted">
-            <div class="size-2 rounded-full bg-atlas-warning animate-pulse" />
-            Atlas is waiting to analyze this ticket.
+          <div class="mt-3 flex items-center gap-2 text-sm text-voceive-text-muted">
+            <div class="size-2 rounded-full bg-voceive-warning animate-pulse" />
+            Waiting to analyze this ticket.
           </div>
         </template>
 
         <!-- Processing -->
         <template v-else-if="ticket.ai_analysis.status === 'processing'">
-          <div class="mt-3 flex items-center gap-2 text-sm text-atlas-text-muted">
+          <div class="mt-3 flex items-center gap-2 text-sm text-voceive-text-muted">
             <svg
-              class="size-4 animate-spin text-atlas-brand"
+              class="size-4 animate-spin text-voceive-brand"
               viewBox="0 0 24 24"
               fill="none"
               aria-hidden="true"
@@ -270,13 +270,13 @@ onMounted(fetchTicket)
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
               />
             </svg>
-            Atlas is analyzing this ticket…
+            Analyzing this ticket…
           </div>
         </template>
 
         <!-- Failed -->
         <template v-else-if="ticket.ai_analysis.status === 'failed'">
-          <p class="mt-3 text-sm text-atlas-text-muted">
+          <p class="mt-3 text-sm text-voceive-text-muted">
             Analysis couldn't be completed for this ticket. It may be retried automatically.
           </p>
         </template>
@@ -286,7 +286,7 @@ onMounted(fetchTicket)
           <!-- Summary -->
           <p
             v-if="ticket.ai_analysis.summary"
-            class="mt-3 text-sm text-atlas-text-primary leading-relaxed"
+            class="mt-3 text-sm text-voceive-text-primary leading-relaxed"
           >
             "{{ ticket.ai_analysis.summary }}"
           </p>
@@ -295,7 +295,7 @@ onMounted(fetchTicket)
           <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <!-- Sentiment -->
             <div>
-              <p class="text-xs font-medium text-atlas-text-muted uppercase tracking-wider">
+              <p class="text-xs font-medium text-voceive-text-muted uppercase tracking-wider">
                 Sentiment
               </p>
               <p class="mt-1">
@@ -314,28 +314,28 @@ onMounted(fetchTicket)
 
             <!-- Confidence -->
             <div>
-              <p class="text-xs font-medium text-atlas-text-muted uppercase tracking-wider">
+              <p class="text-xs font-medium text-voceive-text-muted uppercase tracking-wider">
                 Confidence
               </p>
-              <p class="mt-1 text-sm font-medium text-atlas-text-primary tabular-nums">
+              <p class="mt-1 text-sm font-medium text-voceive-text-primary tabular-nums">
                 {{ formatConfidence(ticket.ai_analysis.confidence) }}
               </p>
             </div>
 
             <!-- Category -->
             <div>
-              <p class="text-xs font-medium text-atlas-text-muted uppercase tracking-wider">
+              <p class="text-xs font-medium text-voceive-text-muted uppercase tracking-wider">
                 Category
               </p>
-              <p class="mt-1 text-sm text-atlas-text-primary capitalize">
+              <p class="mt-1 text-sm text-voceive-text-primary capitalize">
                 {{ ticket.ai_analysis.category || '—' }}
               </p>
             </div>
           </div>
 
           <!-- Signals -->
-          <div class="mt-4 border-t border-atlas-border pt-4">
-            <p class="text-xs font-medium text-atlas-text-muted uppercase tracking-wider mb-2">
+          <div class="mt-4 border-t border-voceive-border pt-4">
+            <p class="text-xs font-medium text-voceive-text-muted uppercase tracking-wider mb-2">
               Signals
             </p>
             <div class="flex flex-wrap gap-2">
@@ -359,7 +359,7 @@ onMounted(fetchTicket)
               </ABadge>
               <span
                 v-if="!ticket.ai_analysis.feature_request && !ticket.ai_analysis.bug_report && !ticket.ai_analysis.knowledge_gap"
-                class="text-sm text-atlas-text-muted"
+                class="text-sm text-voceive-text-muted"
               >
                 No specific signals detected.
               </span>

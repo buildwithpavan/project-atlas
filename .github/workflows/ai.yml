@@ -1,0 +1,37 @@
+name: AI CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/ai/**"
+      - ".github/workflows/ai.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "apps/ai/**"
+      - ".github/workflows/ai.yml"
+
+defaults:
+  run:
+    working-directory: apps/ai
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: apps/ai/requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Tests
+        run: pytest -v

@@ -13,4 +13,4 @@ def test_health_returns_200():
 def test_health_response_body():
     response = client.get("/health")
     data = response.json()
-    assert data == {"status": "ok", "service": "atlas-ai"}
+    assert data == {"status": "ok", "service": "voceive-ai"}

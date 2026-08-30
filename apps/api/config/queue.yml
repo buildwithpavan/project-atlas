@@ -1,3 +1,14 @@
+# Queue configuration for Solid Queue.
+#
+# Queues:
+#   import   — CSV upload processing (ProcessUploadJob)
+#   analysis — AI ticket analysis (AnalyzeTicketJob)
+#   default  — everything else (RecoverStaleJobsJob, recurring tasks)
+#
+# The wildcard "*" ensures all queues are processed by a single worker group.
+# For production deployments with higher throughput needs, replace "*" with
+# explicit per-queue workers and tune thread counts independently.
+
 default: &default
   dispatchers:
     - polling_interval: 1

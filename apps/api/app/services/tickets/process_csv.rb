@@ -19,6 +19,7 @@ module Tickets
   # Duplicate safety: the unique index on ai_analyses.ticket_id prevents duplicate analyses.
   class ProcessCsv < ApplicationService
     BATCH_SIZE = 1000
+    MAX_ROW_COUNT = ENV.fetch("CSV_MAX_ROW_COUNT", "10000").to_i
     REQUIRED_HEADERS = %w[subject].freeze
     ALLOWED_HEADERS = %w[subject description customer_name customer_email priority status category].freeze
 
@@ -60,6 +61,7 @@ module Tickets
       headers = rows.headers.map(&:to_s).map(&:strip)
 
       validate_headers!(headers)
+      validate_row_count!(rows.size)
 
       @total = rows.size
       @processed = 0
@@ -75,6 +77,13 @@ module Tickets
     def validate_headers!(headers)
       missing = REQUIRED_HEADERS - headers
       raise CSV::MalformedCSVError.new("Missing required columns: #{missing.join(', ')}", 1) if missing.any?
+    end
+
+    def validate_row_count!(count)
+      return if count <= MAX_ROW_COUNT
+
+      raise "CSV contains #{count} rows, which exceeds the maximum of #{MAX_ROW_COUNT}. " \
+            "Please split the file into smaller batches."
     end
 
     def process_batch(batch)

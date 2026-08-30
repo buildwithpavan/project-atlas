@@ -4,15 +4,16 @@ module Api
   module V1
     class UploadsController < BaseController
       include Authenticatable
+      include Authorizable
       before_action :authenticate_user!
 
       MAX_FILE_SIZE = 25.megabytes
 
       def create
-        organization = authorize_organization!
+        authorize! :write
         validate_file!
 
-        upload = organization.uploads.create!(
+        upload = current_organization.uploads.create!(
           filename: file_param.original_filename,
           uploaded_by: current_user
         )
@@ -24,13 +25,6 @@ module Api
       end
 
       private
-
-      def authorize_organization!
-        org = current_user.organizations.first
-        raise UnauthorizedError, "No organization access" unless org
-
-        org
-      end
 
       def file_param
         @file_param ||= params.require(:file)

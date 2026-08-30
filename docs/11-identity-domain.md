@@ -4,7 +4,7 @@
 
 The Identity domain is responsible for authentication, authorization, users, organizations, memberships, and access control.
 
-It is the foundation of Project Atlas.
+It is the foundation of Voceive.
 
 Every authenticated request passes through this domain.
 
@@ -43,7 +43,7 @@ Membership
 
 ## User
 
-Represents a person using Atlas.
+Represents a person using Voceive.
 
 Responsibilities
 

@@ -81,7 +81,7 @@ RSpec.describe Ai::Client, type: :service do
         stub_http
         allow(ENV).to receive(:fetch).and_call_original
         allow(ENV).to receive(:fetch).with("AI_SERVICE_URL", "http://ai:8000").and_return("http://custom:3000")
-        allow(ENV).to receive(:fetch).with("AI_SERVICE_TIMEOUT", "10").and_return("15")
+        allow(ENV).to receive(:fetch).with("AI_SERVICE_TIMEOUT", "30").and_return("15")
 
         default_client = described_class.new
         default_client.post(path, payload)

@@ -1,6 +1,6 @@
-# Atlas Demo Dataset
+# Voceive Demo Dataset
 
-Realistic SaaS customer-support conversations for demonstrating the Atlas intelligence pipeline.
+Realistic SaaS customer-support conversations for demonstrating the Voceive intelligence pipeline.
 
 ## Dataset
 
@@ -14,7 +14,7 @@ Realistic SaaS customer-support conversations for demonstrating the Atlas intell
 
 ## Import
 
-Upload via the Atlas UI or API:
+Upload via the Voceive UI or API:
 
 ```bash
 # Via API (requires a valid JWT token and organization)
@@ -25,7 +25,7 @@ curl -X POST http://localhost:3000/api/v1/uploads \
 
 Or use the web UI: navigate to Import → Upload CSV → select this file.
 
-The standard Atlas pipeline will process all tickets:
+The standard Voceive pipeline will process all tickets:
 1. `Tickets::ProcessCsv` creates ticket records
 2. `AnalyzeTicketJob` enqueues AI analysis for each ticket
 3. AI analysis populates sentiment, categories, and signals

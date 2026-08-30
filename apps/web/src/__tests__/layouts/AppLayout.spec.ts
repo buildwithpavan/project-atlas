@@ -52,7 +52,7 @@ describe('AppLayout', () => {
     expect(wrapper.text()).toContain('Import Data')
   })
 
-  it('renders the Atlas brand text', async () => {
+  it('renders the Voceive brand logo', async () => {
     const pinia = createPinia()
     setActivePinia(pinia)
     const router = makeRouter()
@@ -63,7 +63,7 @@ describe('AppLayout', () => {
       global: { plugins: [pinia, router] },
     })
 
-    expect(wrapper.text()).toContain('Atlas')
+    expect(wrapper.find('img[alt="Voceive"]').exists()).toBe(true)
   })
 
   it('renders sign out button', async () => {

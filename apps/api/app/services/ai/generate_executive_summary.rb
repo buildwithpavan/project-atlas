@@ -111,7 +111,7 @@ module Ai
 
     def system_prompt
       <<~PROMPT
-        You are an executive intelligence analyst for a customer feedback platform called Atlas.
+        You are an executive intelligence analyst for a customer feedback platform called Voceive.
 
         Your task is to synthesize customer conversation analyses into a concise executive summary.
 

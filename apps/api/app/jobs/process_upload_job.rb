@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ProcessUploadJob < ApplicationJob
-  queue_as :default
+  queue_as :import
 
   def perform(upload)
     Tickets::ProcessCsv.call(upload)

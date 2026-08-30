@@ -61,11 +61,11 @@ function onDrop(e: DragEvent) {
 
 <template>
   <div
-    class="relative rounded-atlas-md border-2 border-dashed transition-colors cursor-pointer"
+    class="relative rounded-voceive-md border-2 border-dashed transition-colors cursor-pointer"
     :class="[
       dragActive
-        ? 'border-atlas-brand bg-atlas-brand-subtle'
-        : 'border-atlas-border hover:border-atlas-text-muted',
+        ? 'border-voceive-brand bg-voceive-brand-subtle'
+        : 'border-voceive-border hover:border-voceive-text-muted',
       disabled ? 'opacity-60 pointer-events-none' : '',
     ]"
     role="button"
@@ -81,9 +81,9 @@ function onDrop(e: DragEvent) {
   >
     <div class="flex flex-col items-center justify-center px-6 py-12 text-center">
       <!-- Upload icon -->
-      <div class="size-12 rounded-full bg-atlas-brand-subtle flex items-center justify-center mb-4">
+      <div class="size-12 rounded-full bg-voceive-brand-subtle flex items-center justify-center mb-4">
         <svg
-          class="size-6 text-atlas-brand"
+          class="size-6 text-voceive-brand"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -98,22 +98,22 @@ function onDrop(e: DragEvent) {
         </svg>
       </div>
 
-      <p class="text-sm font-medium text-atlas-text-primary">
+      <p class="text-sm font-medium text-voceive-text-primary">
         <span v-if="dragActive">Drop your CSV file here</span>
         <span v-else>Drag and drop your CSV file here</span>
       </p>
-      <p class="mt-1 text-xs text-atlas-text-muted">
+      <p class="mt-1 text-xs text-voceive-text-muted">
         or
       </p>
       <button
         type="button"
-        class="atlas-focus-ring mt-2 inline-flex items-center rounded-atlas px-4 py-2 text-sm font-medium text-atlas-brand hover:bg-atlas-brand-subtle transition-colors"
+        class="voceive-focus-ring mt-2 inline-flex items-center rounded-voceive px-4 py-2 text-sm font-medium text-voceive-brand hover:bg-voceive-brand-subtle transition-colors"
         :disabled="disabled"
         @click.stop="openPicker"
       >
         Choose CSV file
       </button>
-      <p class="mt-3 text-xs text-atlas-text-muted">
+      <p class="mt-3 text-xs text-voceive-text-muted">
         CSV files only
       </p>
     </div>

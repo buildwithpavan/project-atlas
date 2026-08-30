@@ -8,7 +8,7 @@ withDefaults(defineProps<{
 
 <template>
   <div
-    class="bg-atlas-surface border border-atlas-border rounded-atlas-lg shadow-atlas-sm"
+    class="bg-voceive-surface border border-voceive-border rounded-voceive-lg shadow-voceive-sm"
     :class="{ 'p-5': padding }"
   >
     <slot />
