@@ -5,7 +5,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import AskVoceivePage from '@/pages/AskVoceivePage.vue'
 import * as conversationsApi from '@/api/conversations'
 import { ApiError } from '@/api/errors'
-import type { Conversation, AssistantMessage, DataEnvelope } from '@/api/types'
+import type { Conversation, AssistantMessage } from '@/api/types'
 
 vi.mock('@/api/conversations')
 vi.mock('@/api/auth', () => ({
@@ -490,5 +490,207 @@ describe('AskVoceivePage', () => {
 
     const alert = wrapper.find('[role="alert"]')
     expect(alert.exists()).toBe(true)
+  })
+
+  // -- Citation rendering ---------------------------------------------------
+
+  it('displays Sources section when assistant has citations', async () => {
+    const wrapper = await mountPage()
+    await typeAndSend(wrapper, 'Test')
+
+    expect(wrapper.text()).toContain('Sources')
+  })
+
+  it('displays citation document title', async () => {
+    const wrapper = await mountPage()
+    await typeAndSend(wrapper, 'Test')
+
+    expect(wrapper.text()).toContain('Refund Policy')
+  })
+
+  it('displays citation content preview', async () => {
+    const wrapper = await mountPage()
+    await typeAndSend(wrapper, 'Test')
+
+    expect(wrapper.text()).toContain('Our refund policy allows returns within 30 days')
+  })
+
+  it('displays relevance badge for citation', async () => {
+    const wrapper = await mountPage()
+    await typeAndSend(wrapper, 'Test')
+
+    // similarity 0.87 → "High relevance"
+    expect(wrapper.text()).toContain('High relevance')
+  })
+
+  it('displays match percentage for citation', async () => {
+    const wrapper = await mountPage()
+    await typeAndSend(wrapper, 'Test')
+
+    expect(wrapper.text()).toContain('87% match')
+  })
+
+  it('does not show Sources section when assistant has no citations', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(conversationsApi.sendMessage).mockResolvedValue({
+      data: {
+        ...sampleAssistantResponse,
+        citations: [],
+        has_sources: false,
+      },
+    })
+
+    await typeAndSend(wrapper, 'Test')
+
+    expect(wrapper.text()).not.toContain('Sources')
+  })
+
+  it('renders multiple citations', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(conversationsApi.sendMessage).mockResolvedValue({
+      data: {
+        ...sampleAssistantResponse,
+        citations: [
+          { chunk_id: 'chunk-1', document_id: 'doc-1', document_title: 'Refund Policy', content_preview: 'Our refund policy...', similarity: 0.87, metadata: {} },
+          { chunk_id: 'chunk-2', document_id: 'doc-2', document_title: 'Shipping Guidelines', content_preview: 'All orders ship...', similarity: 0.72, metadata: { section_title: 'Domestic Shipping' } },
+          { chunk_id: 'chunk-3', document_id: 'doc-3', document_title: 'FAQ Document', content_preview: 'Common questions...', similarity: 0.45, metadata: {} },
+        ],
+      },
+    })
+
+    await typeAndSend(wrapper, 'Test')
+
+    expect(wrapper.text()).toContain('Refund Policy')
+    expect(wrapper.text()).toContain('Shipping Guidelines')
+    expect(wrapper.text()).toContain('FAQ Document')
+  })
+
+  it('preserves citation order from API', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(conversationsApi.sendMessage).mockResolvedValue({
+      data: {
+        ...sampleAssistantResponse,
+        citations: [
+          { chunk_id: 'c1', document_id: 'd1', document_title: 'First Source', content_preview: '', similarity: 0.9, metadata: {} },
+          { chunk_id: 'c2', document_id: 'd2', document_title: 'Second Source', content_preview: '', similarity: 0.7, metadata: {} },
+        ],
+      },
+    })
+
+    await typeAndSend(wrapper, 'Test')
+
+    const text = wrapper.text()
+    expect(text.indexOf('First Source')).toBeLessThan(text.indexOf('Second Source'))
+  })
+
+  it('displays correct relevance tiers', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(conversationsApi.sendMessage).mockResolvedValue({
+      data: {
+        ...sampleAssistantResponse,
+        citations: [
+          { chunk_id: 'c1', document_id: 'd1', document_title: 'High', content_preview: '', similarity: 0.85, metadata: {} },
+          { chunk_id: 'c2', document_id: 'd2', document_title: 'Good', content_preview: '', similarity: 0.65, metadata: {} },
+          { chunk_id: 'c3', document_id: 'd3', document_title: 'Moderate', content_preview: '', similarity: 0.45, metadata: {} },
+          { chunk_id: 'c4', document_id: 'd4', document_title: 'Low', content_preview: '', similarity: 0.35, metadata: {} },
+        ],
+      },
+    })
+
+    await typeAndSend(wrapper, 'Test')
+
+    expect(wrapper.text()).toContain('High relevance')
+    expect(wrapper.text()).toContain('Good relevance')
+    expect(wrapper.text()).toContain('Moderate relevance')
+    expect(wrapper.text()).toContain('Low relevance')
+  })
+
+  it('displays section title from metadata when present', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(conversationsApi.sendMessage).mockResolvedValue({
+      data: {
+        ...sampleAssistantResponse,
+        citations: [
+          { chunk_id: 'c1', document_id: 'd1', document_title: 'Refund Policy', content_preview: 'Excerpt', similarity: 0.8, metadata: { section_title: 'Returns & Exchanges' } },
+        ],
+      },
+    })
+
+    await typeAndSend(wrapper, 'Test')
+
+    expect(wrapper.text()).toContain('Returns & Exchanges')
+  })
+
+  it('source cards have accessible aria-label', async () => {
+    const wrapper = await mountPage()
+    await typeAndSend(wrapper, 'Test')
+
+    const sourceCard = wrapper.find('[role="article"]')
+    expect(sourceCard.exists()).toBe(true)
+    expect(sourceCard.attributes('aria-label')).toBe('Source: Refund Policy')
+  })
+
+  it('renders citation content as plain text (no HTML injection)', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(conversationsApi.sendMessage).mockResolvedValue({
+      data: {
+        ...sampleAssistantResponse,
+        citations: [
+          {
+            chunk_id: 'xss', document_id: 'xss', document_title: '<img onerror="alert(1)" src="x">',
+            content_preview: '<script>alert("xss")</script>Malicious', similarity: 0.9,
+            metadata: { section_title: '<b>bold</b>' },
+          },
+        ],
+      },
+    })
+
+    await typeAndSend(wrapper, 'Test')
+
+    const html = wrapper.html()
+    expect(html).toContain('&lt;script&gt;')
+    expect(html).toContain('&lt;img onerror')
+    expect(html).toContain('&lt;b&gt;bold&lt;/b&gt;')
+    expect(wrapper.text()).toContain('Malicious')
+  })
+
+  it('does not show Sources during loading', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(conversationsApi.sendMessage).mockReturnValue(new Promise(() => {}) as any)
+
+    const textarea = wrapper.find('textarea')
+    await textarea.setValue('Test')
+    await textarea.trigger('keydown', { key: 'Enter' })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Thinking')
+    expect(wrapper.findAll('[role="article"]').length).toBe(0)
+  })
+
+  it('does not render citations on error', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(conversationsApi.sendMessage).mockRejectedValue(new Error('fail'))
+
+    await typeAndSend(wrapper, 'Test')
+
+    expect(wrapper.text()).toContain('Something went wrong')
+    expect(wrapper.findAll('[role="article"]').length).toBe(0)
+  })
+
+  it('handles citation with empty content_preview', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(conversationsApi.sendMessage).mockResolvedValue({
+      data: {
+        ...sampleAssistantResponse,
+        citations: [
+          { chunk_id: 'c-empty', document_id: 'd-empty', document_title: 'Empty Preview Doc', content_preview: '', similarity: 0.75, metadata: {} },
+        ],
+      },
+    })
+
+    await typeAndSend(wrapper, 'Test')
+
+    expect(wrapper.text()).toContain('Empty Preview Doc')
+    expect(wrapper.text()).toContain('Good relevance')
   })
 })

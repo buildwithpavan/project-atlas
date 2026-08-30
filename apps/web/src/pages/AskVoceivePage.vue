@@ -3,14 +3,24 @@ import { ref, nextTick, computed } from 'vue'
 import * as conversationsApi from '@/api/conversations'
 import { ApiError } from '@/api/errors'
 import type { ConversationMessage, AssistantMessage } from '@/api/types'
-import { AButton } from '@/components/ui'
+import { ABadge, AButton } from '@/components/ui'
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+type ChatMessage = ConversationMessage | AssistantMessage
+
+function isAssistantWithCitations(msg: ChatMessage): msg is AssistantMessage {
+  return msg.role === 'assistant' && 'citations' in msg && Array.isArray((msg as AssistantMessage).citations)
+}
 
 // ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
 
 const conversationId = ref<string | null>(null)
-const messages = ref<ConversationMessage[]>([])
+const messages = ref<ChatMessage[]>([])
 const inputText = ref('')
 const sending = ref(false)
 const error = ref<string | null>(null)
@@ -62,16 +72,9 @@ async function handleSend() {
     }
 
     const res = await conversationsApi.sendMessage(conversationId.value, content)
-    const assistant: AssistantMessage = res.data
 
-    // Add assistant response
-    messages.value.push({
-      id: assistant.id,
-      role: 'assistant',
-      content: assistant.content,
-      position: assistant.position,
-      created_at: assistant.created_at,
-    })
+    // Store the full assistant message including citations
+    messages.value.push(res.data)
     scrollToBottom()
   } catch (err: unknown) {
     if (err instanceof ApiError) {
@@ -111,6 +114,17 @@ function formatTime(dateStr: string): string {
     hour: 'numeric',
     minute: '2-digit',
   })
+}
+
+// ---------------------------------------------------------------------------
+// Relevance — same thresholds as Knowledge Base search
+// ---------------------------------------------------------------------------
+
+function relevanceLabel(similarity: number): { text: string; variant: 'success' | 'info' | 'warning' | 'default' } {
+  if (similarity >= 0.8) return { text: 'High relevance', variant: 'success' }
+  if (similarity >= 0.6) return { text: 'Good relevance', variant: 'info' }
+  if (similarity >= 0.4) return { text: 'Moderate relevance', variant: 'warning' }
+  return { text: 'Low relevance', variant: 'default' }
 }
 </script>
 
@@ -222,6 +236,39 @@ function formatTime(dateStr: string): string {
                 <div class="rounded-voceive-md bg-voceive-surface border border-voceive-border px-4 py-3">
                   <p class="text-sm text-voceive-text-primary whitespace-pre-wrap">{{ msg.content }}</p>
                 </div>
+
+                <!-- Sources section -->
+                <div
+                  v-if="isAssistantWithCitations(msg) && msg.citations.length > 0"
+                  class="mt-3"
+                >
+                  <p class="text-xs font-semibold text-voceive-text-secondary mb-2">Sources</p>
+                  <div class="space-y-2">
+                    <div
+                      v-for="citation in msg.citations"
+                      :key="citation.chunk_id"
+                      class="rounded-voceive border border-voceive-border bg-voceive-background px-3 py-2.5"
+                      role="article"
+                      :aria-label="`Source: ${citation.document_title}`"
+                    >
+                      <div class="flex flex-wrap items-center gap-2 mb-1">
+                        <span class="text-xs font-semibold text-voceive-text-primary">{{ citation.document_title }}</span>
+                        <ABadge :variant="relevanceLabel(citation.similarity).variant">
+                          {{ relevanceLabel(citation.similarity).text }}
+                        </ABadge>
+                      </div>
+                      <p
+                        v-if="citation.content_preview"
+                        class="text-xs text-voceive-text-secondary leading-relaxed line-clamp-3"
+                      >{{ citation.content_preview }}</p>
+                      <div class="flex items-center gap-2 mt-1.5 text-xs text-voceive-text-muted">
+                        <span v-if="citation.metadata && citation.metadata.section_title">{{ citation.metadata.section_title }}</span>
+                        <span>{{ Math.round(citation.similarity * 100) }}% match</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <p class="mt-1 text-xs text-voceive-text-muted">
                   {{ formatTime(msg.created_at) }}
                 </p>
