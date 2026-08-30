@@ -269,3 +269,25 @@ export interface DocumentListParams {
   page?: number
   per_page?: number
 }
+
+// -- Document Search --------------------------------------------------------
+
+export interface DocumentSearchResult {
+  chunk_id: string
+  document_id: string
+  document_title: string
+  content: string
+  similarity: number
+  position: number
+  metadata: Record<string, unknown>
+}
+
+export interface DocumentSearchMeta {
+  query: string
+  count: number
+}
+
+export interface DocumentSearchResponse {
+  data: DocumentSearchResult[]
+  meta: DocumentSearchMeta
+}

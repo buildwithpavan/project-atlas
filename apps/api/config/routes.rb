@@ -20,6 +20,9 @@ Rails.application.routes.draw do
         end
       end
       resources :documents, only: [ :index, :show, :create, :destroy ] do
+        collection do
+          get :search
+        end
         member do
           post :reprocess
         end

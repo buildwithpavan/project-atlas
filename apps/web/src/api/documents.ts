@@ -4,6 +4,7 @@ import type {
   PaginatedEnvelope,
   Document,
   DocumentListParams,
+  DocumentSearchResponse,
 } from './types'
 
 export function list(params: DocumentListParams = {}): Promise<PaginatedEnvelope<Document>> {
@@ -35,4 +36,9 @@ export function destroy(id: string): Promise<void> {
 
 export function reprocess(id: string): Promise<DataEnvelope<Document>> {
   return post<DataEnvelope<Document>>(`/documents/${encodeURIComponent(id)}/reprocess`, {})
+}
+
+export function search(query: string): Promise<DocumentSearchResponse> {
+  const qs = new URLSearchParams({ query }).toString()
+  return get<DocumentSearchResponse>(`/documents/search?${qs}`)
 }

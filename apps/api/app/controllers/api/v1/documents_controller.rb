@@ -35,6 +35,26 @@ module Api
         render json: { data: serialize_document(document) }
       end
 
+      def search
+        authorize! :read
+
+        query = params[:query].presence
+        raise ValidationError.new(
+          "Query is required",
+          errors: { query: [ "must be provided" ] }
+        ) unless query
+
+        results = Documents::Search.call(
+          organization: current_organization,
+          query: query
+        )
+
+        render json: {
+          data: results.map { |r| serialize_search_result(r) },
+          meta: { query: query, count: results.size }
+        }
+      end
+
       def create
         authorize! :write
         validate_file!
@@ -165,6 +185,18 @@ module Api
           email: document.uploaded_by.email,
           first_name: document.uploaded_by.first_name,
           last_name: document.uploaded_by.last_name
+        }
+      end
+
+      def serialize_search_result(result)
+        {
+          chunk_id: result.chunk_id,
+          document_id: result.document_id,
+          document_title: result.document_title,
+          content: result.content.to_s.truncate(500),
+          similarity: result.similarity,
+          position: result.position,
+          metadata: result.metadata
         }
       end
     end

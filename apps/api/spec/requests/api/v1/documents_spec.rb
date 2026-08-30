@@ -544,4 +544,91 @@ RSpec.describe "Documents API", type: :request do
       end
     end
   end
+
+  # ── GET /api/v1/documents/search ──────────────────────────────────────
+
+  describe "GET /api/v1/documents/search" do
+    describe "authentication" do
+      it "rejects unauthenticated requests" do
+        get "/api/v1/documents/search", params: { query: "refund policy" }
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    describe "validation" do
+      it "requires a query parameter" do
+        get "/api/v1/documents/search", headers: headers
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.parsed_body["errors"]["query"]).to include("must be provided")
+      end
+
+      it "rejects blank query" do
+        get "/api/v1/documents/search", params: { query: "  " }, headers: headers
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    describe "successful search" do
+      let(:search_result) do
+        Documents::Search::Result.new(
+          chunk: nil,
+          chunk_id: "chunk-1",
+          document_id: "doc-1",
+          document_title: "Refund Policy",
+          content: "Our refund policy allows returns within 30 days.",
+          similarity: 0.8742,
+          position: 2,
+          metadata: { "section_title" => "Returns" }
+        )
+      end
+
+      before do
+        allow(Documents::Search).to receive(:call).and_return([ search_result ])
+      end
+
+      it "returns search results" do
+        get "/api/v1/documents/search", params: { query: "refund policy" }, headers: headers
+        expect(response).to have_http_status(:ok)
+
+        body = response.parsed_body
+        expect(body["data"]).to be_an(Array)
+        expect(body["data"].length).to eq(1)
+        expect(body["meta"]["query"]).to eq("refund policy")
+        expect(body["meta"]["count"]).to eq(1)
+      end
+
+      it "serializes result fields correctly" do
+        get "/api/v1/documents/search", params: { query: "refund policy" }, headers: headers
+        result = response.parsed_body["data"].first
+
+        expect(result["chunk_id"]).to eq("chunk-1")
+        expect(result["document_id"]).to eq("doc-1")
+        expect(result["document_title"]).to eq("Refund Policy")
+        expect(result["content"]).to include("refund policy")
+        expect(result["similarity"]).to eq(0.8742)
+        expect(result["position"]).to eq(2)
+        expect(result["metadata"]).to eq({ "section_title" => "Returns" })
+      end
+
+      it "calls Documents::Search with correct arguments" do
+        get "/api/v1/documents/search", params: { query: "payment handling" }, headers: headers
+
+        expect(Documents::Search).to have_received(:call).with(
+          organization: organization,
+          query: "payment handling"
+        )
+      end
+
+      it "returns empty array when no results match" do
+        allow(Documents::Search).to receive(:call).and_return([])
+
+        get "/api/v1/documents/search", params: { query: "nonexistent topic" }, headers: headers
+        expect(response).to have_http_status(:ok)
+
+        body = response.parsed_body
+        expect(body["data"]).to eq([])
+        expect(body["meta"]["count"]).to eq(0)
+      end
+    end
+  end
 end

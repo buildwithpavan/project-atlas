@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import * as documentsApi from '@/api/documents'
 import { ApiError } from '@/api/errors'
-import type { Document, DocumentStatus, PaginatedEnvelope } from '@/api/types'
+import type { Document, DocumentStatus, DocumentSearchResult, PaginatedEnvelope } from '@/api/types'
 import { ABadge, AButton } from '@/components/ui'
 
 // ---------------------------------------------------------------------------
@@ -29,6 +29,14 @@ const confirmDeleteId = ref<string | null>(null)
 
 // Reprocess state
 const reprocessingId = ref<string | null>(null)
+
+// Search state
+const searchQuery = ref('')
+const searchInput = ref('')
+const searchResults = ref<DocumentSearchResult[]>([])
+const searching = ref(false)
+const searchError = ref<string | null>(null)
+const isSearchActive = computed(() => searchQuery.value.length > 0)
 
 // Polling
 let pollTimer: ReturnType<typeof setInterval> | null = null
@@ -282,6 +290,43 @@ function formatContentType(contentType: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// Search
+// ---------------------------------------------------------------------------
+
+function relevanceLabel(similarity: number): { text: string; variant: 'success' | 'info' | 'warning' | 'default' } {
+  if (similarity >= 0.8) return { text: 'High relevance', variant: 'success' }
+  if (similarity >= 0.6) return { text: 'Good relevance', variant: 'info' }
+  if (similarity >= 0.4) return { text: 'Moderate relevance', variant: 'warning' }
+  return { text: 'Low relevance', variant: 'default' }
+}
+
+async function handleSearch() {
+  const query = searchInput.value.trim()
+  if (!query || searching.value) return
+
+  searchQuery.value = query
+  searching.value = true
+  searchError.value = null
+
+  try {
+    const res = await documentsApi.search(query)
+    searchResults.value = res.data
+  } catch (err: unknown) {
+    searchError.value = err instanceof ApiError ? err.detail : 'Search failed. Please try again.'
+    searchResults.value = []
+  } finally {
+    searching.value = false
+  }
+}
+
+function clearSearch() {
+  searchInput.value = ''
+  searchQuery.value = ''
+  searchResults.value = []
+  searchError.value = null
+}
+
+// ---------------------------------------------------------------------------
 // Lifecycle
 // ---------------------------------------------------------------------------
 
@@ -306,6 +351,7 @@ onUnmounted(() => {
         </p>
       </div>
       <AButton
+        v-if="!isSearchActive"
         variant="primary"
         size="md"
         @click="toggleUploadArea"
@@ -313,6 +359,133 @@ onUnmounted(() => {
         {{ showUploadArea ? 'Cancel' : 'Upload document' }}
       </AButton>
     </div>
+
+    <!-- Search bar -->
+    <div class="flex gap-2">
+      <div class="relative flex-1">
+        <svg
+          class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-voceive-text-muted pointer-events-none"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+        <input
+          v-model="searchInput"
+          type="search"
+          placeholder="Search your knowledge base…"
+          aria-label="Search knowledge base"
+          class="voceive-focus-ring block w-full rounded-voceive border border-voceive-border bg-voceive-surface pl-10 pr-3 py-2 text-sm text-voceive-text-primary placeholder:text-voceive-text-muted transition-colors hover:border-voceive-border-strong"
+          @keydown.enter="handleSearch"
+        >
+      </div>
+      <AButton
+        variant="secondary"
+        size="md"
+        :disabled="!searchInput.trim() || searching"
+        :loading="searching"
+        @click="handleSearch"
+      >
+        Search
+      </AButton>
+      <AButton
+        v-if="isSearchActive"
+        variant="ghost"
+        size="md"
+        @click="clearSearch"
+      >
+        Clear
+      </AButton>
+    </div>
+
+    <!-- Search results -->
+    <template v-if="isSearchActive">
+      <!-- Search loading -->
+      <div v-if="searching" class="flex items-center justify-center py-12">
+        <div class="flex items-center gap-2 text-sm text-voceive-text-muted">
+          <svg class="animate-spin size-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <span>Searching…</span>
+        </div>
+      </div>
+
+      <!-- Search error -->
+      <div
+        v-else-if="searchError"
+        class="rounded-voceive-md bg-voceive-error-subtle border border-voceive-error/20 p-4"
+      >
+        <p class="text-sm text-voceive-error">{{ searchError }}</p>
+        <button
+          class="mt-2 text-sm font-medium text-voceive-error underline hover:no-underline"
+          @click="handleSearch"
+        >
+          Try again
+        </button>
+      </div>
+
+      <!-- Search empty results -->
+      <div
+        v-else-if="searchResults.length === 0"
+        class="rounded-voceive-lg bg-voceive-surface border border-voceive-border p-12 text-center"
+      >
+        <div class="mx-auto max-w-sm">
+          <div class="mx-auto mb-4 size-12 rounded-full bg-voceive-surface-muted flex items-center justify-center">
+            <svg
+              class="size-6 text-voceive-text-muted"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-voceive-text-primary">No relevant knowledge found</h3>
+          <p class="mt-2 text-sm text-voceive-text-secondary">
+            Try a different question or broader search terms.
+          </p>
+        </div>
+      </div>
+
+      <!-- Search results list -->
+      <div v-else class="space-y-3">
+        <p class="text-sm text-voceive-text-muted">
+          {{ searchResults.length }} result{{ searchResults.length === 1 ? '' : 's' }} for "{{ searchQuery }}"
+        </p>
+
+        <div
+          v-for="result in searchResults"
+          :key="result.chunk_id"
+          class="rounded-voceive-lg bg-voceive-surface border border-voceive-border p-4 sm:p-5 space-y-3"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <h3 class="text-sm font-semibold text-voceive-text-primary">{{ result.document_title }}</h3>
+            <ABadge :variant="relevanceLabel(result.similarity).variant">
+              {{ relevanceLabel(result.similarity).text }}
+            </ABadge>
+          </div>
+
+          <p class="text-sm text-voceive-text-secondary leading-relaxed line-clamp-3">{{ result.content }}</p>
+
+          <div class="flex items-center gap-3 text-xs text-voceive-text-muted">
+            <span v-if="result.metadata && result.metadata.section_title">
+              {{ result.metadata.section_title }}
+            </span>
+            <span>Chunk {{ result.position + 1 }}</span>
+            <span>{{ Math.round(result.similarity * 100) }}% match</span>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Normal document view (hidden during search) -->
+    <template v-else>
 
     <!-- Upload area -->
     <div
@@ -612,5 +785,7 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
+
+    </template>
   </div>
 </template>

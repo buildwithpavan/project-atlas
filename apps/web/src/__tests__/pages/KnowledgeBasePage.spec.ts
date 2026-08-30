@@ -5,7 +5,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import KnowledgeBasePage from '@/pages/KnowledgeBasePage.vue'
 import * as documentsApi from '@/api/documents'
 import { ApiError } from '@/api/errors'
-import type { Document, PaginatedEnvelope } from '@/api/types'
+import type { Document, DocumentSearchResult, DocumentSearchResponse, PaginatedEnvelope } from '@/api/types'
 
 vi.mock('@/api/documents')
 vi.mock('@/api/auth', () => ({
@@ -82,6 +82,10 @@ function setupMock(response: PaginatedEnvelope<Document> | Error = loadedRespons
   vi.mocked(documentsApi.destroy).mockResolvedValue(undefined)
   vi.mocked(documentsApi.reprocess).mockResolvedValue({
     data: { ...sampleDocuments[2], status: 'pending', error_message: null },
+  })
+  vi.mocked(documentsApi.search).mockResolvedValue({
+    data: [],
+    meta: { query: '', count: 0 },
   })
 }
 
@@ -467,5 +471,382 @@ describe('KnowledgeBasePage', () => {
   it('calls documentsApi.list on mount', async () => {
     await mountPage()
     expect(documentsApi.list).toHaveBeenCalledTimes(1)
+  })
+
+  // -- Search ---------------------------------------------------------------
+
+  const sampleSearchResults: DocumentSearchResult[] = [
+    {
+      chunk_id: 'chunk-1',
+      document_id: 'doc-1',
+      document_title: 'Refund Policy',
+      content: 'Our refund policy allows customers to request a full refund within 30 days of purchase. After 30 days, only store credit is available.',
+      similarity: 0.8742,
+      position: 2,
+      metadata: { section_title: 'Returns & Refunds' },
+    },
+    {
+      chunk_id: 'chunk-2',
+      document_id: 'doc-1',
+      document_title: 'Refund Policy',
+      content: 'To initiate a refund, contact our support team with your order number.',
+      similarity: 0.6531,
+      position: 5,
+      metadata: {},
+    },
+    {
+      chunk_id: 'chunk-3',
+      document_id: 'doc-2',
+      document_title: 'Payment Guide',
+      content: 'Failed payments are retried automatically up to 3 times.',
+      similarity: 0.4215,
+      position: 0,
+      metadata: { section_title: 'Payment Failures' },
+    },
+  ]
+
+  const searchResponse: DocumentSearchResponse = {
+    data: sampleSearchResults,
+    meta: { query: 'refund policy', count: 3 },
+  }
+
+  it('renders the search input', async () => {
+    const wrapper = await mountPage()
+    const searchInput = wrapper.find('input[type="search"]')
+    expect(searchInput.exists()).toBe(true)
+    expect(searchInput.attributes('placeholder')).toContain('Search')
+  })
+
+  it('renders the search button', async () => {
+    const wrapper = await mountPage()
+    const searchBtn = wrapper.findAll('button').find((b) => b.text().trim() === 'Search')
+    expect(searchBtn).toBeTruthy()
+  })
+
+  it('disables search button when input is empty', async () => {
+    const wrapper = await mountPage()
+    const searchBtn = wrapper.findAll('button').find((b) => b.text().trim() === 'Search')!
+    expect(searchBtn.attributes('disabled')).toBeDefined()
+  })
+
+  it('enables search button when input has text', async () => {
+    const wrapper = await mountPage()
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund policy')
+
+    const searchBtn = wrapper.findAll('button').find((b) => b.text().trim() === 'Search')!
+    expect(searchBtn.attributes('disabled')).toBeUndefined()
+  })
+
+  it('submits search on Enter key', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund policy')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(documentsApi.search).toHaveBeenCalledWith('refund policy')
+  })
+
+  it('submits search on Search button click', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('payment handling')
+    const searchBtn = wrapper.findAll('button').find((b) => b.text().trim() === 'Search')!
+    await searchBtn.trigger('click')
+    await flushPromises()
+
+    expect(documentsApi.search).toHaveBeenCalledWith('payment handling')
+  })
+
+  it('does not submit search with blank input', async () => {
+    const wrapper = await mountPage()
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('   ')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(documentsApi.search).not.toHaveBeenCalled()
+  })
+
+  it('shows searching state', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockReturnValue(new Promise(() => {}) as any)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund policy')
+    await searchInput.trigger('keydown.enter')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Searching')
+  })
+
+  it('displays search results', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund policy')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('3 results for "refund policy"')
+    expect(wrapper.text()).toContain('Refund Policy')
+    expect(wrapper.text()).toContain('Payment Guide')
+  })
+
+  it('displays content excerpts in results', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund policy')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Our refund policy allows customers')
+    expect(wrapper.text()).toContain('Failed payments are retried')
+  })
+
+  it('displays relevance badges', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund policy')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('High relevance')
+    expect(wrapper.text()).toContain('Good relevance')
+    expect(wrapper.text()).toContain('Moderate relevance')
+  })
+
+  it('displays similarity percentage', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('87% match')
+    expect(wrapper.text()).toContain('65% match')
+    expect(wrapper.text()).toContain('42% match')
+  })
+
+  it('displays chunk position', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Chunk 3')
+    expect(wrapper.text()).toContain('Chunk 6')
+    expect(wrapper.text()).toContain('Chunk 1')
+  })
+
+  it('displays section title from metadata', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Returns & Refunds')
+    expect(wrapper.text()).toContain('Payment Failures')
+  })
+
+  it('hides document list during search', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    // Document list is visible before search
+    expect(wrapper.text()).toContain('3 documents')
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    // Document list hidden, search results shown
+    expect(wrapper.text()).not.toContain('3 documents')
+    expect(wrapper.text()).toContain('3 results')
+  })
+
+  it('hides upload button during search', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    expect(wrapper.text()).toContain('Upload document')
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).not.toContain('Upload document')
+  })
+
+  it('shows empty results state', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue({
+      data: [],
+      meta: { query: 'nonexistent topic', count: 0 },
+    })
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('nonexistent topic')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('No relevant knowledge found')
+    expect(wrapper.text()).toContain('Try a different question')
+  })
+
+  it('shows search error state', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockRejectedValue(new Error('Network error'))
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('test query')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Search failed')
+  })
+
+  it('shows API error detail in search error state', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockRejectedValue(
+      new ApiError({
+        type: '/errors/validation',
+        title: 'Validation Error',
+        status: 422,
+        detail: 'Query is too long',
+      }),
+    )
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('test query')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Query is too long')
+  })
+
+  it('provides retry on search error', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockRejectedValueOnce(new Error('fail'))
+    vi.mocked(documentsApi.search).mockResolvedValueOnce(searchResponse)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund policy')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Search failed')
+
+    const retryBtn = wrapper.findAll('button').find((b) => b.text().includes('Try again'))!
+    await retryBtn.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('3 results')
+  })
+
+  it('shows Clear button when search is active', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    // No clear button before search
+    let clearBtn = wrapper.findAll('button').find((b) => b.text().trim() === 'Clear')
+    expect(clearBtn).toBeUndefined()
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    clearBtn = wrapper.findAll('button').find((b) => b.text().trim() === 'Clear')
+    expect(clearBtn).toBeTruthy()
+  })
+
+  it('clears search and returns to document list', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('3 results')
+    expect(wrapper.text()).not.toContain('3 documents')
+
+    const clearBtn = wrapper.findAll('button').find((b) => b.text().trim() === 'Clear')!
+    await clearBtn.trigger('click')
+    await flushPromises()
+
+    // Back to document list
+    expect(wrapper.text()).toContain('3 documents')
+    expect(wrapper.text()).not.toContain('3 results')
+  })
+
+  it('clears search input when clear is clicked', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue(searchResponse)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    const clearBtn = wrapper.findAll('button').find((b) => b.text().trim() === 'Clear')!
+    await clearBtn.trigger('click')
+    await flushPromises()
+
+    expect((searchInput.element as HTMLInputElement).value).toBe('')
+  })
+
+  it('prevents duplicate search submissions', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockReturnValue(new Promise(() => {}) as any)
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund')
+    await searchInput.trigger('keydown.enter')
+    await wrapper.vm.$nextTick()
+
+    // Try to submit again while searching
+    await searchInput.trigger('keydown.enter')
+    await wrapper.vm.$nextTick()
+
+    expect(documentsApi.search).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows single result correctly', async () => {
+    const wrapper = await mountPage()
+    vi.mocked(documentsApi.search).mockResolvedValue({
+      data: [sampleSearchResults[0]],
+      meta: { query: 'refund', count: 1 },
+    })
+
+    const searchInput = wrapper.find('input[type="search"]')
+    await searchInput.setValue('refund')
+    await searchInput.trigger('keydown.enter')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('1 result for "refund"')
   })
 })
