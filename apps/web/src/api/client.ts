@@ -207,3 +207,7 @@ export function get<T>(path: string, options?: RequestOptions): Promise<T> {
 export function post<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> {
   return request<T>('POST', path, body, options)
 }
+
+export function del<T = void>(path: string, options?: RequestOptions): Promise<T> {
+  return request<T>('DELETE', path, undefined, options)
+}

@@ -22,6 +22,7 @@ function makeRouter() {
           { path: 'dashboard', name: 'dashboard', component: { template: '<div>Dashboard</div>' } },
           { path: 'tickets', name: 'tickets', component: { template: '<div>Tickets</div>' } },
           { path: 'reports', name: 'reports', component: { template: '<div>Reports</div>' } },
+          { path: 'knowledge-base', name: 'knowledge-base', component: { template: '<div>Knowledge Base</div>' } },
           { path: 'import', name: 'import', component: { template: '<div>Import</div>' } },
         ],
       },
@@ -49,6 +50,7 @@ describe('AppLayout', () => {
     expect(wrapper.text()).toContain('Dashboard')
     expect(wrapper.text()).toContain('Tickets')
     expect(wrapper.text()).toContain('Reports')
+    expect(wrapper.text()).toContain('Knowledge Base')
     expect(wrapper.text()).toContain('Import Data')
   })
 

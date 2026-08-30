@@ -238,3 +238,34 @@ export interface TicketListParams {
   priority?: string
   category?: string
 }
+
+// -- Documents --------------------------------------------------------------
+
+export type DocumentStatus = 'pending' | 'processing' | 'completed' | 'failed'
+
+export interface DocumentUploader {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+}
+
+export interface Document {
+  id: string
+  title: string
+  filename: string
+  content_type: string
+  file_size: number
+  status: DocumentStatus
+  error_message: string | null
+  checksum: string | null
+  chunk_count: number
+  uploaded_by: DocumentUploader | null
+  created_at: string
+  updated_at: string
+}
+
+export interface DocumentListParams {
+  page?: number
+  per_page?: number
+}

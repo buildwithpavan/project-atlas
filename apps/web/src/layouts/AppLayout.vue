@@ -27,6 +27,7 @@ const navItems = [
   { name: 'tickets', label: 'Tickets', path: '/app/tickets' },
   { name: 'themes', label: 'Themes', path: '/app/themes' },
   { name: 'reports', label: 'Reports', path: '/app/reports' },
+  { name: 'knowledge-base', label: 'Knowledge Base', path: '/app/knowledge-base' },
   { name: 'import', label: 'Import Data', path: '/app/import' },
 ]
 
