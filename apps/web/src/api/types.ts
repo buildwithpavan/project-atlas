@@ -291,3 +291,46 @@ export interface DocumentSearchResponse {
   data: DocumentSearchResult[]
   meta: DocumentSearchMeta
 }
+
+// -- Conversations ----------------------------------------------------------
+
+export interface Conversation {
+  id: string
+  title: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ConversationMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  position: number
+  created_at: string
+}
+
+export interface Citation {
+  chunk_id: string
+  document_id: string
+  document_title: string
+  content_preview: string
+  similarity: number
+  metadata: Record<string, unknown>
+}
+
+export interface AssistantMessage extends ConversationMessage {
+  role: 'assistant'
+  citations: Citation[]
+  has_sources: boolean
+  model: string
+  prompt_tokens: number
+  completion_tokens: number
+  embedding_tokens: number
+  retrieval_count: number
+  retrieval_max_similarity: number | null
+  latency_ms: number
+}
+
+export interface ConversationDetail extends Conversation {
+  messages: ConversationMessage[]
+}

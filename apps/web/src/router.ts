@@ -67,6 +67,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/KnowledgeBasePage.vue'),
       },
       {
+        path: 'ask',
+        name: 'ask-voceive',
+        component: () => import('@/pages/AskVoceivePage.vue'),
+      },
+      {
         path: 'import',
         name: 'import',
         component: () => import('@/pages/ImportPage.vue'),
