@@ -282,6 +282,52 @@ RSpec.describe "Conversations API", type: :request do
         expect(message["content"]).to eq("Hello")
         expect(message["position"]).to eq(0)
       end
+
+      it "includes citations for assistant messages" do
+        conv = create_conversation
+        create_message(conversation: conv, position: 0, content: "Question")
+        assistant_msg = Message.create!(
+          organization: conv.organization,
+          conversation: conv,
+          role: "assistant",
+          content: "Answer based on your documents",
+          position: 1,
+          citations: [
+            { "chunk_id" => "chunk-1", "document_id" => "doc-1", "document_title" => "Refund Policy",
+              "content_preview" => "Our refund policy...", "similarity" => 0.87, "metadata" => {} }
+          ],
+          ai_model: "gpt-4o",
+          input_tokens: 500,
+          output_tokens: 80,
+          embedding_tokens: 10,
+          retrieval_count: 3,
+          retrieval_max_similarity: 0.87,
+          latency_ms: 2500
+        )
+
+        get "/api/v1/conversations/#{conv.id}", headers: headers
+        json = response.parsed_body
+        msg = json["data"]["messages"].find { |m| m["role"] == "assistant" }
+        expect(msg["citations"]).to be_an(Array)
+        expect(msg["citations"].length).to eq(1)
+        expect(msg["citations"].first["document_title"]).to eq("Refund Policy")
+        expect(msg["has_sources"]).to be(true)
+        expect(msg["model"]).to eq("gpt-4o")
+        expect(msg["prompt_tokens"]).to eq(500)
+        expect(msg["completion_tokens"]).to eq(80)
+      end
+
+      it "does not include citation fields for user messages" do
+        conv = create_conversation
+        create_message(conversation: conv, position: 0, content: "Question")
+
+        get "/api/v1/conversations/#{conv.id}", headers: headers
+        json = response.parsed_body
+        msg = json["data"]["messages"].first
+        expect(msg["role"]).to eq("user")
+        expect(msg).not_to have_key("citations")
+        expect(msg).not_to have_key("model")
+      end
     end
 
     describe "ownership isolation" do

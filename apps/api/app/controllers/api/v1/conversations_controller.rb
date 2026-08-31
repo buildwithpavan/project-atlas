@@ -93,13 +93,29 @@ module Api
       end
 
       def serialize_message(message)
-        {
+        base = {
           id: message.id,
           role: message.role,
           content: message.content,
           position: message.position,
           created_at: message.created_at.iso8601
         }
+
+        if message.role == "assistant"
+          base.merge(
+            citations: message.citations || [],
+            has_sources: message.citations.present?,
+            model: message.ai_model,
+            prompt_tokens: message.input_tokens,
+            completion_tokens: message.output_tokens,
+            embedding_tokens: message.embedding_tokens,
+            retrieval_count: message.retrieval_count,
+            retrieval_max_similarity: message.retrieval_max_similarity,
+            latency_ms: message.latency_ms
+          )
+        else
+          base
+        end
       end
     end
   end

@@ -1,10 +1,17 @@
 import { get, post } from './client'
 import type {
   DataEnvelope,
+  PaginatedEnvelope,
   Conversation,
   ConversationDetail,
   AssistantMessage,
 } from './types'
+
+export function list(page = 1, perPage = 25): Promise<PaginatedEnvelope<Conversation>> {
+  return get<PaginatedEnvelope<Conversation>>(
+    `/conversations?page=${page}&per_page=${perPage}`,
+  )
+}
 
 export function create(title?: string): Promise<DataEnvelope<Conversation>> {
   return post<DataEnvelope<Conversation>>('/conversations', {

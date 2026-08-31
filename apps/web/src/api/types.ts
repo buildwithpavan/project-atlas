@@ -332,5 +332,5 @@ export interface AssistantMessage extends ConversationMessage {
 }
 
 export interface ConversationDetail extends Conversation {
-  messages: ConversationMessage[]
+  messages: (ConversationMessage | AssistantMessage)[]
 }

@@ -33,6 +33,9 @@ const navItems = [
 ]
 
 function isActive(name: string): boolean {
+  if (name === 'ask-voceive') {
+    return route.name === 'ask-voceive' || route.name === 'ask-voceive-conversation'
+  }
   return route.name === name
 }
 </script>

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, nextTick, computed } from 'vue'
+import { ref, nextTick, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import * as conversationsApi from '@/api/conversations'
 import { ApiError } from '@/api/errors'
-import type { ConversationMessage, AssistantMessage } from '@/api/types'
+import type { Conversation, ConversationMessage, AssistantMessage } from '@/api/types'
 import { ABadge, AButton } from '@/components/ui'
 
 // ---------------------------------------------------------------------------
@@ -16,7 +17,23 @@ function isAssistantWithCitations(msg: ChatMessage): msg is AssistantMessage {
 }
 
 // ---------------------------------------------------------------------------
-// State
+// Routing
+// ---------------------------------------------------------------------------
+
+const route = useRoute()
+const router = useRouter()
+
+// ---------------------------------------------------------------------------
+// State — conversation history
+// ---------------------------------------------------------------------------
+
+const conversations = ref<Conversation[]>([])
+const historyLoading = ref(false)
+const historyError = ref<string | null>(null)
+const historyOpen = ref(false)
+
+// ---------------------------------------------------------------------------
+// State — active conversation
 // ---------------------------------------------------------------------------
 
 const conversationId = ref<string | null>(null)
@@ -26,6 +43,8 @@ const sending = ref(false)
 const error = ref<string | null>(null)
 const messagesContainer = ref<HTMLElement | null>(null)
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
+const conversationLoading = ref(false)
+const loadingConversationId = ref<string | null>(null)
 
 const canSend = computed(() => inputText.value.trim().length > 0 && !sending.value)
 
@@ -39,6 +58,95 @@ function scrollToBottom() {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
     }
   })
+}
+
+// ---------------------------------------------------------------------------
+// Conversation history
+// ---------------------------------------------------------------------------
+
+async function loadHistory() {
+  historyLoading.value = true
+  historyError.value = null
+  try {
+    const res = await conversationsApi.list()
+    conversations.value = res.data
+  } catch {
+    historyError.value = 'Failed to load conversations.'
+  } finally {
+    historyLoading.value = false
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Load a specific conversation
+// ---------------------------------------------------------------------------
+
+async function loadConversation(id: string) {
+  // Guard against stale responses
+  loadingConversationId.value = id
+  conversationLoading.value = true
+  error.value = null
+
+  try {
+    const res = await conversationsApi.getById(id)
+    // Stale response guard
+    if (loadingConversationId.value !== id) return
+
+    conversationId.value = id
+    messages.value = res.data.messages
+    scrollToBottom()
+
+    // Update route if needed
+    if (route.params.conversationId !== id) {
+      router.replace({ name: 'ask-voceive-conversation', params: { conversationId: id } })
+    }
+  } catch (err: unknown) {
+    if (loadingConversationId.value !== id) return
+    if (err instanceof ApiError && err.status === 404) {
+      error.value = 'Conversation not found.'
+      router.replace({ name: 'ask-voceive' })
+    } else {
+      error.value = 'Failed to load conversation.'
+    }
+  } finally {
+    if (loadingConversationId.value === id) {
+      conversationLoading.value = false
+      loadingConversationId.value = null
+    }
+  }
+}
+
+function selectConversation(id: string) {
+  historyOpen.value = false
+  loadConversation(id)
+}
+
+function startNewConversation() {
+  conversationId.value = null
+  messages.value = []
+  error.value = null
+  historyOpen.value = false
+  router.replace({ name: 'ask-voceive' })
+  nextTick(() => textareaRef.value?.focus())
+}
+
+// ---------------------------------------------------------------------------
+// Conversation list display
+// ---------------------------------------------------------------------------
+
+function conversationLabel(conv: Conversation): string {
+  return conv.title || 'New conversation'
+}
+
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr)
+  const now = new Date()
+  const diffMs = now.getTime() - d.getTime()
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 7) return `${diffDays} days ago`
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
 // ---------------------------------------------------------------------------
@@ -69,6 +177,10 @@ async function handleSend() {
     if (!conversationId.value) {
       const convRes = await conversationsApi.create()
       conversationId.value = convRes.data.id
+
+      // Add to history list and update route
+      conversations.value.unshift(convRes.data)
+      router.replace({ name: 'ask-voceive-conversation', params: { conversationId: convRes.data.id } })
     }
 
     const res = await conversationsApi.sendMessage(conversationId.value, content)
@@ -126,23 +238,166 @@ function relevanceLabel(similarity: number): { text: string; variant: 'success' 
   if (similarity >= 0.4) return { text: 'Moderate relevance', variant: 'warning' }
   return { text: 'Low relevance', variant: 'default' }
 }
+
+// ---------------------------------------------------------------------------
+// Initialization
+// ---------------------------------------------------------------------------
+
+onMounted(async () => {
+  loadHistory()
+
+  const paramId = route.params.conversationId as string | undefined
+  if (paramId) {
+    loadConversation(paramId)
+  }
+})
+
+watch(() => route.params.conversationId, (newId) => {
+  const id = newId as string | undefined
+  if (id && id !== conversationId.value) {
+    loadConversation(id)
+  } else if (!id && conversationId.value) {
+    // Only clear state when navigating away from an active conversation
+    conversationId.value = null
+    messages.value = []
+  }
+})
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-4rem)]">
-    <!-- Header -->
-    <div class="flex-shrink-0 border-b border-voceive-border px-4 py-4 sm:px-6">
-      <h1 class="text-2xl font-bold text-voceive-text-primary">Ask Voceive</h1>
-      <p class="mt-1 text-sm text-voceive-text-secondary">
-        Ask questions about your customer support knowledge and discover insights.
-      </p>
-    </div>
-
-    <!-- Messages area -->
+  <div class="flex h-[calc(100vh-4rem)]">
+    <!-- Mobile history backdrop -->
     <div
-      ref="messagesContainer"
-      class="flex-1 overflow-y-auto px-4 py-6 sm:px-6"
+      v-if="historyOpen"
+      class="fixed inset-0 z-20 bg-black/30 lg:hidden"
+      @click="historyOpen = false"
+    />
+
+    <!-- Conversation history sidebar -->
+    <aside
+      class="fixed inset-y-0 left-0 z-30 w-72 flex flex-col border-r border-voceive-border bg-voceive-surface transition-transform lg:static lg:translate-x-0 lg:z-auto"
+      :class="historyOpen ? 'translate-x-0' : '-translate-x-full'"
+      aria-label="Conversation history"
     >
+      <!-- Sidebar header -->
+      <div class="flex-shrink-0 flex items-center justify-between border-b border-voceive-border px-4 py-3">
+        <h2 class="text-sm font-semibold text-voceive-text-primary">History</h2>
+        <div class="flex items-center gap-1">
+          <button
+            type="button"
+            class="voceive-focus-ring rounded-voceive p-1.5 text-voceive-text-secondary hover:bg-voceive-surface-muted hover:text-voceive-text-primary transition-colors"
+            aria-label="New conversation"
+            @click="startNewConversation"
+          >
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="voceive-focus-ring rounded-voceive p-1.5 text-voceive-text-secondary hover:bg-voceive-surface-muted hover:text-voceive-text-primary transition-colors lg:hidden"
+            aria-label="Close history"
+            @click="historyOpen = false"
+          >
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sidebar content -->
+      <div class="flex-1 overflow-y-auto">
+        <!-- Loading -->
+        <div v-if="historyLoading" class="px-4 py-6 text-center">
+          <div class="flex items-center justify-center gap-2 text-sm text-voceive-text-muted">
+            <svg class="animate-spin size-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <span>Loading…</span>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div v-else-if="historyError" class="px-4 py-6 text-center">
+          <p class="text-sm text-voceive-error mb-2">{{ historyError }}</p>
+          <button
+            type="button"
+            class="text-sm font-medium text-voceive-brand hover:underline"
+            @click="loadHistory"
+          >
+            Retry
+          </button>
+        </div>
+
+        <!-- Empty -->
+        <div v-else-if="conversations.length === 0" class="px-4 py-6 text-center">
+          <p class="text-sm text-voceive-text-muted">No conversations yet.</p>
+          <p class="mt-1 text-xs text-voceive-text-muted">Start a conversation to explore your support knowledge.</p>
+        </div>
+
+        <!-- Conversation list -->
+        <nav v-else class="px-2 py-2 space-y-0.5" aria-label="Conversations">
+          <button
+            v-for="conv in conversations"
+            :key="conv.id"
+            type="button"
+            class="voceive-focus-ring w-full text-left rounded-voceive px-3 py-2.5 transition-colors"
+            :class="conv.id === conversationId
+              ? 'bg-voceive-brand-subtle text-voceive-brand'
+              : 'text-voceive-text-secondary hover:bg-voceive-surface-muted hover:text-voceive-text-primary'"
+            :aria-current="conv.id === conversationId ? 'true' : undefined"
+            @click="selectConversation(conv.id)"
+          >
+            <p class="text-sm font-medium truncate">{{ conversationLabel(conv) }}</p>
+            <p class="text-xs mt-0.5 opacity-70 truncate">{{ formatDate(conv.updated_at) }}</p>
+          </button>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main chat area -->
+    <div class="flex flex-1 flex-col min-w-0">
+      <!-- Header -->
+      <div class="flex-shrink-0 border-b border-voceive-border px-4 py-4 sm:px-6">
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            class="voceive-focus-ring rounded-voceive p-1.5 text-voceive-text-secondary hover:bg-voceive-surface-muted lg:hidden"
+            aria-label="Open conversation history"
+            @click="historyOpen = true"
+          >
+            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+          <div class="min-w-0">
+            <h1 class="text-2xl font-bold text-voceive-text-primary">Ask Voceive</h1>
+            <p class="mt-1 text-sm text-voceive-text-secondary">
+              Ask questions about your customer support knowledge and discover insights.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conversation loading -->
+      <div v-if="conversationLoading" class="flex-1 flex items-center justify-center">
+        <div class="flex items-center gap-2 text-sm text-voceive-text-muted">
+          <svg class="animate-spin size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <span>Loading conversation…</span>
+        </div>
+      </div>
+
+      <!-- Messages area -->
+      <div
+        v-else
+        ref="messagesContainer"
+        class="flex-1 overflow-y-auto px-4 py-6 sm:px-6"
+      >
       <!-- Empty state -->
       <div
         v-if="messages.length === 0 && !sending"
@@ -350,5 +605,6 @@ function relevanceLabel(similarity: number): { text: string; variant: 'success' 
         </AButton>
       </div>
     </div>
-  </div>
+    </div><!-- /main chat area -->
+  </div><!-- /outer flex row -->
 </template>

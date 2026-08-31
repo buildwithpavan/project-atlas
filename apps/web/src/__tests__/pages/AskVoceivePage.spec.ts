@@ -49,6 +49,10 @@ const sampleAssistantResponse: AssistantMessage = {
 }
 
 function setupMocks() {
+  vi.mocked(conversationsApi.list).mockResolvedValue({
+    data: [],
+    meta: { page: 1, per_page: 25, total: 0, total_pages: 0 },
+  })
   vi.mocked(conversationsApi.create).mockResolvedValue({
     data: sampleConversation,
   })
@@ -62,17 +66,18 @@ function makeRouter() {
     history: createWebHistory(),
     routes: [
       { path: '/app/ask', name: 'ask-voceive', component: AskVoceivePage },
+      { path: '/app/ask/:conversationId', name: 'ask-voceive-conversation', component: AskVoceivePage },
       { path: '/app/dashboard', name: 'dashboard', component: { template: '<div />' } },
     ],
   })
 }
 
-async function mountPage() {
-  setupMocks()
+async function mountPage(opts?: { conversationId?: string }) {
   const pinia = createPinia()
   setActivePinia(pinia)
   const router = makeRouter()
-  await router.push('/app/ask')
+  const path = opts?.conversationId ? `/app/ask/${opts.conversationId}` : '/app/ask'
+  await router.push(path)
   await router.isReady()
 
   const wrapper = mount(AskVoceivePage, {
@@ -92,6 +97,7 @@ async function typeAndSend(wrapper: ReturnType<typeof mount>, text: string) {
 describe('AskVoceivePage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    setupMocks()
   })
 
   // -- Page rendering -------------------------------------------------------
@@ -692,5 +698,337 @@ describe('AskVoceivePage', () => {
 
     expect(wrapper.text()).toContain('Empty Preview Doc')
     expect(wrapper.text()).toContain('Good relevance')
+  })
+
+  // -- Conversation history -------------------------------------------------
+
+  it('loads conversation list on mount', async () => {
+    await mountPage()
+    expect(conversationsApi.list).toHaveBeenCalledTimes(1)
+  })
+
+  it('renders conversation history sidebar', async () => {
+    const wrapper = await mountPage()
+    expect(wrapper.text()).toContain('History')
+  })
+
+  it('renders conversations in the history list', async () => {
+    vi.mocked(conversationsApi.list).mockResolvedValue({
+      data: [
+        { id: 'c1', title: 'Refund inquiry', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z' },
+        { id: 'c2', title: 'Shipping question', created_at: '2026-08-29T10:00:00Z', updated_at: '2026-08-29T10:00:00Z' },
+      ],
+      meta: { page: 1, per_page: 25, total: 2, total_pages: 1 },
+    })
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain('Refund inquiry')
+    expect(wrapper.text()).toContain('Shipping question')
+  })
+
+  it('shows empty history message when no conversations', async () => {
+    const wrapper = await mountPage()
+    expect(wrapper.text()).toContain('No conversations yet')
+  })
+
+  it('shows loading state for history', async () => {
+    vi.mocked(conversationsApi.list).mockReturnValue(new Promise(() => {}) as any)
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain('Loading')
+  })
+
+  it('shows error state for history with retry', async () => {
+    vi.mocked(conversationsApi.list).mockRejectedValue(new Error('Network error'))
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain('Failed to load conversations')
+
+    vi.mocked(conversationsApi.list).mockResolvedValue({
+      data: [{ id: 'c1', title: 'Recovered', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z' }],
+      meta: { page: 1, per_page: 25, total: 1, total_pages: 1 },
+    })
+    const retryBtn = wrapper.findAll('button').find((b) => b.text().includes('Retry'))!
+    await retryBtn.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Recovered')
+  })
+
+  it('shows fallback label for conversations without title', async () => {
+    vi.mocked(conversationsApi.list).mockResolvedValue({
+      data: [{ id: 'c1', title: null, created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z' }],
+      meta: { page: 1, per_page: 25, total: 1, total_pages: 1 },
+    })
+    const wrapper = await mountPage()
+
+    expect(wrapper.text()).toContain('New conversation')
+  })
+
+  // -- Conversation selection -----------------------------------------------
+
+  it('loads conversation when selected from history', async () => {
+    vi.mocked(conversationsApi.list).mockResolvedValue({
+      data: [{ id: 'c1', title: 'My chat', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z' }],
+      meta: { page: 1, per_page: 25, total: 1, total_pages: 1 },
+    })
+    vi.mocked(conversationsApi.getById).mockResolvedValue({
+      data: {
+        id: 'c1', title: 'My chat', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z',
+        messages: [
+          { id: 'm1', role: 'user' as const, content: 'Hello', position: 0, created_at: '2026-08-30T10:00:00Z' },
+          { id: 'm2', role: 'assistant' as const, content: 'Hi there!', position: 1, created_at: '2026-08-30T10:01:00Z' },
+        ],
+      },
+    })
+    const wrapper = await mountPage()
+
+    const convBtn = wrapper.findAll('button').find((b) => b.text().includes('My chat'))!
+    await convBtn.trigger('click')
+    await flushPromises()
+
+    expect(conversationsApi.getById).toHaveBeenCalledWith('c1')
+    expect(wrapper.text()).toContain('Hello')
+    expect(wrapper.text()).toContain('Hi there!')
+  })
+
+  it('highlights active conversation in history', async () => {
+    vi.mocked(conversationsApi.list).mockResolvedValue({
+      data: [{ id: 'c1', title: 'Active chat', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z' }],
+      meta: { page: 1, per_page: 25, total: 1, total_pages: 1 },
+    })
+    vi.mocked(conversationsApi.getById).mockResolvedValue({
+      data: {
+        id: 'c1', title: 'Active chat', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z',
+        messages: [{ id: 'm1', role: 'user' as const, content: 'Test', position: 0, created_at: '2026-08-30T10:00:00Z' }],
+      },
+    })
+    const wrapper = await mountPage()
+
+    const convBtn = wrapper.findAll('button').find((b) => b.text().includes('Active chat'))!
+    await convBtn.trigger('click')
+    await flushPromises()
+
+    expect(convBtn.attributes('aria-current')).toBe('true')
+  })
+
+  it('preserves citations when loading existing conversation', async () => {
+    vi.mocked(conversationsApi.list).mockResolvedValue({
+      data: [{ id: 'c1', title: 'Chat', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z' }],
+      meta: { page: 1, per_page: 25, total: 1, total_pages: 1 },
+    })
+    vi.mocked(conversationsApi.getById).mockResolvedValue({
+      data: {
+        id: 'c1', title: 'Chat', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z',
+        messages: [
+          { id: 'm1', role: 'user' as const, content: 'Question', position: 0, created_at: '2026-08-30T10:00:00Z' },
+          { ...sampleAssistantResponse, id: 'm2', position: 1 },
+        ],
+      },
+    })
+    const wrapper = await mountPage()
+
+    const convBtn = wrapper.findAll('button').find((b) => b.text().includes('Chat'))!
+    await convBtn.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Sources')
+    expect(wrapper.text()).toContain('Refund Policy')
+    expect(wrapper.text()).toContain('High relevance')
+  })
+
+  it('shows conversation loading state', async () => {
+    vi.mocked(conversationsApi.list).mockResolvedValue({
+      data: [{ id: 'c1', title: 'Chat', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z' }],
+      meta: { page: 1, per_page: 25, total: 1, total_pages: 1 },
+    })
+    vi.mocked(conversationsApi.getById).mockReturnValue(new Promise(() => {}) as any)
+    const wrapper = await mountPage()
+
+    const convBtn = wrapper.findAll('button').find((b) => b.text().includes('Chat'))!
+    await convBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Loading conversation')
+  })
+
+  it('handles conversation load error', async () => {
+    vi.mocked(conversationsApi.list).mockResolvedValue({
+      data: [{ id: 'c1', title: 'Chat', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z' }],
+      meta: { page: 1, per_page: 25, total: 1, total_pages: 1 },
+    })
+    vi.mocked(conversationsApi.getById).mockRejectedValue(new Error('Load failed'))
+    const wrapper = await mountPage()
+
+    const convBtn = wrapper.findAll('button').find((b) => b.text().includes('Chat'))!
+    await convBtn.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Failed to load conversation')
+  })
+
+  // -- New conversation -----------------------------------------------------
+
+  it('new conversation clears active state', async () => {
+    vi.mocked(conversationsApi.list).mockResolvedValue({
+      data: [{ id: 'c1', title: 'Existing', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z' }],
+      meta: { page: 1, per_page: 25, total: 1, total_pages: 1 },
+    })
+    vi.mocked(conversationsApi.getById).mockResolvedValue({
+      data: {
+        id: 'c1', title: 'Existing', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z',
+        messages: [{ id: 'm1', role: 'user' as const, content: 'Old msg', position: 0, created_at: '2026-08-30T10:00:00Z' }],
+      },
+    })
+    const wrapper = await mountPage()
+
+    const convBtn = wrapper.findAll('button').find((b) => b.text().includes('Existing'))!
+    await convBtn.trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Old msg')
+
+    const newBtn = wrapper.find('[aria-label="New conversation"]')
+    await newBtn.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).not.toContain('Old msg')
+    expect(wrapper.text()).toContain('Ask questions about your customer support data')
+  })
+
+  it('new conversation does not make API calls', async () => {
+    const wrapper = await mountPage()
+
+    const newBtn = wrapper.find('[aria-label="New conversation"]')
+    await newBtn.trigger('click')
+    await flushPromises()
+
+    expect(conversationsApi.list).toHaveBeenCalledTimes(1)
+    expect(conversationsApi.create).not.toHaveBeenCalled()
+  })
+
+  it('newly created conversation appears in history', async () => {
+    const wrapper = await mountPage()
+    await typeAndSend(wrapper, 'Hello')
+
+    // sampleConversation.title is null → shows "New conversation" in list
+    const historyBtns = wrapper.findAll('nav[aria-label="Conversations"] button')
+    expect(historyBtns.length).toBeGreaterThanOrEqual(1)
+  })
+
+  // -- Routing --------------------------------------------------------------
+
+  it('loads conversation from route param on mount', async () => {
+    vi.mocked(conversationsApi.getById).mockResolvedValue({
+      data: {
+        id: 'route-conv', title: 'Routed', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z',
+        messages: [{ id: 'm1', role: 'user' as const, content: 'From route', position: 0, created_at: '2026-08-30T10:00:00Z' }],
+      },
+    })
+
+    const wrapper = await mountPage({ conversationId: 'route-conv' })
+
+    expect(conversationsApi.getById).toHaveBeenCalledWith('route-conv')
+    expect(wrapper.text()).toContain('From route')
+  })
+
+  it('handles invalid conversation ID from route', async () => {
+    vi.mocked(conversationsApi.getById).mockRejectedValue(
+      new ApiError({ type: '/errors/not-found', title: 'Not Found', status: 404, detail: 'Conversation not found' }),
+    )
+
+    const wrapper = await mountPage({ conversationId: 'bad-id' })
+
+    expect(wrapper.text()).toContain('Conversation not found')
+  })
+
+  // -- Sending in existing conversation -------------------------------------
+
+  it('sends message to existing conversation', async () => {
+    vi.mocked(conversationsApi.list).mockResolvedValue({
+      data: [{ id: 'c1', title: 'Chat', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z' }],
+      meta: { page: 1, per_page: 25, total: 1, total_pages: 1 },
+    })
+    vi.mocked(conversationsApi.getById).mockResolvedValue({
+      data: {
+        id: 'c1', title: 'Chat', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z',
+        messages: [{ id: 'm1', role: 'user' as const, content: 'Old msg', position: 0, created_at: '2026-08-30T10:00:00Z' }],
+      },
+    })
+    const wrapper = await mountPage()
+
+    const convBtn = wrapper.findAll('button').find((b) => b.text().includes('Chat'))!
+    await convBtn.trigger('click')
+    await flushPromises()
+
+    await typeAndSend(wrapper, 'Follow-up question')
+
+    expect(conversationsApi.create).not.toHaveBeenCalled()
+    expect(conversationsApi.sendMessage).toHaveBeenCalledWith('c1', 'Follow-up question')
+  })
+
+  // -- Race condition -------------------------------------------------------
+
+  it('discards stale conversation response', async () => {
+    vi.mocked(conversationsApi.list).mockResolvedValue({
+      data: [
+        { id: 'c1', title: 'First', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z' },
+        { id: 'c2', title: 'Second', created_at: '2026-08-29T10:00:00Z', updated_at: '2026-08-29T10:00:00Z' },
+      ],
+      meta: { page: 1, per_page: 25, total: 2, total_pages: 1 },
+    })
+
+    let resolveFirst: (v: any) => void
+    const firstPromise = new Promise((r) => { resolveFirst = r })
+    vi.mocked(conversationsApi.getById)
+      .mockImplementationOnce(() => firstPromise as any)
+      .mockResolvedValueOnce({
+        data: {
+          id: 'c2', title: 'Second', created_at: '2026-08-29T10:00:00Z', updated_at: '2026-08-29T10:00:00Z',
+          messages: [{ id: 'm2', role: 'user' as const, content: 'Second msg', position: 0, created_at: '2026-08-29T10:00:00Z' }],
+        },
+      })
+
+    const wrapper = await mountPage()
+
+    const firstBtn = wrapper.findAll('button').find((b) => b.text().includes('First'))!
+    await firstBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const secondBtn = wrapper.findAll('button').find((b) => b.text().includes('Second'))!
+    await secondBtn.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Second msg')
+
+    resolveFirst!({
+      data: {
+        id: 'c1', title: 'First', created_at: '2026-08-30T10:00:00Z', updated_at: '2026-08-30T10:00:00Z',
+        messages: [{ id: 'm1', role: 'user' as const, content: 'First msg', position: 0, created_at: '2026-08-30T10:00:00Z' }],
+      },
+    })
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Second msg')
+    expect(wrapper.text()).not.toContain('First msg')
+  })
+
+  // -- Accessibility --------------------------------------------------------
+
+  it('history sidebar has accessible label', async () => {
+    const wrapper = await mountPage()
+    const aside = wrapper.find('aside[aria-label="Conversation history"]')
+    expect(aside.exists()).toBe(true)
+  })
+
+  it('new conversation button has accessible label', async () => {
+    const wrapper = await mountPage()
+    const btn = wrapper.find('[aria-label="New conversation"]')
+    expect(btn.exists()).toBe(true)
+  })
+
+  it('mobile history toggle has accessible label', async () => {
+    const wrapper = await mountPage()
+    const btn = wrapper.find('[aria-label="Open conversation history"]')
+    expect(btn.exists()).toBe(true)
   })
 })
