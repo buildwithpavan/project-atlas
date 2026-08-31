@@ -88,10 +88,12 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
-  // Root redirect
+  // Public landing page
   {
     path: '/',
-    redirect: '/app/dashboard',
+    name: 'landing',
+    component: () => import('@/pages/LandingPage.vue'),
+    meta: { public: true, authRedirect: true },
   },
 ]
 

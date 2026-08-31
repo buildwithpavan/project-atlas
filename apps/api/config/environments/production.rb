@@ -78,6 +78,11 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
+  # Use local disk storage backed by a persistent Docker volume in staging.
+  # For production with cloud storage, define an :amazon or :google service
+  # in config/storage.yml and update this line.
+  config.active_storage.service = :local
+
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [
   #   "example.com",     # Allow requests from example.com

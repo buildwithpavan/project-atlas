@@ -49,8 +49,8 @@ production:
   primary: &primary_production
     <<: *default
     database: api_production
-    username: api
-    password: <%= ENV["API_DATABASE_PASSWORD"] %>
+    username: <%= ENV.fetch("POSTGRES_USER", "atlas") %>
+    password: <%= ENV["POSTGRES_PASSWORD"] %>
   cache:
     <<: *primary_production
     database: api_production_cache

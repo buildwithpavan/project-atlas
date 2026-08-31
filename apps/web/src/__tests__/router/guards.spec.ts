@@ -12,8 +12,8 @@ describe('router guards', () => {
     setActivePinia(createPinia())
     authenticated = false
     initGuard(() => ({ isAuthenticated: authenticated }))
-    // Reset router to a known location
-    router.push('/login')
+    // Reset router to a neutral location that no test targets directly
+    await router.push('/design-system')
     await router.isReady()
   })
 
@@ -53,5 +53,16 @@ describe('router guards', () => {
   it('allows access to /design-system regardless of auth', async () => {
     await router.push('/design-system')
     expect(router.currentRoute.value.name).toBe('design-system')
+  })
+
+  it('allows unauthenticated access to landing page (/)', async () => {
+    await router.push('/')
+    expect(router.currentRoute.value.name).toBe('landing')
+  })
+
+  it('redirects authenticated user from / to /app/dashboard', async () => {
+    authenticated = true
+    await router.push('/')
+    expect(router.currentRoute.value.name).toBe('dashboard')
   })
 })
