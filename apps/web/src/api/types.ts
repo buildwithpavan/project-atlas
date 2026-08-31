@@ -334,3 +334,84 @@ export interface AssistantMessage extends ConversationMessage {
 export interface ConversationDetail extends Conversation {
   messages: (ConversationMessage | AssistantMessage)[]
 }
+
+// -- AI Quota ---------------------------------------------------------------
+
+export interface AiQuotaCurrentMonth {
+  tokens_used: number
+  cost_used: number
+  tokens_remaining: number | null
+  cost_remaining: number | null
+  token_percentage_used: number | null
+  cost_percentage_used: number | null
+}
+
+export interface AiQuota {
+  ai_monthly_token_limit: number | null
+  ai_monthly_cost_limit: number | null
+  ai_quota_reserved_tokens: number
+  period: string
+  current_month: AiQuotaCurrentMonth
+}
+
+// -- AI Usage ---------------------------------------------------------------
+
+export interface AiUsageTokens {
+  used: number
+  limit: number | null
+  remaining: number | null
+  percentage_used: number | null
+}
+
+export interface AiUsageCost {
+  used: number
+  limit: number | null
+  remaining: number | null
+  percentage_used: number | null
+}
+
+export interface AiUsageByOperation {
+  operation: string
+  total_tokens: number
+  prompt_tokens: number
+  completion_tokens: number
+  estimated_cost: number
+  request_count: number
+  average_latency_ms: number
+}
+
+export interface AiUsageByModel {
+  model: string
+  total_tokens: number
+  estimated_cost: number
+  request_count: number
+}
+
+export interface AiUsageByUser {
+  user_id: string
+  email: string
+  total_tokens: number
+  estimated_cost: number
+  request_count: number
+}
+
+export interface AiUsageByDay {
+  date: string
+  total_tokens: number
+  estimated_cost: number
+  request_count: number
+}
+
+export interface AiUsage {
+  period: string
+  tokens: AiUsageTokens
+  cost: AiUsageCost
+  prompt_tokens: number
+  completion_tokens: number
+  request_count: number
+  average_latency_ms: number
+  by_operation: AiUsageByOperation[]
+  by_model: AiUsageByModel[]
+  by_user: AiUsageByUser[]
+  by_day: AiUsageByDay[]
+}

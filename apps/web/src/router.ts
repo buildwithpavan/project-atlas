@@ -77,6 +77,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/AskVoceivePage.vue'),
       },
       {
+        path: 'ai-usage',
+        name: 'ai-usage',
+        component: () => import('@/pages/AiUsagePage.vue'),
+      },
+      {
         path: 'import',
         name: 'import',
         component: () => import('@/pages/ImportPage.vue'),

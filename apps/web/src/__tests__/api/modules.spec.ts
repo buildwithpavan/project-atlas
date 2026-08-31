@@ -5,6 +5,7 @@ import * as ticketsApi from '@/api/tickets'
 import * as dashboardApi from '@/api/dashboard'
 import * as reportsApi from '@/api/reports'
 import * as uploadsApi from '@/api/uploads'
+import * as aiApi from '@/api/ai'
 
 // ---------------------------------------------------------------------------
 // Shared fetch mock
@@ -228,6 +229,70 @@ describe('API modules', () => {
 
       const file = new File(['subject\ntest'], 'test.csv', { type: 'text/csv' })
       await uploadsApi.create(file)
+
+      const headers = spy.mock.calls[0][1]?.headers as Record<string, string>
+      expect(headers['Authorization']).toBe('Bearer test-token')
+    })
+  })
+
+  // -- AI -------------------------------------------------------------------
+
+  describe('aiApi', () => {
+    it('getQuota → GET /api/v1/ai/quota', async () => {
+      const spy = mockFetch({ data: { ai_monthly_token_limit: 500000, period: '2026-08' } })
+
+      await aiApi.getQuota()
+
+      expect(spy).toHaveBeenCalledWith(
+        '/api/v1/ai/quota',
+        expect.objectContaining({ method: 'GET' }),
+      )
+    })
+
+    it('getUsage → GET /api/v1/ai/usage (no params)', async () => {
+      const spy = mockFetch({ data: { period: '2026-08', tokens: { used: 1000 } } })
+
+      await aiApi.getUsage()
+
+      expect(spy).toHaveBeenCalledWith(
+        '/api/v1/ai/usage',
+        expect.objectContaining({ method: 'GET' }),
+      )
+    })
+
+    it('getUsage with period → GET /api/v1/ai/usage?period=previous', async () => {
+      const spy = mockFetch({ data: { period: '2026-07' } })
+
+      await aiApi.getUsage({ period: 'previous' })
+
+      const url = spy.mock.calls[0][0] as string
+      expect(url).toContain('/api/v1/ai/usage?')
+      expect(url).toContain('period=previous')
+    })
+
+    it('getUsage with date range → includes start_date and end_date', async () => {
+      const spy = mockFetch({ data: {} })
+
+      await aiApi.getUsage({ start_date: '2026-06-01', end_date: '2026-08-31' })
+
+      const url = spy.mock.calls[0][0] as string
+      expect(url).toContain('start_date=2026-06-01')
+      expect(url).toContain('end_date=2026-08-31')
+    })
+
+    it('getQuota sends Authorization header', async () => {
+      const spy = mockFetch({ data: {} })
+
+      await aiApi.getQuota()
+
+      const headers = spy.mock.calls[0][1]?.headers as Record<string, string>
+      expect(headers['Authorization']).toBe('Bearer test-token')
+    })
+
+    it('getUsage sends Authorization header', async () => {
+      const spy = mockFetch({ data: {} })
+
+      await aiApi.getUsage()
 
       const headers = spy.mock.calls[0][1]?.headers as Record<string, string>
       expect(headers['Authorization']).toBe('Bearer test-token')

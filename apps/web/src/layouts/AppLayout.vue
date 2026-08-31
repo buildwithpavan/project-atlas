@@ -29,6 +29,7 @@ const navItems = [
   { name: 'reports', label: 'Reports', path: '/app/reports' },
   { name: 'knowledge-base', label: 'Knowledge Base', path: '/app/knowledge-base' },
   { name: 'ask-voceive', label: 'Ask Voceive', path: '/app/ask' },
+  { name: 'ai-usage', label: 'AI Usage', path: '/app/ai-usage' },
   { name: 'import', label: 'Import Data', path: '/app/import' },
 ]
 
