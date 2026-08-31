@@ -194,7 +194,7 @@ onMounted(fetchSummary)
               <span class="font-medium text-voceive-text-primary">{{ finding.title }}</span>
               <span
                 v-if="finding.category"
-                class="text-xs text-voceive-text-muted px-1.5 py-0.5 rounded bg-atlas-bg-secondary"
+                class="text-xs text-voceive-text-muted px-1.5 py-0.5 rounded bg-voceive-surface-muted"
               >
                 {{ finding.category }}
               </span>

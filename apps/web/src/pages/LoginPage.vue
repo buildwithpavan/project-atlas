@@ -50,6 +50,7 @@ async function handleSubmit() {
     <div class="w-full max-w-sm">
       <div class="mb-8 flex flex-col items-center">
         <ALogo variant="full" height="36px" class="mb-2" />
+        <h1 class="sr-only">Sign in to Voceive</h1>
         <p class="mt-1 text-sm text-voceive-text-secondary">
           Sign in to your account
         </p>

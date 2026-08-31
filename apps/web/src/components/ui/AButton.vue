@@ -18,7 +18,7 @@ withDefaults(defineProps<{
 <template>
   <button
     :disabled="disabled || loading"
-    class="atlas-btn voceive-focus-ring inline-flex items-center justify-center font-medium transition-colors"
+    class="voceive-focus-ring inline-flex items-center justify-center font-medium transition-colors"
     :class="[
       // Variant
       {
