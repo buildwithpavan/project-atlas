@@ -201,3 +201,35 @@ The repository includes dedicated AI documentation covering:
 🚧 Active Development
 
 Sprint 1: Identity & Authentication
+
+---
+
+# Local Development
+
+Use the local development helper to run the full Voceive stack on WSL:
+
+Start:
+
+./bin/voceive start
+
+Stop:
+
+./bin/voceive stop
+
+Restart:
+
+./bin/voceive restart
+
+Status:
+
+./bin/voceive status
+
+Logs:
+
+./bin/voceive logs
+
+The start command brings up PostgreSQL, Redis, the FastAPI AI service, and the app container, then starts:
+
+- Rails API (port 3000)
+- Solid Queue worker process
+- Frontend dev server (port 5173)

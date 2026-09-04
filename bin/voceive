@@ -1,0 +1,320 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SCRIPT_SOURCE" ]; do
+  SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_SOURCE")" && pwd)"
+  SCRIPT_SOURCE="$(readlink "$SCRIPT_SOURCE")"
+  [[ "$SCRIPT_SOURCE" != /* ]] && SCRIPT_SOURCE="$SCRIPT_DIR/$SCRIPT_SOURCE"
+done
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_SOURCE")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+APP_SERVICE="app"
+APP_WORKDIR="/workspaces/project-atlas"
+APP_LOG_DIR="$APP_WORKDIR/tmp/voceive"
+CORE_SERVICES=(postgres redis ai "$APP_SERVICE")
+COMPOSE=()
+
+info() {
+  printf '%s\n' "$1"
+}
+
+ok() {
+  printf '✓ %s\n' "$1"
+}
+
+warn() {
+  printf '! %s\n' "$1"
+}
+
+die() {
+  printf 'Error: %s\n' "$1" >&2
+  exit 1
+}
+
+resolve_compose() {
+  if docker compose version >/dev/null 2>&1; then
+    COMPOSE=(docker compose)
+    return
+  fi
+
+  if command -v docker-compose >/dev/null 2>&1; then
+    COMPOSE=(docker-compose)
+    return
+  fi
+
+  die "Docker Compose is not available. Install docker compose v2 or docker-compose."
+}
+
+compose() {
+  (
+    cd "$ROOT_DIR"
+    "${COMPOSE[@]}" "$@"
+  )
+}
+
+require_docker() {
+  command -v docker >/dev/null 2>&1 || die "Docker is not installed or not on PATH."
+  docker info >/dev/null 2>&1 || die "Docker daemon is not running or not reachable."
+}
+
+have_curl() {
+  command -v curl >/dev/null 2>&1
+}
+
+wait_for() {
+  local name="$1"
+  local check_cmd="$2"
+  local timeout="${3:-60}"
+
+  local i
+  for ((i = 1; i <= timeout; i++)); do
+    if eval "$check_cmd"; then
+      ok "$name ready"
+      return 0
+    fi
+    sleep 1
+  done
+
+  die "$name failed readiness check after ${timeout}s."
+}
+
+in_app() {
+  compose exec -T "$APP_SERVICE" bash -lc "$1"
+}
+
+service_running() {
+  local service="$1"
+  local cid
+  cid="$(compose ps -q "$service" 2>/dev/null || true)"
+
+  if [[ -z "$cid" ]]; then
+    return 1
+  fi
+
+  [[ "$(docker inspect -f '{{.State.Running}}' "$cid" 2>/dev/null || true)" == "true" ]]
+}
+
+app_process_running() {
+  local name="$1"
+  in_app "[ -f '$APP_LOG_DIR/$name.pid' ] && kill -0 \"\$(cat '$APP_LOG_DIR/$name.pid')\" >/dev/null 2>&1"
+}
+
+start_app_process() {
+  local name="$1"
+  local command="$2"
+
+  if app_process_running "$name"; then
+    ok "$name already running"
+    return
+  fi
+
+  in_app "mkdir -p '$APP_LOG_DIR'"
+  in_app "nohup bash -lc '$command' > '$APP_LOG_DIR/$name.log' 2>&1 & echo \$! > '$APP_LOG_DIR/$name.pid'"
+
+  wait_for "$name process" "app_process_running '$name'" 20
+}
+
+stop_app_process() {
+  local name="$1"
+
+  if ! service_running "$APP_SERVICE"; then
+    return
+  fi
+
+  if app_process_running "$name"; then
+    in_app "kill \"\$(cat '$APP_LOG_DIR/$name.pid')\" >/dev/null 2>&1 || true"
+    in_app "for _ in \$(seq 1 10); do kill -0 \"\$(cat '$APP_LOG_DIR/$name.pid')\" >/dev/null 2>&1 || exit 0; sleep 1; done; kill -9 \"\$(cat '$APP_LOG_DIR/$name.pid')\" >/dev/null 2>&1 || true"
+    in_app "rm -f '$APP_LOG_DIR/$name.pid'"
+    ok "$name stopped"
+  fi
+}
+
+prepare_runtime() {
+  info "Preparing local dependencies inside app container..."
+
+  in_app "cd '$APP_WORKDIR/apps/api' && (bundle check >/dev/null || bundle install)"
+  in_app "cd '$APP_WORKDIR/apps/web' && ([ -d node_modules ] || npm ci)"
+  in_app "cd '$APP_WORKDIR/apps/api' && bin/rails db:prepare"
+
+  ok "dependencies and database prepared"
+}
+
+wait_api() {
+  if have_curl; then
+    wait_for "API" "curl -fsS http://localhost:3000/up >/dev/null 2>&1" 90
+  else
+    wait_for "API" "in_app \"curl -fsS http://localhost:3000/up >/dev/null 2>&1\"" 90
+  fi
+}
+
+wait_web() {
+  if have_curl; then
+    wait_for "Frontend" "curl -fsS http://localhost:5173 >/dev/null 2>&1" 90
+  else
+    wait_for "Frontend" "in_app \"curl -fsS http://localhost:5173 >/dev/null 2>&1\"" 90
+  fi
+}
+
+wait_ai() {
+  if have_curl; then
+    wait_for "AI service" "curl -fsS http://localhost:8000/health >/dev/null 2>&1" 60
+  else
+    wait_for "AI service" "compose exec -T ai python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" >/dev/null 2>&1" 60
+  fi
+}
+
+start_cmd() {
+  require_docker
+  resolve_compose
+
+  info "Starting Voceive development environment..."
+  compose up -d "${CORE_SERVICES[@]}"
+
+  wait_for "PostgreSQL" "compose exec -T postgres pg_isready -U atlas -d postgres >/dev/null 2>&1" 60
+  wait_for "Redis" "[[ \"\$(compose exec -T redis redis-cli ping 2>/dev/null | tr -d '\\r')\" == 'PONG' ]]" 60
+  wait_for "AI container" "compose exec -T ai python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" >/dev/null 2>&1" 60
+
+  prepare_runtime
+
+  start_app_process "api" "cd '$APP_WORKDIR/apps/api' && rm -f tmp/pids/server.pid && exec bin/rails server -b 0.0.0.0 -p 3000"
+  start_app_process "jobs" "cd '$APP_WORKDIR/apps/api' && exec bin/jobs"
+  start_app_process "web" "cd '$APP_WORKDIR/apps/web' && VITE_API_BASE_URL=http://localhost:3000/api/v1 exec npm run dev -- --host 0.0.0.0 --port 5173"
+
+  wait_api
+  wait_web
+  wait_ai
+
+  printf '\nVoceive development environment is running.\n\n'
+  printf 'Frontend: http://localhost:5173\n'
+  printf 'API:      http://localhost:3000\n'
+  printf 'API up:   http://localhost:3000/up\n'
+  printf 'AI:       http://localhost:8000/health\n\n'
+  printf 'Tip: Use ./bin/voceive logs to stream app logs.\n'
+}
+
+stop_cmd() {
+  require_docker
+  resolve_compose
+
+  info "Stopping Voceive development environment..."
+
+  stop_app_process "web"
+  stop_app_process "jobs"
+  stop_app_process "api"
+
+  compose stop "${CORE_SERVICES[@]}" >/dev/null
+  ok "containers stopped"
+}
+
+status_cmd() {
+  require_docker
+  resolve_compose
+
+  info "Container status:"
+  compose ps
+
+  if service_running "$APP_SERVICE"; then
+    printf '\nApp processes:\n'
+
+    if app_process_running "api"; then
+      ok "api running"
+    else
+      warn "api not running"
+    fi
+
+    if app_process_running "jobs"; then
+      ok "jobs running"
+    else
+      warn "jobs not running"
+    fi
+
+    if app_process_running "web"; then
+      ok "web running"
+    else
+      warn "web not running"
+    fi
+  else
+    printf '\nApp processes:\n'
+    warn "app container is not running"
+  fi
+}
+
+restart_cmd() {
+  stop_cmd
+  start_cmd
+}
+
+logs_cmd() {
+  require_docker
+  resolve_compose
+
+  local target="${1:-app}"
+
+  case "$target" in
+    app)
+      service_running "$APP_SERVICE" || die "app container is not running."
+      info "Streaming app logs (api/jobs/web)..."
+      in_app "mkdir -p '$APP_LOG_DIR' && touch '$APP_LOG_DIR/api.log' '$APP_LOG_DIR/jobs.log' '$APP_LOG_DIR/web.log' && tail -n 150 -f '$APP_LOG_DIR/api.log' '$APP_LOG_DIR/jobs.log' '$APP_LOG_DIR/web.log'"
+      ;;
+    api|jobs|web)
+      service_running "$APP_SERVICE" || die "app container is not running."
+      info "Streaming $target logs..."
+      in_app "mkdir -p '$APP_LOG_DIR' && touch '$APP_LOG_DIR/$target.log' && tail -n 150 -f '$APP_LOG_DIR/$target.log'"
+      ;;
+    infra)
+      info "Streaming infrastructure logs (postgres/redis/ai)..."
+      compose logs -f postgres redis ai
+      ;;
+    *)
+      info "Streaming compose logs for: $*"
+      compose logs -f "$@"
+      ;;
+  esac
+}
+
+usage() {
+  cat <<'EOF'
+Usage: ./bin/voceive <command>
+
+Commands:
+  start            Start full local development stack
+  stop             Stop local development stack
+  restart          Restart local development stack
+  status           Show container and process status
+  logs [target]    Stream logs (target: app|api|jobs|web|infra|<compose service>)
+EOF
+}
+
+main() {
+  local cmd="${1:-}"
+  shift || true
+
+  case "$cmd" in
+    start)
+      start_cmd
+      ;;
+    stop)
+      stop_cmd
+      ;;
+    restart)
+      restart_cmd
+      ;;
+    status)
+      status_cmd
+      ;;
+    logs)
+      logs_cmd "$@"
+      ;;
+    ""|-h|--help|help)
+      usage
+      ;;
+    *)
+      usage
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"
