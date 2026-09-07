@@ -1,0 +1,33 @@
+# examples:
+#   periodic_cleanup:
+#     class: CleanSoftDeletedRecordsJob
+#     queue: background
+#     args: [ 1000, { batch_size: 500 } ]
+#     schedule: every hour
+#   periodic_cleanup_with_command:
+#     command: "SoftDeletedRecord.due.delete_all"
+#     priority: 2
+#     schedule: at 5am every day
+
+# Recover AI analyses and uploads stuck in "processing" due to worker crashes.
+# Runs every 5 minutes in all environments. Safe to run concurrently.
+recover_stale_jobs:
+  class: RecoverStaleJobsJob
+  schedule: every 5 minutes
+
+# Clean up AI usage records older than the retention period (default: 12 months).
+# Runs daily at 3:00 AM. Operates in batches, idempotent.
+cleanup_ai_usage_records:
+  class: CleanupAiUsageRecordsJob
+  schedule: at 3am every day
+
+# Recover stale AI quota reservations from crashed processes.
+# Runs every 2 minutes. Resets reservations older than the configured threshold.
+recover_stale_reservations:
+  class: RecoverStaleReservationsJob
+  schedule: every 2 minutes
+
+production:
+  clear_solid_queue_finished_jobs:
+    command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
+    schedule: every hour at minute 12

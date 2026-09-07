@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-Project Atlas is an AI-powered SaaS platform that transforms customer support tickets into actionable business intelligence. Instead of replacing existing help desk solutions, Atlas complements them by extracting trends, insights, and recommendations from customer conversations.
+Voceive is an AI-powered SaaS platform that transforms customer support tickets into actionable business intelligence. Instead of replacing existing help desk solutions, Voceive complements them by extracting trends, insights, and recommendations from customer conversations.
 
 ---
 

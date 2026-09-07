@@ -2,7 +2,7 @@
 
 ## Overview
 
-Project Atlas revolves around organizations analyzing customer support conversations to generate AI-powered business insights.
+Voceive revolves around organizations analyzing customer support conversations to generate AI-powered business insights.
 
 ---
 
@@ -24,12 +24,10 @@ Relationships
 
 Organization
 
-├── Users
-
+├── Memberships
+├── Users through Memberships
 ├── Uploads
-
 ├── Reports
-
 └── Knowledge Suggestions
 
 
@@ -51,6 +49,26 @@ Relationships
 
 User
 
+has_many Memberships
+has_many Organizations through Memberships
+
+---
+
+## Membership
+
+Represents a user's relationship with an organization.
+
+Responsibilities
+
+- Organization membership
+- Role
+- Access control
+
+Relationships
+
+Membership
+
+belongs_to User
 belongs_to Organization
 
 

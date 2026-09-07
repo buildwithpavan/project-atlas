@@ -1,0 +1,1527 @@
+openapi: 3.1.0
+info:
+  title: Voceive API
+  description: |
+    AI-powered SaaS platform that transforms customer support tickets into
+    actionable business intelligence. Upload CSV support tickets, get AI-driven
+    analysis, and view aggregated insights via dashboard and reports.
+  version: 1.0.0
+  contact:
+    name: Voceive
+  license:
+    name: MIT
+
+servers:
+  - url: /api/v1
+    description: API v1
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Health
+    description: Service health check
+  - name: Authentication
+    description: User registration, login, token management
+  - name: Uploads
+    description: CSV file upload and processing
+  - name: Tickets
+    description: Support ticket listing and detail
+  - name: Dashboard
+    description: Aggregated ticket and analysis metrics
+  - name: Reports
+    description: Comprehensive organization reports
+  - name: Conversations
+    description: AI conversation management
+  - name: Messages
+    description: AI chat messages (RAG pipeline)
+  - name: AI Operations
+    description: AI quota, usage reporting, and health monitoring
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      description: Returns service status. No authentication required.
+      security: []
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [service, version, timestamp]
+                properties:
+                  service:
+                    type: string
+                    example: voceive-api
+                  version:
+                    type: string
+                    example: v1
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a new user and organization
+      description: |
+        Creates a new user, organization, and owner membership in a single
+        transaction. Does not return authentication tokens — the user must
+        call POST /auth/login after registration.
+      security: []
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, last_name, email, password, password_confirmation, organization_name]
+              properties:
+                first_name:
+                  type: string
+                  example: Jane
+                last_name:
+                  type: string
+                  example: Doe
+                email:
+                  type: string
+                  format: email
+                  example: jane@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                password_confirmation:
+                  type: string
+                  format: password
+                organization_name:
+                  type: string
+                  example: Acme Inc
+      responses:
+        "201":
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [user, organization]
+                    properties:
+                      user:
+                        $ref: "#/components/schemas/User"
+                      organization:
+                        $ref: "#/components/schemas/Organization"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Authenticate and obtain tokens
+      description: |
+        Authenticates with email and password. Returns a JWT access token
+        and an opaque refresh token.
+      security: []
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: jane@example.com
+                password:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AuthTokens"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Rotate refresh token
+      description: |
+        Exchanges a valid refresh token for a new access token and a new
+        refresh token. The old refresh token is revoked. Reuse of a
+        previously rotated token triggers family-wide revocation
+        (reuse detection).
+      security: []
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+                  description: Opaque refresh token from login or previous refresh
+      responses:
+        "200":
+          description: Token refresh successful
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AuthTokens"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Logout and revoke refresh token family
+      description: |
+        Revokes the entire refresh token family associated with the
+        provided token. All tokens in the family become invalid.
+      security: []
+      operationId: logout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        "204":
+          description: Logout successful
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /uploads:
+    post:
+      tags: [Uploads]
+      summary: Upload a CSV file for ticket ingestion
+      description: |
+        Uploads a CSV file containing support tickets. The file is stored
+        via Active Storage and processed asynchronously by ProcessUploadJob.
+        Each valid row creates a Ticket and a pending AiAnalysis record,
+        then enqueues AnalyzeTicketJob.
+      operationId: createUpload
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "CSV file (max 25 MB). Required header: subject. Optional headers: description, customer_name, customer_email, priority, status, category."
+      responses:
+        "201":
+          description: Upload created and processing enqueued
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Upload"
+        "400":
+          description: Missing required file parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /documents:
+    get:
+      tags: [Documents]
+      summary: List documents
+      description: |
+        Returns a paginated list of documents for the current organization,
+        ordered by creation date descending.
+      operationId: listDocuments
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+      responses:
+        "200":
+          description: Paginated list of documents
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Document"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Documents]
+      summary: Upload a document for RAG
+      description: |
+        Uploads a document file for processing and use in RAG-powered
+        conversations. The file is stored, then asynchronously processed:
+        text extraction → chunking → embedding. Duplicate documents
+        (by SHA-256 checksum) are rejected per organization.
+      operationId: createDocument
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "Document file (max 50 MB). Supported types: PDF, TXT, Markdown, CSV."
+                title:
+                  type: string
+                  description: Optional title. Defaults to the original filename.
+      responses:
+        "201":
+          description: Document created and processing enqueued
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Document"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /documents/{documentId}:
+    get:
+      tags: [Documents]
+      summary: Show document details
+      operationId: showDocument
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Document details
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Document"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Documents]
+      summary: Delete a document
+      description: |
+        Permanently deletes a document and all its chunks. Requires manage
+        permission (admin or owner).
+      operationId: deleteDocument
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Document deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /documents/{documentId}/reprocess:
+    post:
+      tags: [Documents]
+      summary: Reprocess a document
+      description: |
+        Resets a document to pending status and re-enqueues it for processing.
+        Cannot reprocess a document that is currently being processed.
+        Requires manage permission (admin or owner).
+      operationId: reprocessDocument
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Document queued for reprocessing
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Document"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /tickets:
+    get:
+      tags: [Tickets]
+      summary: List tickets
+      description: |
+        Returns a paginated list of tickets belonging to the authenticated
+        user's organization. Supports text search across subject,
+        description, and customer_name. Supports filtering by status,
+        priority, and category. Ordered by created_at descending.
+      operationId: listTickets
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - name: search
+          in: query
+          description: Case-insensitive search across subject, description, and customer_name
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by ticket status
+          schema:
+            type: string
+        - name: priority
+          in: query
+          description: Filter by ticket priority
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter by ticket category
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated ticket list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Ticket"
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /tickets/{id}:
+    get:
+      tags: [Tickets]
+      summary: Get ticket detail
+      description: |
+        Returns a single ticket with full details including description,
+        upload_id, and the associated AI analysis if one exists.
+        Returns 404 if the ticket does not exist or belongs to another
+        organization (prevents enumeration).
+      operationId: getTicket
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Ticket UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Ticket detail
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TicketDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /dashboard:
+    get:
+      tags: [Dashboard]
+      summary: Get dashboard metrics
+      description: |
+        Returns aggregated ticket and AI analysis metrics for the
+        authenticated user's organization. AI-derived metrics use only
+        completed analyses.
+      operationId: getDashboard
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Dashboard"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /reports:
+    get:
+      tags: [Reports]
+      summary: Get organization report
+      description: |
+        Returns a comprehensive report of the organization's ticket data
+        and AI analysis results. Includes ticket counts, sentiment and
+        category distributions, AI classifications, status and priority
+        distributions, and a monthly timeline. Computed in real-time
+        from current data using database aggregation. AI-derived metrics
+        use only completed analyses.
+      operationId: getReport
+      responses:
+        "200":
+          description: Organization report
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Report"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /reports/executive-summary:
+    get:
+      tags: [Reports]
+      summary: Get executive summary
+      description: |
+        Returns the most recent AI-generated executive summary for the
+        organization. Includes a staleness indicator when new analyses
+        have been completed since the summary was generated.
+      operationId: getExecutiveSummary
+      responses:
+        "200":
+          description: Executive summary
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ExecutiveSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+        - BearerAuth: []
+    post:
+      tags: [Reports]
+      summary: Generate executive summary
+      description: |
+        Generates an AI-powered executive intelligence summary by
+        synthesizing all completed ticket analyses. Requires at least
+        one completed analysis. Replaces any existing summary for the
+        organization.
+      operationId: generateExecutiveSummary
+      responses:
+        "201":
+          description: Executive summary generated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ExecutiveSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "503":
+          description: AI provider unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      security:
+        - BearerAuth: []
+
+  /conversations:
+    get:
+      tags: [Conversations]
+      summary: List conversations
+      operationId: listConversations
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+      responses:
+        "200":
+          description: Paginated list of conversations
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        title:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+                        updated_at:
+                          type: string
+                          format: date-time
+                  meta:
+                    $ref: "#/components/schemas/PaginationMeta"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Conversations]
+      summary: Create a conversation
+      operationId: createConversation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                conversation:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+      responses:
+        "201":
+          description: Conversation created
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /conversations/{conversationId}:
+    get:
+      tags: [Conversations]
+      summary: Show conversation details
+      operationId: showConversation
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Conversation details with messages
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Conversations]
+      summary: Delete a conversation
+      operationId: deleteConversation
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Conversation deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /conversations/{conversationId}/messages:
+    post:
+      tags: [Messages]
+      summary: Send a message to the AI assistant
+      description: |
+        Sends a user message and returns the AI assistant's response.
+        Supports idempotency via the Idempotency-Key header.
+        Subject to per-user rate limiting (20 req/min) and organization quotas.
+      operationId: createMessage
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: false
+          description: Unique key to ensure exactly-once delivery
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message:
+                  type: object
+                  required: [content]
+                  properties:
+                    content:
+                      type: string
+                      maxLength: 10000
+      responses:
+        "201":
+          description: Message created with AI response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      role:
+                        type: string
+                        enum: [assistant]
+                      content:
+                        type: string
+                      ai_model:
+                        type: string
+                      input_tokens:
+                        type: integer
+                      output_tokens:
+                        type: integer
+                      latency_ms:
+                        type: integer
+                      citations:
+                        type: array
+                        items:
+                          type: object
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "429":
+          description: Rate limit exceeded or AI quota exceeded
+
+  /ai/quota:
+    get:
+      tags: [AI Operations]
+      summary: View AI quota status
+      description: Returns current quota configuration, usage, and remaining capacity.
+      operationId: getAiQuota
+      responses:
+        "200":
+          description: Quota status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      ai_monthly_token_limit:
+                        type: integer
+                        nullable: true
+                        description: Max tokens per month (null = unlimited)
+                      ai_monthly_cost_limit:
+                        type: number
+                        nullable: true
+                        description: Max cost in USD per month (null = unlimited)
+                      ai_quota_reserved_tokens:
+                        type: integer
+                        description: Currently reserved tokens (in-flight requests)
+                      period:
+                        type: string
+                        description: Current period (YYYY-MM)
+                        example: "2026-08"
+                      current_month:
+                        type: object
+                        properties:
+                          tokens_used:
+                            type: integer
+                          cost_used:
+                            type: number
+                          tokens_remaining:
+                            type: integer
+                            nullable: true
+                          cost_remaining:
+                            type: number
+                            nullable: true
+                          token_percentage_used:
+                            type: number
+                            nullable: true
+                          cost_percentage_used:
+                            type: number
+                            nullable: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    patch:
+      tags: [AI Operations]
+      summary: Update AI quota limits
+      description: Admin+ only. Set token and/or cost limits. Pass null to remove a limit.
+      operationId: updateAiQuota
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quota]
+              properties:
+                quota:
+                  type: object
+                  properties:
+                    ai_monthly_token_limit:
+                      type: integer
+                      nullable: true
+                    ai_monthly_cost_limit:
+                      type: number
+                      nullable: true
+      responses:
+        "200":
+          description: Updated quota status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /ai/usage:
+    get:
+      tags: [AI Operations]
+      summary: AI usage report
+      description: |
+        Returns token/cost usage with breakdowns by operation, model, user, and day.
+        Supports period filtering via query parameters.
+      operationId: getAiUsage
+      parameters:
+        - name: period
+          in: query
+          required: false
+          description: "Month to report on. 'previous' for last month, or YYYY-MM format."
+          schema:
+            type: string
+            example: "2026-08"
+        - name: start_date
+          in: query
+          required: false
+          description: Start of custom date range (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: false
+          description: End of custom date range (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Usage report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      period:
+                        type: string
+                      tokens:
+                        type: object
+                        properties:
+                          used:
+                            type: integer
+                          limit:
+                            type: integer
+                            nullable: true
+                          remaining:
+                            type: integer
+                            nullable: true
+                          percentage_used:
+                            type: number
+                            nullable: true
+                      cost:
+                        type: object
+                        properties:
+                          used:
+                            type: number
+                          limit:
+                            type: number
+                            nullable: true
+                          remaining:
+                            type: number
+                            nullable: true
+                          percentage_used:
+                            type: number
+                            nullable: true
+                      prompt_tokens:
+                        type: integer
+                      completion_tokens:
+                        type: integer
+                      request_count:
+                        type: integer
+                      average_latency_ms:
+                        type: number
+                      by_operation:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            operation:
+                              type: string
+                            total_tokens:
+                              type: integer
+                            prompt_tokens:
+                              type: integer
+                            completion_tokens:
+                              type: integer
+                            estimated_cost:
+                              type: number
+                            request_count:
+                              type: integer
+                            average_latency_ms:
+                              type: number
+                      by_model:
+                        type: array
+                        items:
+                          type: object
+                      by_user:
+                        type: array
+                        items:
+                          type: object
+                      by_day:
+                        type: array
+                        items:
+                          type: object
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /ai/health:
+    get:
+      tags: [AI Operations]
+      summary: AI health status
+      description: |
+        Lightweight operational status check. Does NOT call the AI provider.
+        Checks configuration, quota status, and returns current operational state.
+      operationId: getAiHealth
+      responses:
+        "200":
+          description: AI health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        enum: [operational, configuration_missing, quota_exceeded]
+                      message:
+                        type: string
+                      configuration_valid:
+                        type: boolean
+                      checked_at:
+                        type: string
+                        format: date-time
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token obtained from POST /auth/login or POST /auth/refresh
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Page number (minimum 1)
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PerPage:
+      name: per_page
+      in: query
+      description: Items per page (1–100)
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+
+  responses:
+    Unauthorized:
+      description: Authentication failed or missing
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+          example:
+            type: /errors/unauthorized
+            title: Unauthorized
+            status: 401
+            detail: Missing authorization header
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+          example:
+            type: /errors/not-found
+            title: Resource Not Found
+            status: 404
+            detail: Ticket not found
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+          example:
+            type: /errors/forbidden
+            title: Forbidden
+            status: 403
+            detail: You do not have permission to perform this action
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationProblemDetail"
+          example:
+            type: /errors/validation
+            title: Validation Error
+            status: 422
+            detail: User validation failed
+            errors:
+              email:
+                - has already been taken
+
+  schemas:
+    ProblemDetail:
+      type: object
+      description: RFC 9457 Problem Details response
+      required: [type, title, status, detail]
+      properties:
+        type:
+          type: string
+          description: Problem type URI
+          example: /errors/unauthorized
+        title:
+          type: string
+          description: Short human-readable summary
+          example: Unauthorized
+        status:
+          type: integer
+          description: HTTP status code
+          example: 401
+        detail:
+          type: string
+          description: Human-readable explanation
+          example: Missing authorization header
+
+    ValidationProblemDetail:
+      allOf:
+        - $ref: "#/components/schemas/ProblemDetail"
+        - type: object
+          properties:
+            errors:
+              type: object
+              description: Field-level validation errors
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+              example:
+                email:
+                  - has already been taken
+
+    User:
+      type: object
+      required: [id, email, first_name, last_name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+
+    Organization:
+      type: object
+      required: [id, name, slug]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+
+    AuthTokens:
+      type: object
+      required: [access_token, refresh_token, expires_in]
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+        refresh_token:
+          type: string
+          description: Opaque refresh token for rotation
+        expires_in:
+          type: integer
+          description: Access token lifetime in seconds
+          example: 3600
+
+    Upload:
+      type: object
+      required: [id, filename, status, total_records, processed_records, failed_records, created_at, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        filename:
+          type: string
+          example: tickets.csv
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        total_records:
+          type: [integer, "null"]
+        processed_records:
+          type: integer
+        failed_records:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Document:
+      type: object
+      required: [id, title, filename, content_type, file_size, status, created_at, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        filename:
+          type: string
+          example: handbook.pdf
+        content_type:
+          type: string
+          enum: [application/pdf, text/plain, text/markdown, text/csv, text/x-markdown]
+        file_size:
+          type: integer
+          description: File size in bytes
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        error_message:
+          type: [string, "null"]
+        checksum:
+          type: [string, "null"]
+          description: SHA-256 digest of file content
+        chunk_count:
+          type: integer
+          description: Number of text chunks after processing
+        uploaded_by:
+          oneOf:
+            - type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                email:
+                  type: string
+                  format: email
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+            - type: "null"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Ticket:
+      type: object
+      description: Ticket summary (list view)
+      required: [id, subject, created_at, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        subject:
+          type: string
+        status:
+          type: [string, "null"]
+        priority:
+          type: [string, "null"]
+        category:
+          type: [string, "null"]
+        customer_name:
+          type: [string, "null"]
+        customer_email:
+          type: [string, "null"]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    TicketDetail:
+      allOf:
+        - $ref: "#/components/schemas/Ticket"
+        - type: object
+          required: [upload_id]
+          properties:
+            description:
+              type: [string, "null"]
+            upload_id:
+              type: string
+              format: uuid
+            ai_analysis:
+              oneOf:
+                - $ref: "#/components/schemas/AiAnalysis"
+                - type: "null"
+
+    AiAnalysis:
+      type: object
+      required: [id, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        sentiment:
+          type: [string, "null"]
+          enum: [positive, negative, neutral, mixed]
+        summary:
+          type: [string, "null"]
+        category:
+          type: [string, "null"]
+        confidence:
+          type: [number, "null"]
+          format: float
+          minimum: 0
+          maximum: 1
+        feature_request:
+          type: [boolean, "null"]
+        bug_report:
+          type: [boolean, "null"]
+        knowledge_gap:
+          type: [boolean, "null"]
+        processed_at:
+          type: [string, "null"]
+          format: date-time
+
+    PaginationMeta:
+      type: object
+      required: [page, per_page, total, total_pages]
+      properties:
+        page:
+          type: integer
+          example: 1
+        per_page:
+          type: integer
+          example: 25
+        total:
+          type: integer
+          example: 42
+        total_pages:
+          type: integer
+          example: 2
+
+    Dashboard:
+      type: object
+      required: [total_tickets, analyzed_tickets, sentiment_distribution, top_categories, feature_requests, bug_reports]
+      properties:
+        total_tickets:
+          type: integer
+        analyzed_tickets:
+          type: integer
+        sentiment_distribution:
+          type: object
+          description: "Count by sentiment (e.g. {\"negative\": 5, \"positive\": 3})"
+          additionalProperties:
+            type: integer
+        top_categories:
+          type: object
+          description: "Top 10 categories by count, ordered descending"
+          additionalProperties:
+            type: integer
+        feature_requests:
+          type: integer
+        bug_reports:
+          type: integer
+
+    ExecutiveSummary:
+      type: object
+      required: [id, summary, key_findings, attention_items, recommended_actions, analyzed_ticket_count, generated_at, stale]
+      properties:
+        id:
+          type: string
+          format: uuid
+        summary:
+          type: string
+          description: Executive overview text
+        key_findings:
+          type: array
+          items:
+            $ref: "#/components/schemas/KeyFinding"
+          maxItems: 5
+        attention_items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttentionItem"
+          maxItems: 5
+        recommended_actions:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecommendedAction"
+          maxItems: 5
+        analyzed_ticket_count:
+          type: integer
+        generated_at:
+          type: string
+          format: date-time
+        stale:
+          type: boolean
+          description: True when new analyses exist since this summary was generated
+
+    KeyFinding:
+      type: object
+      required: [title, description, evidence_count]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        evidence_count:
+          type: integer
+          minimum: 0
+        category:
+          type: string
+          nullable: true
+
+    AttentionItem:
+      type: object
+      required: [title, description, priority, evidence_count]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [high, medium, low]
+        evidence_count:
+          type: integer
+          minimum: 0
+
+    RecommendedAction:
+      type: object
+      required: [title, description, evidence_count]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        evidence_count:
+          type: integer
+          minimum: 0
+
+    Report:
+      type: object
+      required: [metadata, tickets, sentiment, categories, classifications, status_distribution, priority_distribution, timeline]
+      properties:
+        metadata:
+          type: object
+          required: [generated_at, organization_name]
+          properties:
+            generated_at:
+              type: string
+              format: date-time
+            organization_name:
+              type: string
+        tickets:
+          type: object
+          required: [total, analyzed, unanalyzed]
+          properties:
+            total:
+              type: integer
+            analyzed:
+              type: integer
+            unanalyzed:
+              type: integer
+        sentiment:
+          type: object
+          required: [distribution, percentages]
+          properties:
+            distribution:
+              type: object
+              additionalProperties:
+                type: integer
+            percentages:
+              type: object
+              additionalProperties:
+                type: number
+                format: float
+        categories:
+          type: object
+          required: [distribution, top]
+          properties:
+            distribution:
+              type: object
+              description: All categories by count, ordered descending
+              additionalProperties:
+                type: integer
+            top:
+              type: object
+              description: Top 10 categories
+              additionalProperties:
+                type: integer
+        classifications:
+          type: object
+          required: [feature_requests, bug_reports, knowledge_gaps]
+          properties:
+            feature_requests:
+              type: integer
+            bug_reports:
+              type: integer
+            knowledge_gaps:
+              type: integer
+        status_distribution:
+          type: object
+          description: Ticket count by status
+          additionalProperties:
+            type: integer
+        priority_distribution:
+          type: object
+          description: Ticket count by priority
+          additionalProperties:
+            type: integer
+        timeline:
+          type: object
+          description: "Monthly ticket counts keyed by YYYY-MM"
+          additionalProperties:
+            type: integer

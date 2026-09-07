@@ -1,0 +1,105 @@
+@import "tailwindcss";
+@import "./assets/tokens.css";
+
+/*
+ * Tailwind v4 theme integration.
+ *
+ * Maps Voceive design tokens to Tailwind utility classes so that
+ * components use semantic names like `bg-voceive-surface` or
+ * `text-voceive-brand` instead of arbitrary hex values.
+ */
+@theme {
+  /* Brand */
+  --color-voceive-brand: var(--voceive-brand);
+  --color-voceive-brand-hover: var(--voceive-brand-hover);
+  --color-voceive-brand-active: var(--voceive-brand-active);
+  --color-voceive-brand-subtle: var(--voceive-brand-subtle);
+
+  --color-voceive-accent: var(--voceive-accent);
+  --color-voceive-accent-hover: var(--voceive-accent-hover);
+  --color-voceive-accent-subtle: var(--voceive-accent-subtle);
+
+  /* AI */
+  --color-voceive-ai: var(--voceive-ai);
+  --color-voceive-ai-subtle: var(--voceive-ai-subtle);
+
+  /* Surfaces */
+  --color-voceive-background: var(--voceive-background);
+  --color-voceive-surface: var(--voceive-surface);
+  --color-voceive-surface-elevated: var(--voceive-surface-elevated);
+  --color-voceive-surface-muted: var(--voceive-surface-muted);
+
+  /* Typography colors */
+  --color-voceive-text-primary: var(--voceive-text-primary);
+  --color-voceive-text-secondary: var(--voceive-text-secondary);
+  --color-voceive-text-muted: var(--voceive-text-muted);
+  --color-voceive-text-disabled: var(--voceive-text-disabled);
+
+  /* Borders */
+  --color-voceive-border: var(--voceive-border);
+  --color-voceive-border-subtle: var(--voceive-border-subtle);
+  --color-voceive-border-strong: var(--voceive-border-strong);
+
+  /* Semantic */
+  --color-voceive-success: var(--voceive-success);
+  --color-voceive-success-subtle: var(--voceive-success-subtle);
+  --color-voceive-warning: var(--voceive-warning);
+  --color-voceive-warning-subtle: var(--voceive-warning-subtle);
+  --color-voceive-error: var(--voceive-error);
+  --color-voceive-error-subtle: var(--voceive-error-subtle);
+  --color-voceive-info: var(--voceive-info);
+  --color-voceive-info-subtle: var(--voceive-info-subtle);
+
+  /* Chart palette */
+  --color-voceive-chart-1: var(--voceive-chart-1);
+  --color-voceive-chart-2: var(--voceive-chart-2);
+  --color-voceive-chart-3: var(--voceive-chart-3);
+  --color-voceive-chart-4: var(--voceive-chart-4);
+  --color-voceive-chart-5: var(--voceive-chart-5);
+  --color-voceive-chart-6: var(--voceive-chart-6);
+  --color-voceive-chart-7: var(--voceive-chart-7);
+  --color-voceive-chart-8: var(--voceive-chart-8);
+
+  /* Focus ring */
+  --color-voceive-ring: var(--voceive-ring);
+
+  /* Shadows */
+  --shadow-voceive-sm: var(--voceive-shadow-sm);
+  --shadow-voceive: var(--voceive-shadow);
+  --shadow-voceive-md: var(--voceive-shadow-md);
+  --shadow-voceive-lg: var(--voceive-shadow-lg);
+
+  /* Border radius */
+  --radius-voceive-sm: var(--voceive-radius-sm);
+  --radius-voceive: var(--voceive-radius);
+  --radius-voceive-md: var(--voceive-radius-md);
+  --radius-voceive-lg: var(--voceive-radius-lg);
+  --radius-voceive-full: var(--voceive-radius-full);
+
+  /* Font families */
+  --font-sans: var(--voceive-font-sans);
+  --font-mono: var(--voceive-font-mono);
+}
+
+/*
+ * Base styles
+ */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--voceive-font-sans);
+  color: var(--voceive-text-primary);
+  background-color: var(--voceive-background);
+  line-height: var(--voceive-leading-normal);
+}
+
+/*
+ * Focus ring utility — visible, accessible focus for keyboard users.
+ */
+.voceive-focus-ring:focus-visible {
+  outline: 2px solid var(--voceive-ring);
+  outline-offset: var(--voceive-ring-offset);
+}

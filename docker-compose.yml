@@ -1,0 +1,85 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+
+    volumes:
+      - .:/workspaces/project-atlas:cached
+      - bundle_cache:/usr/local/bundle
+
+    command: sleep infinity
+
+    ports:
+      - "3000:3000"
+      - "5173:5173"
+
+    environment:
+      AI_PROVIDER: atlas
+      AI_SERVICE_URL: http://ai:8000
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.6-luna}
+
+    depends_on:
+      - postgres
+      - redis
+
+    networks:
+      default:
+        ipv4_address: 172.19.0.5
+
+  postgres:
+    image: pgvector/pgvector:pg17
+
+    container_name: voceive-postgres
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: atlas
+      POSTGRES_PASSWORD: atlas
+      POSTGRES_DB: postgres
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+
+    container_name: voceive-redis
+
+    restart: unless-stopped
+
+    volumes:
+      - redis_data:/data
+
+  ai:
+    build:
+      context: apps/ai
+      dockerfile: Dockerfile
+
+    container_name: voceive-ai
+
+    restart: unless-stopped
+
+    environment:
+      ENVIRONMENT: development
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.6-luna}
+
+    ports:
+      - "8000:8000"
+
+    expose:
+      - "8000"
+
+volumes:
+  postgres_data:
+  redis_data:
+  bundle_cache:
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16

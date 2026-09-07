@@ -1,0 +1,38 @@
+{
+  "name": "Voceive",
+
+  "dockerComposeFile": "../docker-compose.yml",
+
+  "service": "app",
+
+  "workspaceFolder": "/workspaces/project-atlas",
+
+  "remoteUser": "vscode",
+
+  "shutdownAction": "stopCompose",
+
+  "features": {
+    "ghcr.io/devcontainers/features/ruby:1": {
+      "version": "3.4"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "Shopify.ruby-lsp",
+        "Vue.volar",
+        "ms-python.python",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens"
+      ]
+    }
+  }
+}
